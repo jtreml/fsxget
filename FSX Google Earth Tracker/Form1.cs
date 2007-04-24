@@ -24,11 +24,11 @@ namespace FSX_Google_Earth_Tracker
 	{
 		#region Global Variables
 
-        bool bErrorOnLoad = false;
+		bool bErrorOnLoad = false;
 
-        String szAppPath = "";
-        //String szCommonPath = "";
-        String szUserAppPath = "";
+		String szAppPath = "";
+		//String szCommonPath = "";
+		String szUserAppPath = "";
 
 		String szFilePathPub = "";
 		String szFilePathData = "";
@@ -315,7 +315,7 @@ namespace FSX_Google_Earth_Tracker
 		struct ListBoxPredictionTimesItem
 		{
 			public double dTime;
-			
+
 			public override String ToString()
 			{
 				if (dTime < 60)
@@ -356,7 +356,7 @@ namespace FSX_Google_Earth_Tracker
 
 			InitializeComponent();
 
-			
+
 			Text = AssemblyTitle;
 
 
@@ -367,11 +367,11 @@ namespace FSX_Google_Earth_Tracker
 			this.labelCompanyName.Text = AssemblyCompany;
 
 
-            // Set file path
+			// Set file path
 #if DEBUG
-            szAppPath = Application.StartupPath + "\\..\\..";
-            //szCommonPath = szAppPath + "\\Common Files Folder";
-            szUserAppPath = szAppPath + "\\User's Application Data Folder";
+			szAppPath = Application.StartupPath + "\\..\\..";
+			//szCommonPath = szAppPath + "\\Common Files Folder";
+			szUserAppPath = szAppPath + "\\User's Application Data Folder";
 #else
             szAppPath = Application.StartupPath;
 			//szAppPath = Application.StartupPath + "\\..\\..";
@@ -383,7 +383,7 @@ namespace FSX_Google_Earth_Tracker
 			szFilePathPub = szAppPath + "\\pub";
 			szFilePathData = szAppPath + "\\data";
 
-            // Check if config file for current user exists
+			// Check if config file for current user exists
 			if (!File.Exists(szUserAppPath + "\\settings.cfg"))
 			{
 				if (!Directory.Exists(szUserAppPath))
@@ -393,11 +393,54 @@ namespace FSX_Google_Earth_Tracker
 			}
 
 			// Load config file into memory
-            xmlrSeetingsFile = new XmlTextReader(szUserAppPath + "\\settings.cfg");
+			xmlrSeetingsFile = new XmlTextReader(szUserAppPath + "\\settings.cfg");
 			xmldSettings = new XmlDocument();
 			xmldSettings.Load(xmlrSeetingsFile);
 			xmlrSeetingsFile.Close();
 			xmlrSeetingsFile = null;
+
+			// Make sure we have a config file for the right version
+			// (future version should contain better checks and update from old config files to new version)
+			String szConfigVersion = "";
+			bool bUpdate = false;
+			try
+			{
+				szConfigVersion = xmldSettings["fsxget"]["settings"].Attributes["version"].Value.ToLower();
+			}
+			catch
+			{
+				bUpdate = true;
+			}
+
+			xmlrSeetingsFile = new XmlTextReader(szAppPath + "\\data\\settings.default");
+			XmlDocument xmldSettingsDefault = new XmlDocument();
+			xmldSettingsDefault.Load(xmlrSeetingsFile);
+			xmlrSeetingsFile.Close();
+			xmlrSeetingsFile = null;
+
+			String szConfigDefaultVersion = xmldSettingsDefault["fsxget"]["settings"].Attributes["version"].Value.ToLower();
+
+			if (bUpdate || !szConfigVersion.Equals(szConfigDefaultVersion))
+			{
+				try
+				{
+					File.Delete(szUserAppPath + "\\settings.cfg");
+					File.Copy(szAppPath + "\\data\\settings.default", szUserAppPath + "\\settings.cfg");
+
+					xmlrSeetingsFile = new XmlTextReader(szUserAppPath + "\\settings.cfg");
+					xmldSettings = new XmlDocument();
+					xmldSettings.Load(xmlrSeetingsFile);
+					xmlrSeetingsFile.Close();
+					xmlrSeetingsFile = null;
+				}
+				catch
+				{
+					MessageBox.Show("The config file for this program cannot be updated. Aborting!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					bErrorOnLoad = true;
+					return;
+				}
+			}
+
 
 
 			// Mirror values we need from config file in memory to variables
@@ -1391,7 +1434,7 @@ namespace FSX_Google_Earth_Tracker
 				throw new System.Exception("Wrong coordinate format!");
 			}
 
-			
+
 			double d1 = System.Double.Parse(szParts[0], System.Globalization.NumberFormatInfo.InvariantInfo);
 			int iSign = Math.Sign(d1);
 			d1 = Math.Abs(d1);
@@ -1678,13 +1721,13 @@ namespace FSX_Google_Earth_Tracker
 				{
 					bContentSet = true;
 					szHeader = "application/vnd.google-earth.kml+xml";
-                    buffer = System.Text.Encoding.UTF8.GetBytes(KmlGenFile(KML_FILES.REQUEST_USER_PATH, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserPath, request.UserHostName));
+					buffer = System.Text.Encoding.UTF8.GetBytes(KmlGenFile(KML_FILES.REQUEST_USER_PATH, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserPath, request.UserHostName));
 				}
 				else if (request.Url.PathAndQuery.ToLower() == "/fsxpre.kml")
 				{
 					bContentSet = true;
 					szHeader = "application/vnd.google-earth.kml+xml";
-                    buffer = System.Text.Encoding.UTF8.GetBytes(KmlGenFile(KML_FILES.REQUEST_USER_PREDICTION, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserPrediction, request.UserHostName));
+					buffer = System.Text.Encoding.UTF8.GetBytes(KmlGenFile(KML_FILES.REQUEST_USER_PREDICTION, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserPrediction, request.UserHostName));
 				}
 				else if (request.Url.PathAndQuery.ToLower() == "/fsxaip.kml")
 				{
@@ -2335,79 +2378,79 @@ namespace FSX_Google_Earth_Tracker
 
 		#region Update Check
 
-//        private void checkForProgramUpdate()
-//        {
-//            try
-//            {
-//                szOnlineVersionCheckData = "";
+		//        private void checkForProgramUpdate()
+		//        {
+		//            try
+		//            {
+		//                szOnlineVersionCheckData = "";
 
-//                wrOnlineVersionCheck = WebRequest.Create("http://juergentreml.online.de/fsxget/provide/version.txt");
-//                wrOnlineVersionCheck.BeginGetResponse(new AsyncCallback(RespCallback), wrOnlineVersionCheck);
-//            }
-//            catch
-//            {
-//#if DEBUG
-//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
-//#endif
-//            }
-//        }
+		//                wrOnlineVersionCheck = WebRequest.Create("http://juergentreml.online.de/fsxget/provide/version.txt");
+		//                wrOnlineVersionCheck.BeginGetResponse(new AsyncCallback(RespCallback), wrOnlineVersionCheck);
+		//            }
+		//            catch
+		//            {
+		//#if DEBUG
+		//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
+		//#endif
+		//            }
+		//        }
 
-//        private void RespCallback(IAsyncResult asynchronousResult)
-//        {
-//            try
-//            {
-//                WebRequest myWebRequest = (WebRequest)asynchronousResult.AsyncState;
-//                wrespOnlineVersionCheck = myWebRequest.EndGetResponse(asynchronousResult);
-//                Stream responseStream = wrespOnlineVersionCheck.GetResponseStream();
+		//        private void RespCallback(IAsyncResult asynchronousResult)
+		//        {
+		//            try
+		//            {
+		//                WebRequest myWebRequest = (WebRequest)asynchronousResult.AsyncState;
+		//                wrespOnlineVersionCheck = myWebRequest.EndGetResponse(asynchronousResult);
+		//                Stream responseStream = wrespOnlineVersionCheck.GetResponseStream();
 
-//                responseStream.BeginRead(bOnlineVersionCheckRawData, 0, iOnlineVersionCheckRawDataLength, new AsyncCallback(ReadCallBack), responseStream);
-//            }
-//            catch
-//            {
-//#if DEBUG
-//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
-//#endif
-//            }
-//        }
+		//                responseStream.BeginRead(bOnlineVersionCheckRawData, 0, iOnlineVersionCheckRawDataLength, new AsyncCallback(ReadCallBack), responseStream);
+		//            }
+		//            catch
+		//            {
+		//#if DEBUG
+		//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
+		//#endif
+		//            }
+		//        }
 
-//        private void ReadCallBack(IAsyncResult asyncResult)
-//        {
-//            try
-//            {
-//                Stream responseStream = (Stream)asyncResult.AsyncState;
-//                int iRead = responseStream.EndRead(asyncResult);
-//                if (iRead > 0)
-//                {
-//                    szOnlineVersionCheckData += Encoding.ASCII.GetString(bOnlineVersionCheckRawData, 0, iRead);
-//                    responseStream.BeginRead(bOnlineVersionCheckRawData, 0, iOnlineVersionCheckRawDataLength, new AsyncCallback(ReadCallBack), responseStream);
-//                }
-//                else
-//                {
-//                    responseStream.Close();
-//                    wrespOnlineVersionCheck.Close();
+		//        private void ReadCallBack(IAsyncResult asyncResult)
+		//        {
+		//            try
+		//            {
+		//                Stream responseStream = (Stream)asyncResult.AsyncState;
+		//                int iRead = responseStream.EndRead(asyncResult);
+		//                if (iRead > 0)
+		//                {
+		//                    szOnlineVersionCheckData += Encoding.ASCII.GetString(bOnlineVersionCheckRawData, 0, iRead);
+		//                    responseStream.BeginRead(bOnlineVersionCheckRawData, 0, iOnlineVersionCheckRawDataLength, new AsyncCallback(ReadCallBack), responseStream);
+		//                }
+		//                else
+		//                {
+		//                    responseStream.Close();
+		//                    wrespOnlineVersionCheck.Close();
 
-//                    char[] szSeperator = { '.' };
-//                    String[] szVersionLocal = Application.ProductVersion.Split(szSeperator);
-//                    String[] szVersionOnline = szOnlineVersionCheckData.Split(szSeperator);
-//                    for (int i = 0; i < Math.Min(szVersionLocal.GetLength(0), szVersionOnline.GetLength(0)); i++)
-//                    {
-//                        if (Int64.Parse(szVersionOnline[i]) > Int64.Parse(szVersionLocal[i]))
-//                        {
-//                            notifyIconMain.ShowBalloonTip(30, Text, "A new program version is available!\n\nLatest Version:\t" + szOnlineVersionCheckData + "\nYour Version:\t" + Application.ProductVersion, ToolTipIcon.Info);
-//                            break;
-//                        }
-//                        else if (Int64.Parse(szVersionOnline[i]) < Int64.Parse(szVersionLocal[i]))
-//                            break;
-//                    }
-//                }
-//            }
-//            catch
-//            {
-//#if DEBUG
-//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
-//#endif
-//            }
-//        }
+		//                    char[] szSeperator = { '.' };
+		//                    String[] szVersionLocal = Application.ProductVersion.Split(szSeperator);
+		//                    String[] szVersionOnline = szOnlineVersionCheckData.Split(szSeperator);
+		//                    for (int i = 0; i < Math.Min(szVersionLocal.GetLength(0), szVersionOnline.GetLength(0)); i++)
+		//                    {
+		//                        if (Int64.Parse(szVersionOnline[i]) > Int64.Parse(szVersionLocal[i]))
+		//                        {
+		//                            notifyIconMain.ShowBalloonTip(30, Text, "A new program version is available!\n\nLatest Version:\t" + szOnlineVersionCheckData + "\nYour Version:\t" + Application.ProductVersion, ToolTipIcon.Info);
+		//                            break;
+		//                        }
+		//                        else if (Int64.Parse(szVersionOnline[i]) < Int64.Parse(szVersionLocal[i]))
+		//                            break;
+		//                    }
+		//                }
+		//            }
+		//            catch
+		//            {
+		//#if DEBUG
+		//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
+		//#endif
+		//            }
+		//        }
 
 
 		#endregion
@@ -2668,7 +2711,7 @@ namespace FSX_Google_Earth_Tracker
 			//    ListViewItem lviTemp = listViewFlightPlans.Items.Insert(iCount, xmlnTemp.Attributes["Name"].Value);
 			//    lviTemp.Checked = (xmlnTemp.Attributes["Show"].Value == "1" ? true : false);
 			//    lviTemp.SubItems.Add(xmlnTemp.Attributes["File"].Value);
-				
+
 			//    iCount++;
 			//}
 
@@ -2773,7 +2816,7 @@ namespace FSX_Google_Earth_Tracker
 		//    try
 		//    {
 		//        int iCount = 0;
-				
+
 		//        fpTemp.szName = "";
 		//        fpTemp.uiID = 0;
 		//        fpTemp.xmldPlan = null;
