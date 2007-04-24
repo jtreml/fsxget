@@ -14,7 +14,7 @@
     <ManifestKeyFile>FSX Google Earth Tracker_TemporaryKey.pfx</ManifestKeyFile>
     <GenerateManifests>false</GenerateManifests>
     <TargetZone>LocalIntranet</TargetZone>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
     <IsWebBootstrapper>true</IsWebBootstrapper>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -148,7 +148,7 @@
     <Content Include="pub\gfx\scenery\air\Douglas DC-3.png" />
     <Content Include="pub\gfx\scenery\air\Extra 300S.png" />
     <Content Include="pub\gfx\scenery\air\Grumman Goose G21A.png" />
-    <Content Include="pub\gfx\scenery\air\Maule Orion sobre esquíes.png" />
+    <Content Include="pub\gfx\scenery\air\Maule Orion sobre esquies.png" />
     <Content Include="pub\gfx\scenery\air\Maule Orion.png" />
     <Content Include="pub\gfx\scenery\air\Mooney Bravo %28G1000%29.png" />
     <Content Include="pub\gfx\scenery\air\Mooney Bravo.png" />

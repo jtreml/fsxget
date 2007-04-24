@@ -281,14 +281,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:FSX Google Earth Tracker"
-        "ProductCode" = "8:{74155E53-FE85-4F1D-95D2-27B274447DBF}"
-        "PackageCode" = "8:{4C82C178-19D0-4084-BC5F-1F6DA096E42B}"
+        "ProductCode" = "8:{05A97B8C-C9EB-4BDF-A9DB-E99FEA68D736}"
+        "PackageCode" = "8:{AB5DCCB6-8843-4959-A509-D4D7104CEBF8}"
         "UpgradeCode" = "8:{FC6486CA-8012-4D57-A42C-C164A39D4066}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.3.0"
+        "ProductVersion" = "8:0.3.1"
         "Manufacturer" = "8:Jürgen Treml"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.juergentreml.de/fsxget"
@@ -798,7 +798,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5AA44FB18D6240BD9AAAE629013BBB33"
             {
-            "SourcePath" = "8:..\\FSX Google Earth Tracker\\obj\\Release\\fsxget.exe"
+            "SourcePath" = "8:..\\FSX Google Earth Tracker\\obj\\Debug\\fsxget.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_AE2D839156F94BA6BE94E4D8FE4C87E4"
