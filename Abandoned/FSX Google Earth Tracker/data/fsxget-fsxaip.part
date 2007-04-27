@@ -1,8 +1,0 @@
-<NetworkLink>
-	<name>Aircrafts</name>
-	<Link>
-		<name>Aircrafts</name>
-		<href>%PATH%/fsxaip.kml</href>
-		<refreshMode>onExpire</refreshMode>
-	</Link>
-</NetworkLink>

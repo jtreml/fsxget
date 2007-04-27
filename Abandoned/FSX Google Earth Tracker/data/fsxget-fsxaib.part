@@ -1,8 +1,0 @@
-<NetworkLink>
-	<name>Boats</name>
-	<Link>
-		<name>Boats</name>
-		<href>%PATH%/fsxaib.kml</href>
-		<refreshMode>onExpire</refreshMode>
-	</Link>
-</NetworkLink>

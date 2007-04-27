@@ -1,8 +1,0 @@
-<NetworkLink>
-	<name>Flight Path</name>
-	<Link>
-		<name>Flight Path</name>
-		<href>%PATH%/fsxp.kml</href>
-		<refreshMode>onExpire</refreshMode>
-	</Link>
-</NetworkLink>
