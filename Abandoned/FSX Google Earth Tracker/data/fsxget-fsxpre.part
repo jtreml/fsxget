@@ -1,0 +1,8 @@
+<NetworkLink>
+	<name>Course Prediction</name>
+	<Link>
+		<name>Course Prediction</name>
+		<href>%PATH%/fsxpre.kml</href>
+		<refreshMode>onExpire</refreshMode>
+	</Link>
+</NetworkLink>

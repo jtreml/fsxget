@@ -1,0 +1,8 @@
+<NetworkLink>
+	<name>Ground Vehicles</name>
+	<Link>
+		<name>Ground Vehicles</name>
+		<href>%PATH%/fsxaig.kml</href>
+		<refreshMode>onExpire</refreshMode>
+	</Link>
+</NetworkLink>

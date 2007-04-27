@@ -1,0 +1,8 @@
+<NetworkLink>
+	<name>Helicopters</name>
+	<Link>
+		<name>Helicopters</name>
+		<href>%PATH%/fsxaih.kml</href>
+		<refreshMode>onExpire</refreshMode>
+	</Link>
+</NetworkLink>

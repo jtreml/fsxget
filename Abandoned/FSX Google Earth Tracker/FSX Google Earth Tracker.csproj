@@ -1,0 +1,183 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{86BDE965-A297-492B-9604-B4749CA25759}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FSX_Google_Earth_Tracker</RootNamespace>
+    <AssemblyName>fsxget</AssemblyName>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <ManifestCertificateThumbprint>16E743BE2505F55166F04E5C1111397831AFD8E6</ManifestCertificateThumbprint>
+    <ManifestKeyFile>FSX Google Earth Tracker_TemporaryKey.pfx</ManifestKeyFile>
+    <GenerateManifests>false</GenerateManifests>
+    <TargetZone>LocalIntranet</TargetZone>
+    <SignManifests>false</SignManifests>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <PublishUrl>http://localhost/FSX Google Earth Tracker/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <CreateWebPageOnPublish>false</CreateWebPageOnPublish>
+    <ApplicationVersion>0.0.3.%2a</ApplicationVersion>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.FlightSimulator.SimConnect, Version=10.0.60905.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files\Microsoft Games\Microsoft Flight Simulator X SDK\SDK\Core Utilities Kit\SimConnect SDK\lib\managed\Microsoft.FlightSimulator.SimConnect.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Form1.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <BaseApplicationManifest Include="Properties\app.manifest" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.ico" />
+    <None Include="fsxget.exe.manifest" />
+    <Content Include="data\fsxget-fsxaib.part" />
+    <Content Include="data\fsxget-fsxaig.part" />
+    <Content Include="data\fsxget-fsxaih.part" />
+    <Content Include="data\fsxget-fsxaip.part" />
+    <Content Include="data\fsxget-fsxp.part" />
+    <Content Include="data\fsxget-fsxpre.part" />
+    <Content Include="data\fsxget-fsxu.part" />
+    <Content Include="data\fsxget.template" />
+    <Content Include="data\gfx\icons\tbconnected.ico" />
+    <Content Include="data\gfx\icons\tbdisabled.ico" />
+    <Content Include="data\gfx\icons\tbenabled.ico" />
+    <Content Include="data\gfx\icons\tbpaused.ico" />
+    <Content Include="data\gfx\logo.png" />
+    <Content Include="data\settings.default" />
+    <Content Include="pub\gfx\ge\icons\fsx-p-inter.png" />
+    <Content Include="pub\gfx\ge\icons\fsx-p-ndb.png" />
+    <Content Include="pub\gfx\ge\icons\fsx-p-port.png" />
+    <Content Include="pub\gfx\ge\icons\fsx-p-user.png" />
+    <Content Include="pub\gfx\ge\icons\fsx-p-vor.png" />
+    <Content Include="pub\gfx\ge\icons\fsxaib.png" />
+    <Content Include="pub\gfx\ge\icons\fsxaibpp.png" />
+    <Content Include="pub\gfx\ge\icons\fsxaig.png" />
+    <Content Include="pub\gfx\ge\icons\fsxaigpp.png" />
+    <Content Include="pub\gfx\ge\icons\fsxaih.png" />
+    <Content Include="pub\gfx\ge\icons\fsxaihpp.png" />
+    <Content Include="pub\gfx\ge\icons\fsxaip.png" />
+    <Content Include="pub\gfx\ge\icons\fsxaippp.png" />
+    <Content Include="pub\gfx\ge\icons\fsxpm.png" />
+    <Content Include="pub\gfx\ge\icons\fsxu.png" />
+    <Content Include="pub\gfx\scenery\air\Airbus A321.png" />
+    <Content Include="pub\gfx\scenery\air\Aircreation Ultraligero Trike.png" />
+    <Content Include="pub\gfx\scenery\air\Beachcraft Baron 58 %28G1000%29.png" />
+    <Content Include="pub\gfx\scenery\air\Beachcraft Baron 58.png" />
+    <Content Include="pub\gfx\scenery\air\Beachcraft King Air 350.png" />
+    <Content Include="pub\gfx\scenery\air\Bell 206B JetRanger.png" />
+    <Content Include="pub\gfx\scenery\air\Boeing 737-800.png" />
+    <Content Include="pub\gfx\scenery\air\Boeing 747-400.png" />
+    <Content Include="pub\gfx\scenery\air\Bombardier CRJ700.png" />
+    <Content Include="pub\gfx\scenery\air\Bombardier Learjet 45.png" />
+    <Content Include="pub\gfx\scenery\air\Cessna C172SP Skyhawk %28G1000%29.png" />
+    <Content Include="pub\gfx\scenery\air\Cessna C172SP Skyhawk.png" />
+    <Content Include="pub\gfx\scenery\air\Cessna C208B Grand Caravan.png" />
+    <Content Include="pub\gfx\scenery\air\de Havilland Beaver DHC2.png" />
+    <Content Include="pub\gfx\scenery\air\DG Flugzeugbau DG-808S.png" />
+    <Content Include="pub\gfx\scenery\air\Douglas DC-3.png" />
+    <Content Include="pub\gfx\scenery\air\Extra 300S.png" />
+    <Content Include="pub\gfx\scenery\air\Grumman Goose G21A.png" />
+    <Content Include="pub\gfx\scenery\air\Maule Orion sobre esquies.png" />
+    <Content Include="pub\gfx\scenery\air\Maule Orion.png" />
+    <Content Include="pub\gfx\scenery\air\Mooney Bravo %28G1000%29.png" />
+    <Content Include="pub\gfx\scenery\air\Mooney Bravo.png" />
+    <Content Include="pub\gfx\scenery\air\Piper J-3 Cub.png" />
+    <Content Include="pub\gfx\scenery\air\Robinson R22 Beta II.png" />
+    <Content Include="pub\gfx\scenery\noimage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="pub\gfx\scenery\ground\" />
+    <Folder Include="pub\gfx\scenery\water\" />
+    <Folder Include="User%27s Application Data Folder\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>"$(DevEnvDir)..\..\SDK\v2.0\bin\mt.exe" -manifest "$(ProjectDir)$(TargetName).exe.manifest"  –outputresource:"$(TargetDir)$(TargetFileName)";#1
+"$(DevEnvDir)..\..\SDK\v2.0\bin\mt.exe" -manifest "$(ProjectDir)$(TargetName).exe.manifest"  –outputresource:"$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)";#1</PostBuildEvent>
+  </PropertyGroup>
+</Project>
