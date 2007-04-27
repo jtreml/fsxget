@@ -84,6 +84,9 @@ namespace FSX_Google_Earth_Tracker
                 case TYPE.STRING:
                     xmla.Value = (String)value;
                     break;
+                case TYPE.BOOL:
+                    xmla.Value = XmlConvert.ToString((bool)value);
+                    break;
             }
         }
 
@@ -229,7 +232,7 @@ namespace FSX_Google_Earth_Tracker
         protected Hashtable attributes;
 
         public SettingsObject(String strXMLPath, String strAttributes)
-            : base( strXMLPath )
+            : base(strXMLPath)
         {
             String[] strAttributesParts = strAttributes.Split(';');
             attributes = new Hashtable();
@@ -268,7 +271,7 @@ namespace FSX_Google_Earth_Tracker
         protected String strXMLPath;
         protected String strAttributes;
         protected String strElementName;
-        
+
         public SettingsList(String strXMLPath, String strElementName, String strAttributes)
             : base(strXMLPath)
         {
@@ -277,7 +280,7 @@ namespace FSX_Google_Earth_Tracker
             this.strAttributes = strAttributes;
             this.strElementName = strElementName;
         }
-        
+
         public override void ReadFromXML(ref XmlNode xmln)
         {
             for (XmlNode xmlnChild = xmln.FirstChild; xmlnChild != null; xmlnChild = xmlnChild.NextSibling)
@@ -306,19 +309,19 @@ namespace FSX_Google_Earth_Tracker
 
         public override Attribute GetAttribute(String strName)
         {
-            return GetAttribute(strName, 0);   
+            return GetAttribute(strName, 0);
         }
-        
+
         public Attribute GetAttribute(String strName, int nIdx)
         {
             return listSettings[nIdx].GetAttribute(strName);
         }
     }
     #endregion
-    
+
     class Config
     {
-        
+
         #region Variable-Declaration
 
         public enum SETTING
@@ -354,7 +357,7 @@ namespace FSX_Google_Earth_Tracker
 
         private String strFilePathPub;
         private String strFilePathData;
-       
+
         private const string strRegKeyRun = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 
         private bool bCanRunGE;
@@ -366,12 +369,12 @@ namespace FSX_Google_Earth_Tracker
         {
             settings = new List<Settings>(Enum.GetValues(typeof(SETTING)).Length);
 
-            settings.Add(new SettingsObject( "fsxget/settings/options/general/enable-on-startup", "Enabled<bool>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/general/enable-on-startup", "Enabled<bool>"));
             settings.Add(new SettingsObject("fsxget/settings/options/general/show-balloon-tips", "Enabled<bool>"));
             settings.Add(new SettingsObject("fsxget/settings/options/general/load-kml-file", "Enabled<bool>"));
             settings.Add(new SettingsObject("fsxget/settings/options/general/update-check", "Enabled<bool>"));
-            
-            settings.Add(new SettingsObject( "fsxget/settings/options/fsx/query-user-aircraft", "Enabled<bool>;Interval<int>"));
+
+            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-user-aircraft", "Enabled<bool>;Interval<int>"));
             settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-user-path", "Enabled<bool>;Interval<int>"));
             settings.Add(new SettingsObject("fsxget/settings/options/fsx/user-path-prediction", "Enabled<bool>;Interval<int>"));
             settings.Add(new SettingsList("fsxget/settings/options/fsx/user-path-prediction", "prediction-point", "Time<int>"));
@@ -398,8 +401,8 @@ namespace FSX_Google_Earth_Tracker
             strAppPath = Application.StartupPath;
             strUserAppPath = Application.UserAppDataPath;
 #endif
-			strFilePathPub = strAppPath + "\\pub";
-			strFilePathData = strAppPath + "\\data";
+            strFilePathPub = strAppPath + "\\pub";
+            strFilePathData = strAppPath + "\\data";
 
             strXMLFile = strUserAppPath + "\\settings.cfg";
 
@@ -434,7 +437,7 @@ namespace FSX_Google_Earth_Tracker
             }
             else
                 bCanRunFSX = false;
-        } 
+        }
 
         protected void ReadFromXML()
         {
@@ -465,6 +468,97 @@ namespace FSX_Google_Earth_Tracker
         }
         public void SetDefaults()
         {
+            Settings obj;
+            
+            settings[(int)SETTING.ENABLE_ON_STARTUP].GetAttribute("Enabled").BoolValue = true;
+            settings[(int)SETTING.SHOW_BALLOON_TIPS].GetAttribute("Enabled").BoolValue = true;
+            settings[(int)SETTING.LOAD_KML_FILE].GetAttribute("Enabled").BoolValue = true;
+            settings[(int)SETTING.UPDATE_CHECK].GetAttribute("Enabled").BoolValue = true;
+
+            obj = settings[(int)SETTING.QUERY_USER_AIRCRAFT];
+            obj.GetAttribute("Enabled").BoolValue = true;
+            obj.GetAttribute("Interval").IntValue = 1000;
+
+            obj = settings[(int)SETTING.QUERY_USER_PATH];
+            obj.GetAttribute("Enabled").BoolValue = true;
+            obj.GetAttribute("Interval").IntValue = 5000;
+
+            obj = settings[(int)SETTING.USER_PATH_PREDICTION];
+            obj.GetAttribute("Enabled").BoolValue = true;
+            obj.GetAttribute("Interval").IntValue = 5000;
+
+            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", "Time<int>");
+            obj.GetAttribute("Time").IntValue = 30;
+            ((SettingsList)settings[(int)SETTING.PREDITCTION_POINTS]).listSettings.Add((SettingsObject)obj);
+            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", "Time<int>");
+            obj.GetAttribute("Time").IntValue = 150;
+            ((SettingsList)settings[(int)SETTING.PREDITCTION_POINTS]).listSettings.Add((SettingsObject)obj);
+            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", "Time<int>");
+            obj.GetAttribute("Time").IntValue = 300;
+            ((SettingsList)settings[(int)SETTING.PREDITCTION_POINTS]).listSettings.Add((SettingsObject)obj);
+            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", "Time<int>");
+            obj.GetAttribute("Time").IntValue = 600;
+            ((SettingsList)settings[(int)SETTING.PREDITCTION_POINTS]).listSettings.Add((SettingsObject)obj);
+            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", "Time<int>");
+            obj.GetAttribute("Time").IntValue = 1200;
+            ((SettingsList)settings[(int)SETTING.PREDITCTION_POINTS]).listSettings.Add((SettingsObject)obj);
+
+            settings[(int)SETTING.QUERY_AI_OBJECTS].GetAttribute("Enabled").BoolValue = true;
+
+            obj = settings[(int)SETTING.QUERY_AI_AIRCRAFTS];
+            obj.GetAttribute("Enabled").BoolValue = true;
+            obj.GetAttribute("Interval").IntValue = 3000;
+            obj.GetAttribute("Range").IntValue = 50000;
+            obj.GetAttribute("Prediction").BoolValue = true;
+            obj.GetAttribute("PredictionPoints").BoolValue = false;
+
+            obj = settings[(int)SETTING.QUERY_AI_HELICOPTERS];
+            obj.GetAttribute("Enabled").BoolValue = true;
+            obj.GetAttribute("Interval").IntValue = 3000;
+            obj.GetAttribute("Range").IntValue = 50000;
+            obj.GetAttribute("Prediction").BoolValue = true;
+            obj.GetAttribute("PredictionPoints").BoolValue = false;
+
+            obj = settings[(int)SETTING.QUERY_AI_BOATS];
+            obj.GetAttribute("Enabled").BoolValue = true;
+            obj.GetAttribute("Interval").IntValue = 5000;
+            obj.GetAttribute("Range").IntValue = 100000;
+            obj.GetAttribute("Prediction").BoolValue = false;
+            obj.GetAttribute("PredictionPoints").BoolValue = false;
+
+            obj = settings[(int)SETTING.QUERY_AI_GROUND_UNITS];
+            obj.GetAttribute("Enabled").BoolValue = true;
+            obj.GetAttribute("Interval").IntValue = 5000;
+            obj.GetAttribute("Range").IntValue = 100000;
+            obj.GetAttribute("Prediction").BoolValue = false;
+            obj.GetAttribute("PredictionPoints").BoolValue = false;
+
+            settings[(int)SETTING.GE_SERVER_PORT].GetAttribute("Value").IntValue = 8087;
+            settings[(int)SETTING.GE_ACCESS_LEVEL].GetAttribute("Value").IntValue = 1;
+            
+            /*
+            ENABLE_ON_STARTUP = 0,
+            SHOW_BALLOON_TIPS,
+            LOAD_KML_FILE,
+            UPDATE_CHECK,
+            QUERY_USER_AIRCRAFT,
+            QUERY_USER_PATH,
+            USER_PATH_PREDICTION,
+            PREDITCTION_POINTS,
+            QUERY_AI_OBJECTS,
+            QUERY_AI_AIRCRAFTS,
+            QUERY_AI_HELICOPTERS,
+            QUERY_AI_BOATS,
+            QUERY_AI_GROUND_UNITS,
+            GE_SERVER_PORT,
+            GE_ACCESS_LEVEL,
+            PRG_ICON_LIST,
+            AIR_IMG_LIST,
+            WATER_IMG_LIST,
+            GROUND_IMG_LIST,
+            GE_IMG_LIST
+*/
+            WriteToXML();
         }
 
         #region Accessors
@@ -500,7 +594,7 @@ namespace FSX_Google_Earth_Tracker
         {
             get
             {
-			    String strRun = (String)Registry.GetValue(strRegKeyRun, AssemblyTitle, "");
+                String strRun = (String)Registry.GetValue(strRegKeyRun, AssemblyTitle, "");
                 if (strRun != Application.ExecutablePath)
                     return false;
                 else
@@ -523,7 +617,7 @@ namespace FSX_Google_Earth_Tracker
         {
             return settings[(int)idx];
         }
-    
+
         #endregion
 
         #region Assembly Attribute Accessors
