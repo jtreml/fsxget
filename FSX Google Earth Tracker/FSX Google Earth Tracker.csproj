@@ -154,6 +154,7 @@
     <Content Include="pub\gfx\scenery\air\Mooney Bravo.png" />
     <Content Include="pub\gfx\scenery\air\Piper J-3 Cub.png" />
     <Content Include="pub\gfx\scenery\air\Robinson R22 Beta II.png" />
+    <Content Include="pub\gfx\scenery\logo.png" />
     <Content Include="pub\gfx\scenery\noimage.png" />
   </ItemGroup>
   <ItemGroup>
