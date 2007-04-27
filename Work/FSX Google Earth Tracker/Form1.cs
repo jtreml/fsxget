@@ -22,7 +22,7 @@ namespace FSX_Google_Earth_Tracker
 {
 	public partial class Form1 : Form
 	{
-//        Config config;
+        //Config config;
 
 		#region Global Variables
 
@@ -381,7 +381,7 @@ namespace FSX_Google_Earth_Tracker
             //szCommonPath = Application.CommonAppDataPath;
             szUserAppPath = Application.UserAppDataPath;
 #endif
-//            config = new Config();
+            //config = new Config();
 
 			szFilePathPub = szAppPath + "\\pub";
 			szFilePathData = szAppPath + "\\data";
@@ -401,6 +401,49 @@ namespace FSX_Google_Earth_Tracker
 			xmldSettings.Load(xmlrSeetingsFile);
 			xmlrSeetingsFile.Close();
 			xmlrSeetingsFile = null;
+
+			// Make sure we have a config file for the right version
+			// (future version should contain better checks and update from old config files to new version)
+			String szConfigVersion = "";
+			bool bUpdate = false;
+			try
+			{
+				szConfigVersion = xmldSettings["fsxget"]["settings"].Attributes["version"].Value.ToLower();
+			}
+			catch
+			{
+				bUpdate = true;
+			}
+
+			xmlrSeetingsFile = new XmlTextReader(szAppPath + "\\data\\settings.default");
+			XmlDocument xmldSettingsDefault = new XmlDocument();
+			xmldSettingsDefault.Load(xmlrSeetingsFile);
+			xmlrSeetingsFile.Close();
+			xmlrSeetingsFile = null;
+
+			String szConfigDefaultVersion = xmldSettingsDefault["fsxget"]["settings"].Attributes["version"].Value.ToLower();
+
+			if (bUpdate || !szConfigVersion.Equals(szConfigDefaultVersion))
+			{
+				try
+				{
+					File.Delete(szUserAppPath + "\\settings.cfg");
+					File.Copy(szAppPath + "\\data\\settings.default", szUserAppPath + "\\settings.cfg");
+
+					xmlrSeetingsFile = new XmlTextReader(szUserAppPath + "\\settings.cfg");
+					xmldSettings = new XmlDocument();
+					xmldSettings.Load(xmlrSeetingsFile);
+					xmlrSeetingsFile.Close();
+					xmlrSeetingsFile = null;
+				}
+				catch
+				{
+					MessageBox.Show("The config file for this program cannot be updated. Aborting!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					bErrorOnLoad = true;
+					return;
+				}
+			}
+
 
 
 			// Mirror values we need from config file in memory to variables
