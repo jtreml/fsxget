@@ -1,0 +1,8 @@
+<NetworkLink>
+	<name>Current Position</name>
+	<Link>
+		<name>Current Position</name>
+		<href>%PATH%/fsxu.kml</href>
+		<refreshMode>onExpire</refreshMode>
+	</Link>
+</NetworkLink>

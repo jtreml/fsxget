@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+	<Document>
+		<name>FSX Google Earth Tracker</name>
+		<Folder>
+			<name>User Aircraft</name>
+			<open>1</open>
+			%FSXU%
+			%FSXP%
+			%FSXPRE%
+		</Folder>
+		<Folder>
+			<name>AI Objects</name>
+			<open>1</open>
+			%FSXAIP%
+			%FSXAIH%
+			%FSXAIB%
+			%FSXAIG%
+		</Folder>
+	</Document>
+</kml>
