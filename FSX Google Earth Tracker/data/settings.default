@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 <fsxget>
-	<settings version="0.0.3.1 RC2">
+	<settings>
 		<options>
 			<general>
 				<enable-on-startup Enabled="1" />
 				<show-balloon-tips Enabled="1" />
 				<load-kml-file Enabled="1" />
+				<update-check Enabled="1" />
 			</general>
 			<fsx>
 				<query-user-aircraft Enabled="1" Interval="1000" />
@@ -39,6 +40,14 @@
 					<access-level Value="1" />
 				</server-settings>
 			</ge>
+			<flightplans Enabled="1">
+				<flightplan Name="VFR Holtenau to Barajas" Show="1" File="C:\Documents and Settings\jtr\Desktop\VFR Holtenau to Barajas.PLN" />
+				<flightplan Name="VFR 02 Ranch to 100 Aker Wood" Show="1" File="C:\Documents and Settings\jtr\Desktop\VFR 02 Ranch to 100 Aker Wood.PLN" />
+				<flightplan Name="IFR 02 Ranch to 100 Aker Wood2" Show="0" File="C:\Documents and Settings\jtr\Desktop\IFR 02 Ranch to 100 Aker Wood2.PLN" />
+				<flightplan Name="VFR Holtenau to Barajas2" Show="0" File="C:\Documents and Settings\jtr\Desktop\VFR Holtenau to Barajas2.PLN" />
+				<flightplan Name="VFR Holtenau to Barajas3" Show="1" File="C:\Documents and Settings\jtr\Desktop\VFR Holtenau to Barajas3.PLN" />
+				<flightplan Name="IFR Holtenau to Barajas4" Show="0" File="C:\Documents and Settings\jtr\Desktop\IFR Holtenau to Barajas4.PLN" />
+			</flightplans>
 		</options>
 	</settings>
 	<gfx>
@@ -159,6 +168,7 @@
 			<water></water>
 			<ground></ground>
 			<noimage Img="/gfx/scenery/noimage.png" />
+			<logo Img="/gfx/scenery/logo.png" />
 		</scenery>
 		<ge>
 			<icons>
