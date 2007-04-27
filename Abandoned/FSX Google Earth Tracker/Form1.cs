@@ -24,11 +24,11 @@ namespace FSX_Google_Earth_Tracker
 	{
 		#region Global Variables
 
-		bool bErrorOnLoad = false;
+        bool bErrorOnLoad = false;
 
-		String szAppPath = "";
-		//String szCommonPath = "";
-		String szUserAppPath = "";
+        String szAppPath = "";
+        //String szCommonPath = "";
+        String szUserAppPath = "";
 
 		String szFilePathPub = "";
 		String szFilePathData = "";
@@ -42,11 +42,11 @@ namespace FSX_Google_Earth_Tracker
 		const string szRegKeyRun = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 
 
-		//const int iOnlineVersionCheckRawDataLength = 64;
-		//WebRequest wrOnlineVersionCheck;
-		//WebResponse wrespOnlineVersionCheck;
-		//private byte[] bOnlineVersionCheckRawData = new byte[iOnlineVersionCheckRawDataLength];
-		//String szOnlineVersionCheckData = "";
+		const int iOnlineVersionCheckRawDataLength = 64;
+		WebRequest wrOnlineVersionCheck;
+		WebResponse wrespOnlineVersionCheck;
+		private byte[] bOnlineVersionCheckRawData = new byte[iOnlineVersionCheckRawDataLength];
+		String szOnlineVersionCheckData = "";
 
 
 		XmlTextReader xmlrSeetingsFile;
@@ -60,7 +60,7 @@ namespace FSX_Google_Earth_Tracker
 
 		bool bClose = false;
 		bool bConnected = false;
-		//bool bServerUp = false;
+		bool bServerUp = false;
 
 		bool bRestartRequired = false;
 
@@ -105,8 +105,8 @@ namespace FSX_Google_Earth_Tracker
 		List<ObjectImage> listIconsGE;
 		List<ObjectImage> listImgUnitsAir, listImgUnitsWater, listImgUnitsGround;
 
-		//List<FlightPlan> listFlightPlans;
-		//System.Object lockFlightPlanList = new System.Object();
+		List<FlightPlan> listFlightPlans;
+		System.Object lockFlightPlanList = new System.Object();
 
 		byte[] imgNoImage;
 
@@ -253,7 +253,7 @@ namespace FSX_Google_Earth_Tracker
 		struct GlobalFixConfiguration
 		{
 			public bool bLoadKMLFile;
-			//public bool bCheckForUpdates;
+			public bool bCheckForUpdates;
 
 			public long iServerPort;
 			public uint uiServerAccessLevel;
@@ -302,7 +302,7 @@ namespace FSX_Google_Earth_Tracker
 			public long iUpdateGEAIBoats;
 			public long iUpdateGEAIGroundUnits;
 
-			//public bool bLoadFlightPlans;
+			public bool bLoadFlightPlans;
 		};
 
 		struct GlobalChangingConfiguration
@@ -315,7 +315,7 @@ namespace FSX_Google_Earth_Tracker
 		struct ListBoxPredictionTimesItem
 		{
 			public double dTime;
-
+			
 			public override String ToString()
 			{
 				if (dTime < 60)
@@ -325,23 +325,23 @@ namespace FSX_Google_Earth_Tracker
 			}
 		}
 
-		//struct ListViewFlightPlansItem
-		//{
-		//    public String szName;
-		//    public int iID;
+		struct ListViewFlightPlansItem
+		{
+			public String szName;
+			public int iID;
 
-		//    public override String ToString()
-		//    {
-		//        return szName.ToString();
-		//    }
-		//}
+			public override String ToString()
+			{
+				return szName.ToString();
+			}
+		}
 
-		//struct FlightPlan
-		//{
-		//    public int uiID;
-		//    public String szName;
-		//    public XmlDocument xmldPlan;
-		//}
+		struct FlightPlan
+		{
+			public int uiID;
+			public String szName;
+			public XmlDocument xmldPlan;
+		}
 
 		#endregion
 
@@ -356,7 +356,7 @@ namespace FSX_Google_Earth_Tracker
 
 			InitializeComponent();
 
-
+			
 			Text = AssemblyTitle;
 
 
@@ -367,11 +367,11 @@ namespace FSX_Google_Earth_Tracker
 			this.labelCompanyName.Text = AssemblyCompany;
 
 
-			// Set file path
+            // Set file path
 #if DEBUG
-			szAppPath = Application.StartupPath + "\\..\\..";
-			//szCommonPath = szAppPath + "\\Common Files Folder";
-			szUserAppPath = szAppPath + "\\User's Application Data Folder";
+            szAppPath = Application.StartupPath + "\\..\\..";
+            //szCommonPath = szAppPath + "\\Common Files Folder";
+            szUserAppPath = szAppPath + "\\User's Application Data Folder";
 #else
             szAppPath = Application.StartupPath;
 			//szAppPath = Application.StartupPath + "\\..\\..";
@@ -383,7 +383,7 @@ namespace FSX_Google_Earth_Tracker
 			szFilePathPub = szAppPath + "\\pub";
 			szFilePathData = szAppPath + "\\data";
 
-			// Check if config file for current user exists
+            // Check if config file for current user exists
 			if (!File.Exists(szUserAppPath + "\\settings.cfg"))
 			{
 				if (!Directory.Exists(szUserAppPath))
@@ -393,7 +393,7 @@ namespace FSX_Google_Earth_Tracker
 			}
 
 			// Load config file into memory
-			xmlrSeetingsFile = new XmlTextReader(szUserAppPath + "\\settings.cfg");
+            xmlrSeetingsFile = new XmlTextReader(szUserAppPath + "\\settings.cfg");
 			xmldSettings = new XmlDocument();
 			xmldSettings.Load(xmlrSeetingsFile);
 			xmlrSeetingsFile.Close();
@@ -575,7 +575,7 @@ namespace FSX_Google_Earth_Tracker
 			clearPPStructure(ref ppPos1);
 			clearPPStructure(ref ppPos2);
 
-			//listFlightPlans = new List<FlightPlan>();
+			listFlightPlans = new List<FlightPlan>();
 			listKmlPredictionPoints = new List<PathPositionStored>(gconffixCurrent.dPredictionTimes.GetLength(0));
 
 
@@ -657,13 +657,13 @@ namespace FSX_Google_Earth_Tracker
 
 
 			// Load flight plans
-			//if (gconffixCurrent.bLoadFlightPlans)
-			//    LoadFlightPlans();
+			if (gconffixCurrent.bLoadFlightPlans)
+				LoadFlightPlans();
 
 
 			// Online Update Check
-			//if (gconffixCurrent.bCheckForUpdates)
-			//    checkForProgramUpdate();
+			if (gconffixCurrent.bCheckForUpdates)
+				checkForProgramUpdate();
 		}
 
 		private void Form1_Load(object sender, EventArgs e)
@@ -687,7 +687,7 @@ namespace FSX_Google_Earth_Tracker
 				{
 					listener.Start();
 					listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);
-					//bServerUp = true;
+					bServerUp = true;
 				}
 
 				globalConnect();
@@ -723,7 +723,7 @@ namespace FSX_Google_Earth_Tracker
 			// Stop server
 			lock (lockListenerControl)
 			{
-				//bServerUp = false;
+				bServerUp = false;
 
 				listener.Stop();
 				listener.Abort();
@@ -1363,7 +1363,7 @@ namespace FSX_Google_Earth_Tracker
 				szTempKMLFile = szTempKMLFile.Replace("%FSXAIB%", gconffixCurrent.bQueryAIBoats ? File.ReadAllText(szFilePathData + "\\fsxget-fsxaib.part") : "");
 				szTempKMLFile = szTempKMLFile.Replace("%FSXAIG%", gconffixCurrent.bQueryAIGroundUnits ? File.ReadAllText(szFilePathData + "\\fsxget-fsxaig.part") : "");
 
-				//szTempKMLFile = szTempKMLFile.Replace("%FSXFLIGHTPLAN%", gconffixCurrent.bLoadFlightPlans ? File.ReadAllText(szFilePathData + "\\fsxget-fsxflightplan.part") : "");
+				szTempKMLFile = szTempKMLFile.Replace("%FSXFLIGHTPLAN%", gconffixCurrent.bLoadFlightPlans ? File.ReadAllText(szFilePathData + "\\fsxget-fsxflightplan.part") : "");
 
 				szTempKMLFile = szTempKMLFile.Replace("%PATH%", "http://" + szIPAddress + ":" + gconffixCurrent.iServerPort.ToString());
 
@@ -1391,7 +1391,7 @@ namespace FSX_Google_Earth_Tracker
 				szTempKMLFile = szTempKMLFile.Replace("%FSXAIB%", "");
 				szTempKMLFile = szTempKMLFile.Replace("%FSXAIG%", "");
 
-				//szTempKMLFile = szTempKMLFile.Replace("%FSXFLIGHTPLAN%", gconffixCurrent.bLoadFlightPlans ? File.ReadAllText(szFilePathData + "\\fsxget-fsxflightplan.part") : "");
+				szTempKMLFile = szTempKMLFile.Replace("%FSXFLIGHTPLAN%", gconffixCurrent.bLoadFlightPlans ? File.ReadAllText(szFilePathData + "\\fsxget-fsxflightplan.part") : "");
 
 				szTempKMLFile = szTempKMLFile.Replace("%PATH%", "http://" + szIPAddress + ":" + gconffixCurrent.iServerPort.ToString());
 
@@ -1434,7 +1434,7 @@ namespace FSX_Google_Earth_Tracker
 				throw new System.Exception("Wrong coordinate format!");
 			}
 
-
+			
 			double d1 = System.Double.Parse(szParts[0], System.Globalization.NumberFormatInfo.InvariantInfo);
 			int iSign = Math.Sign(d1);
 			d1 = Math.Abs(d1);
@@ -1721,13 +1721,13 @@ namespace FSX_Google_Earth_Tracker
 				{
 					bContentSet = true;
 					szHeader = "application/vnd.google-earth.kml+xml";
-					buffer = System.Text.Encoding.UTF8.GetBytes(KmlGenFile(KML_FILES.REQUEST_USER_PATH, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserPath, request.UserHostName));
+                    buffer = System.Text.Encoding.UTF8.GetBytes(KmlGenFile(KML_FILES.REQUEST_USER_PATH, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserPath, request.UserHostName));
 				}
 				else if (request.Url.PathAndQuery.ToLower() == "/fsxpre.kml")
 				{
 					bContentSet = true;
 					szHeader = "application/vnd.google-earth.kml+xml";
-					buffer = System.Text.Encoding.UTF8.GetBytes(KmlGenFile(KML_FILES.REQUEST_USER_PREDICTION, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserPrediction, request.UserHostName));
+                    buffer = System.Text.Encoding.UTF8.GetBytes(KmlGenFile(KML_FILES.REQUEST_USER_PREDICTION, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserPrediction, request.UserHostName));
 				}
 				else if (request.Url.PathAndQuery.ToLower() == "/fsxaip.kml")
 				{
@@ -1817,9 +1817,9 @@ namespace FSX_Google_Earth_Tracker
 					szTemp += KmlGenAIGroundUnit(AccessMode, szSever);
 					break;
 
-				//case KML_FILES.REQUEST_FLIGHT_PLANS:
-				//    szTemp += KmlGenFlightPlans(AccessMode, szSever);
-				//    break;
+				case KML_FILES.REQUEST_FLIGHT_PLANS:
+					szTemp += KmlGenFlightPlans(AccessMode, szSever);
+					break;
 
 				default:
 					break;
@@ -2273,104 +2273,104 @@ namespace FSX_Google_Earth_Tracker
 		}
 
 
-		//private String KmlGenFlightPlans(KML_ACCESS_MODES AccessMode, String szServer)
-		//{
-		//    String szTemp = "";
+		private String KmlGenFlightPlans(KML_ACCESS_MODES AccessMode, String szServer)
+		{
+			String szTemp = "";
 
-		//    lock (lockFlightPlanList)
-		//    {
-		//        foreach (FlightPlan fpTemp in listFlightPlans)
-		//        {
-		//            XmlDocument xmldTemp = fpTemp.xmldPlan;
-		//            String szTempInner = "";
+			lock (lockFlightPlanList)
+			{
+				foreach (FlightPlan fpTemp in listFlightPlans)
+				{
+					XmlDocument xmldTemp = fpTemp.xmldPlan;
+					String szTempInner = "";
 
-		//            String szTempWaypoints = "";
-		//            String szPath = "";
+					String szTempWaypoints = "";
+					String szPath = "";
 
-		//            try
-		//            {
-		//                for (XmlNode xmlnTemp = xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
-		//                {
-		//                    if (xmlnTemp.Name.ToLower() != "atcwaypoint")
-		//                        continue;
+					try
+					{
+						for (XmlNode xmlnTemp = xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
+						{
+							if (xmlnTemp.Name.ToLower() != "atcwaypoint")
+								continue;
 
-		//                    KML_ICON_TYPES iconType;
-		//                    String szType = xmlnTemp["ATCWaypointType"].InnerText.ToLower();
-		//                    if (szType == "intersection")
-		//                        iconType = KML_ICON_TYPES.PLAN_INTER;
-		//                    else if (szType == "ndb")
-		//                        iconType = KML_ICON_TYPES.PLAN_NDB;
-		//                    else if (szType == "vor")
-		//                        iconType = KML_ICON_TYPES.PLAN_VOR;
-		//                    else if (szType == "user")
-		//                        iconType = KML_ICON_TYPES.PLAN_USER;
-		//                    else if (szType == "airport")
-		//                        iconType = KML_ICON_TYPES.PLAN_PORT;
-		//                    else
-		//                        iconType = KML_ICON_TYPES.UNKNOWN;
+							KML_ICON_TYPES iconType;
+							String szType = xmlnTemp["ATCWaypointType"].InnerText.ToLower();
+							if (szType == "intersection")
+								iconType = KML_ICON_TYPES.PLAN_INTER;
+							else if (szType == "ndb")
+								iconType = KML_ICON_TYPES.PLAN_NDB;
+							else if (szType == "vor")
+								iconType = KML_ICON_TYPES.PLAN_VOR;
+							else if (szType == "user")
+								iconType = KML_ICON_TYPES.PLAN_USER;
+							else if (szType == "airport")
+								iconType = KML_ICON_TYPES.PLAN_PORT;
+							else
+								iconType = KML_ICON_TYPES.UNKNOWN;
 
-		//                    char[] szSeperator = { ',' };
-		//                    String[] szCoordinates = xmlnTemp["WorldPosition"].InnerText.Split(szSeperator);
+							char[] szSeperator = { ',' };
+							String[] szCoordinates = xmlnTemp["WorldPosition"].InnerText.Split(szSeperator);
 
-		//                    if (szCoordinates.GetLength(0) != 3)
-		//                        throw new System.Exception("Invalid position value");
+							if (szCoordinates.GetLength(0) != 3)
+								throw new System.Exception("Invalid position value");
 
-		//                    String szAirway = "", szICAOIdent = "", szICAORegion = "";
-		//                    if (xmlnTemp["ATCAirway"] != null)
-		//                        szAirway = xmlnTemp["ATCAirway"].InnerText;
-		//                    if (xmlnTemp["ICAO"] != null)
-		//                    {
-		//                        if (xmlnTemp["ICAO"]["ICAOIdent"] != null)
-		//                            szICAOIdent = xmlnTemp["ICAO"]["ICAOIdent"].InnerText;
-		//                        if (xmlnTemp["ICAO"]["ICAORegion"] != null)
-		//                            szICAORegion = xmlnTemp["ICAO"]["ICAORegion"].InnerText;
-		//                    }
+							String szAirway = "", szICAOIdent = "", szICAORegion = "";
+							if (xmlnTemp["ATCAirway"] != null)
+								szAirway = xmlnTemp["ATCAirway"].InnerText;
+							if (xmlnTemp["ICAO"] != null)
+							{
+								if (xmlnTemp["ICAO"]["ICAOIdent"] != null)
+									szICAOIdent = xmlnTemp["ICAO"]["ICAOIdent"].InnerText;
+								if (xmlnTemp["ICAO"]["ICAORegion"] != null)
+									szICAORegion = xmlnTemp["ICAO"]["ICAORegion"].InnerText;
+							}
 
-		//                    double dCurrentLong = ConvertDegToDouble(szCoordinates[1]);
-		//                    double dCurrentLat = ConvertDegToDouble(szCoordinates[0]);
-		//                    double dCurrentAlt = System.Double.Parse(szCoordinates[2]);
+							double dCurrentLong = ConvertDegToDouble(szCoordinates[1]);
+							double dCurrentLat = ConvertDegToDouble(szCoordinates[0]);
+							double dCurrentAlt = System.Double.Parse(szCoordinates[2]);
 
-		//                    szTempWaypoints += "<Placemark>" +
-		//                        "<name>" + xmlnTemp["ATCWaypointType"].InnerText + " (" + xmlnTemp.Attributes["id"].Value + ")</name><visibility>1</visibility><open>0</open>" +
-		//                        "<description><![CDATA[Flight Plane Element<br>&nbsp;<br>" +
-		//                        "<b>Waypoint Type:</b> " + xmlnTemp["ATCWaypointType"].InnerText + "<br>&nbsp;<br>" +
-		//                        (szAirway != "" ? "<b>ATC Airway:</b> " + szAirway + "<br>&nbsp;<br>" : "") +
-		//                        (szICAOIdent != "" ? "<b>ICAO Identification:</b> " + szICAOIdent + "<br>" : "") +
-		//                        (szICAORegion != "" ? "<b>ICAO Region:</b> " + szICAORegion : "") +
-		//                        "]]></description>" +
-		//                        "<Snippet>Waypoint Type: " + xmlnTemp["ATCWaypointType"].InnerText + (szAirway != "" ? "\nAirway: " + szAirway : "") + "</Snippet>" +
-		//                        "<Style>" +
-		//                        "<IconStyle><Icon><href>" + KmlGetIconLink(AccessMode, iconType, szServer) + "</href></Icon><scale>1.0</scale></IconStyle>" +
-		//                        "<LabelStyle><scale>0.6</scale></LabelStyle>" +
-		//                        "</Style>" +
-		//                        "<Point><altitudeMode>clampToGround</altitudeMode><coordinates>" + dCurrentLong.ToString().Replace(",", ".") + "," + dCurrentLat.ToString().Replace(",", ".") + "," + dCurrentAlt.ToString().Replace(",", ".") + "</coordinates><extrude>1</extrude></Point></Placemark>";
+							szTempWaypoints += "<Placemark>" +
+								"<name>" + xmlnTemp["ATCWaypointType"].InnerText + " (" + xmlnTemp.Attributes["id"].Value + ")</name><visibility>1</visibility><open>0</open>" +
+								"<description><![CDATA[Flight Plane Element<br>&nbsp;<br>" +
+								"<b>Waypoint Type:</b> " + xmlnTemp["ATCWaypointType"].InnerText + "<br>&nbsp;<br>" +
+								(szAirway != "" ? "<b>ATC Airway:</b> " + szAirway + "<br>&nbsp;<br>" : "") +
+								(szICAOIdent != "" ? "<b>ICAO Identification:</b> " + szICAOIdent + "<br>" : "") +
+								(szICAORegion != "" ? "<b>ICAO Region:</b> " + szICAORegion : "") +
+								"]]></description>" +
+								"<Snippet>Waypoint Type: " + xmlnTemp["ATCWaypointType"].InnerText + (szAirway != "" ? "\nAirway: " + szAirway : "") + "</Snippet>" +
+								"<Style>" +
+								"<IconStyle><Icon><href>" + KmlGetIconLink(AccessMode, iconType, szServer) + "</href></Icon><scale>1.0</scale></IconStyle>" +
+								"<LabelStyle><scale>0.6</scale></LabelStyle>" +
+								"</Style>" +
+								"<Point><altitudeMode>clampToGround</altitudeMode><coordinates>" + dCurrentLong.ToString().Replace(",", ".") + "," + dCurrentLat.ToString().Replace(",", ".") + "," + dCurrentAlt.ToString().Replace(",", ".") + "</coordinates><extrude>1</extrude></Point></Placemark>";
 
-		//                    szPath += dCurrentLong.ToString().Replace(",", ".") + "," + dCurrentLat.ToString().Replace(",", ".") + "," + dCurrentAlt.ToString().Replace(",", ".") + "\n";
-		//                }
+							szPath += dCurrentLong.ToString().Replace(",", ".") + "," + dCurrentLat.ToString().Replace(",", ".") + "," + dCurrentAlt.ToString().Replace(",", ".") + "\n";
+						}
 
-		//                szTempInner = "<Folder><open>0</open>" +
-		//                    "<name>" + (xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["Title"] != null ? xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["Title"].InnerText : "n/a") + "</name>" +
-		//                    "<description><![CDATA[" +
-		//                    "Type: " + (xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["FPType"] != null ? xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["FPType"].InnerText : "n/a") + " (" + (xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["RouteType"] != null ? xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["RouteType"].InnerText : "n/a") + ")<br>" +
-		//                    "Flight from " + (xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["DepartureName"] != null ? xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["DepartureName"].InnerText : "n/a") + " to " + (xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["DestinationName"] != null ? xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["DestinationName"].InnerText : "n/a") + ".<br>&nbsp;<br>" +
-		//                    "Altitude: " + (xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["CruisingAlt"] != null ? xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["CruisingAlt"].InnerText : "n/a") +
-		//                    "]]></description>" +
-		//                    "<Placemark><name>Path</name><Style><LineStyle><color>9f1ab6ff</color><width>2</width></LineStyle></Style><LineString><tessellate>1</tessellate><altitudeMode>clampToGround</altitudeMode><coordinates>" + szPath + "</coordinates></LineString></Placemark>" +
-		//                    "<Folder><open>0</open><name>Waypoints</name>" + szTempWaypoints + "</Folder>" +
-		//                    "</Folder>";
-		//            }
-		//            catch
-		//            {
-		//                szTemp += "<Folder><name>Invalid Flight Plan</name><snippet>Error loading flight plan.</snippet></Folder>";
-		//                continue;
-		//            }
+						szTempInner = "<Folder><open>0</open>" +
+							"<name>" + (xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["Title"] != null ? xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["Title"].InnerText : "n/a") + "</name>" +
+							"<description><![CDATA[" +
+							"Type: " + (xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["FPType"] != null ? xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["FPType"].InnerText : "n/a") + " (" + (xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["RouteType"] != null ? xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["RouteType"].InnerText : "n/a") + ")<br>" +
+							"Flight from " + (xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["DepartureName"] != null ? xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["DepartureName"].InnerText : "n/a") + " to " + (xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["DestinationName"] != null ? xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["DestinationName"].InnerText : "n/a") + ".<br>&nbsp;<br>" +
+							"Altitude: " + (xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["CruisingAlt"] != null ? xmldTemp["SimBase.Document"]["FlightPlan.FlightPlan"]["CruisingAlt"].InnerText : "n/a") +
+							"]]></description>" +
+							"<Placemark><name>Path</name><Style><LineStyle><color>9f1ab6ff</color><width>2</width></LineStyle></Style><LineString><tessellate>1</tessellate><altitudeMode>clampToGround</altitudeMode><coordinates>" + szPath + "</coordinates></LineString></Placemark>" +
+							"<Folder><open>0</open><name>Waypoints</name>" + szTempWaypoints + "</Folder>" +
+							"</Folder>";
+					}
+					catch
+					{
+						szTemp += "<Folder><name>Invalid Flight Plan</name><snippet>Error loading flight plan.</snippet></Folder>";
+						continue;
+					}
 
-		//            szTemp += szTempInner;
-		//        }
-		//    }
+					szTemp += szTempInner;
+				}
+			}
 
-		//    return szTemp;
-		//}
+			return szTemp;
+		}
 
 
 		#endregion
@@ -2378,79 +2378,79 @@ namespace FSX_Google_Earth_Tracker
 
 		#region Update Check
 
-		//        private void checkForProgramUpdate()
-		//        {
-		//            try
-		//            {
-		//                szOnlineVersionCheckData = "";
+		private void checkForProgramUpdate()
+		{
+			try
+			{
+				szOnlineVersionCheckData = "";
 
-		//                wrOnlineVersionCheck = WebRequest.Create("http://juergentreml.online.de/fsxget/provide/version.txt");
-		//                wrOnlineVersionCheck.BeginGetResponse(new AsyncCallback(RespCallback), wrOnlineVersionCheck);
-		//            }
-		//            catch
-		//            {
-		//#if DEBUG
-		//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
-		//#endif
-		//            }
-		//        }
+				wrOnlineVersionCheck = WebRequest.Create("http://juergentreml.online.de/fsxget/provide/version.txt");
+				wrOnlineVersionCheck.BeginGetResponse(new AsyncCallback(RespCallback), wrOnlineVersionCheck);
+			}
+			catch
+			{
+#if DEBUG
+				notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
+#endif
+			}
+		}
 
-		//        private void RespCallback(IAsyncResult asynchronousResult)
-		//        {
-		//            try
-		//            {
-		//                WebRequest myWebRequest = (WebRequest)asynchronousResult.AsyncState;
-		//                wrespOnlineVersionCheck = myWebRequest.EndGetResponse(asynchronousResult);
-		//                Stream responseStream = wrespOnlineVersionCheck.GetResponseStream();
+		private void RespCallback(IAsyncResult asynchronousResult)
+		{
+			try
+			{
+				WebRequest myWebRequest = (WebRequest)asynchronousResult.AsyncState;
+				wrespOnlineVersionCheck = myWebRequest.EndGetResponse(asynchronousResult);
+				Stream responseStream = wrespOnlineVersionCheck.GetResponseStream();
 
-		//                responseStream.BeginRead(bOnlineVersionCheckRawData, 0, iOnlineVersionCheckRawDataLength, new AsyncCallback(ReadCallBack), responseStream);
-		//            }
-		//            catch
-		//            {
-		//#if DEBUG
-		//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
-		//#endif
-		//            }
-		//        }
+				responseStream.BeginRead(bOnlineVersionCheckRawData, 0, iOnlineVersionCheckRawDataLength, new AsyncCallback(ReadCallBack), responseStream);
+			}
+			catch
+			{
+#if DEBUG
+				notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
+#endif
+			}
+		}
 
-		//        private void ReadCallBack(IAsyncResult asyncResult)
-		//        {
-		//            try
-		//            {
-		//                Stream responseStream = (Stream)asyncResult.AsyncState;
-		//                int iRead = responseStream.EndRead(asyncResult);
-		//                if (iRead > 0)
-		//                {
-		//                    szOnlineVersionCheckData += Encoding.ASCII.GetString(bOnlineVersionCheckRawData, 0, iRead);
-		//                    responseStream.BeginRead(bOnlineVersionCheckRawData, 0, iOnlineVersionCheckRawDataLength, new AsyncCallback(ReadCallBack), responseStream);
-		//                }
-		//                else
-		//                {
-		//                    responseStream.Close();
-		//                    wrespOnlineVersionCheck.Close();
+		private void ReadCallBack(IAsyncResult asyncResult)
+		{
+			try
+			{
+				Stream responseStream = (Stream)asyncResult.AsyncState;
+				int iRead = responseStream.EndRead(asyncResult);
+				if (iRead > 0)
+				{
+					szOnlineVersionCheckData += Encoding.ASCII.GetString(bOnlineVersionCheckRawData, 0, iRead);
+					responseStream.BeginRead(bOnlineVersionCheckRawData, 0, iOnlineVersionCheckRawDataLength, new AsyncCallback(ReadCallBack), responseStream);
+				}
+				else
+				{
+					responseStream.Close();
+					wrespOnlineVersionCheck.Close();
 
-		//                    char[] szSeperator = { '.' };
-		//                    String[] szVersionLocal = Application.ProductVersion.Split(szSeperator);
-		//                    String[] szVersionOnline = szOnlineVersionCheckData.Split(szSeperator);
-		//                    for (int i = 0; i < Math.Min(szVersionLocal.GetLength(0), szVersionOnline.GetLength(0)); i++)
-		//                    {
-		//                        if (Int64.Parse(szVersionOnline[i]) > Int64.Parse(szVersionLocal[i]))
-		//                        {
-		//                            notifyIconMain.ShowBalloonTip(30, Text, "A new program version is available!\n\nLatest Version:\t" + szOnlineVersionCheckData + "\nYour Version:\t" + Application.ProductVersion, ToolTipIcon.Info);
-		//                            break;
-		//                        }
-		//                        else if (Int64.Parse(szVersionOnline[i]) < Int64.Parse(szVersionLocal[i]))
-		//                            break;
-		//                    }
-		//                }
-		//            }
-		//            catch
-		//            {
-		//#if DEBUG
-		//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
-		//#endif
-		//            }
-		//        }
+					char[] szSeperator = { '.' };
+					String[] szVersionLocal = Application.ProductVersion.Split(szSeperator);
+					String[] szVersionOnline = szOnlineVersionCheckData.Split(szSeperator);
+					for (int i = 0; i < Math.Min(szVersionLocal.GetLength(0), szVersionOnline.GetLength(0)); i++)
+					{
+						if (Int64.Parse(szVersionOnline[i]) > Int64.Parse(szVersionLocal[i]))
+						{
+							notifyIconMain.ShowBalloonTip(30, Text, "A new program version is available!\n\nLatest Version:\t" + szOnlineVersionCheckData + "\nYour Version:\t" + Application.ProductVersion, ToolTipIcon.Info);
+							break;
+						}
+						else if (Int64.Parse(szVersionOnline[i]) < Int64.Parse(szVersionLocal[i]))
+							break;
+					}
+				}
+			}
+			catch
+			{
+#if DEBUG
+				notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
+#endif
+			}
+		}
 
 
 		#endregion
@@ -2534,7 +2534,7 @@ namespace FSX_Google_Earth_Tracker
 				gconfchCurrent.bShowBalloons = (xmldSettings["fsxget"]["settings"]["options"]["general"]["show-balloon-tips"].Attributes["Enabled"].Value == "1");
 			}
 			gconffixCurrent.bLoadKMLFile = (xmldSettings["fsxget"]["settings"]["options"]["general"]["load-kml-file"].Attributes["Enabled"].Value == "1");
-			//gconffixCurrent.bCheckForUpdates = (xmldSettings["fsxget"]["settings"]["options"]["general"]["update-check"].Attributes["Enabled"].Value == "1");
+			gconffixCurrent.bCheckForUpdates = (xmldSettings["fsxget"]["settings"]["options"]["general"]["update-check"].Attributes["Enabled"].Value == "1");
 
 
 			gconffixCurrent.iTimerUserAircraft = System.Int64.Parse(xmldSettings["fsxget"]["settings"]["options"]["fsx"]["query-user-aircraft"].Attributes["Interval"].Value);
@@ -2605,9 +2605,7 @@ namespace FSX_Google_Earth_Tracker
 			gconffixCurrent.uiServerAccessLevel = (uint)System.Int64.Parse(xmldSettings["fsxget"]["settings"]["options"]["ge"]["server-settings"]["access-level"].Attributes["Value"].Value);
 
 
-			//gconffixCurrent.bLoadFlightPlans = (xmldSettings["fsxget"]["settings"]["options"]["flightplans"].Attributes["Enabled"].Value == "1");
-
-			gconffixCurrent.szUserdefinedPath = "";
+			gconffixCurrent.bLoadFlightPlans = (xmldSettings["fsxget"]["settings"]["options"]["flightplans"].Attributes["Enabled"].Value == "1");
 		}
 
 
@@ -2616,7 +2614,7 @@ namespace FSX_Google_Earth_Tracker
 			checkEnableOnStartup.Checked = (xmldSettings["fsxget"]["settings"]["options"]["general"]["enable-on-startup"].Attributes["Enabled"].Value == "1");
 			checkShowInfoBalloons.Checked = (xmldSettings["fsxget"]["settings"]["options"]["general"]["show-balloon-tips"].Attributes["Enabled"].Value == "1");
 			checkBoxLoadKMLFile.Checked = (xmldSettings["fsxget"]["settings"]["options"]["general"]["load-kml-file"].Attributes["Enabled"].Value == "1");
-			//checkBoxUpdateCheck.Checked = (xmldSettings["fsxget"]["settings"]["options"]["general"]["update-check"].Attributes["Enabled"].Value == "1");
+			checkBoxUpdateCheck.Checked = (xmldSettings["fsxget"]["settings"]["options"]["general"]["update-check"].Attributes["Enabled"].Value == "1");
 
 			numericUpDownQueryUserAircraft.Value = System.Int64.Parse(xmldSettings["fsxget"]["settings"]["options"]["fsx"]["query-user-aircraft"].Attributes["Interval"].Value);
 			checkQueryUserAircraft.Checked = (xmldSettings["fsxget"]["settings"]["options"]["fsx"]["query-user-aircraft"].Attributes["Enabled"].Value == "1");
@@ -2702,18 +2700,18 @@ namespace FSX_Google_Earth_Tracker
 				radioButtonAccessLocalOnly.Checked = true;
 
 
-			//checkBoxLoadFlightPlans.Checked = (xmldSettings["fsxget"]["settings"]["options"]["flightplans"].Attributes["Enabled"].Value == "1");
+			checkBoxLoadFlightPlans.Checked = (xmldSettings["fsxget"]["settings"]["options"]["flightplans"].Attributes["Enabled"].Value == "1");
 
-			//listViewFlightPlans.Items.Clear();
-			//int iCount = 0;
-			//for (XmlNode xmlnTemp = xmldSettings["fsxget"]["settings"]["options"]["flightplans"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
-			//{
-			//    ListViewItem lviTemp = listViewFlightPlans.Items.Insert(iCount, xmlnTemp.Attributes["Name"].Value);
-			//    lviTemp.Checked = (xmlnTemp.Attributes["Show"].Value == "1" ? true : false);
-			//    lviTemp.SubItems.Add(xmlnTemp.Attributes["File"].Value);
-
-			//    iCount++;
-			//}
+			listViewFlightPlans.Items.Clear();
+			int iCount = 0;
+			for (XmlNode xmlnTemp = xmldSettings["fsxget"]["settings"]["options"]["flightplans"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
+			{
+				ListViewItem lviTemp = listViewFlightPlans.Items.Insert(iCount, xmlnTemp.Attributes["Name"].Value);
+				lviTemp.Checked = (xmlnTemp.Attributes["Show"].Value == "1" ? true : false);
+				lviTemp.SubItems.Add(xmlnTemp.Attributes["File"].Value);
+				
+				iCount++;
+			}
 
 
 			UpdateCheckBoxStates();
@@ -2724,7 +2722,7 @@ namespace FSX_Google_Earth_Tracker
 			xmldSettings["fsxget"]["settings"]["options"]["general"]["enable-on-startup"].Attributes["Enabled"].Value = checkEnableOnStartup.Checked ? "1" : "0";
 			xmldSettings["fsxget"]["settings"]["options"]["general"]["show-balloon-tips"].Attributes["Enabled"].Value = checkShowInfoBalloons.Checked ? "1" : "0";
 			xmldSettings["fsxget"]["settings"]["options"]["general"]["load-kml-file"].Attributes["Enabled"].Value = checkBoxLoadKMLFile.Checked ? "1" : "0";
-			//xmldSettings["fsxget"]["settings"]["options"]["general"]["update-check"].Attributes["Enabled"].Value = checkBoxUpdateCheck.Checked ? "1" : "0";
+			xmldSettings["fsxget"]["settings"]["options"]["general"]["update-check"].Attributes["Enabled"].Value = checkBoxUpdateCheck.Checked ? "1" : "0";
 
 
 			xmldSettings["fsxget"]["settings"]["options"]["fsx"]["query-user-aircraft"].Attributes["Interval"].Value = numericUpDownQueryUserAircraft.Value.ToString();
@@ -2802,63 +2800,63 @@ namespace FSX_Google_Earth_Tracker
 				xmldSettings["fsxget"]["settings"]["options"]["ge"]["server-settings"]["access-level"].Attributes["Value"].Value = "0";
 
 
-			//xmldSettings["fsxget"]["settings"]["options"]["flightplans"].Attributes["Enabled"].Value = checkBoxLoadFlightPlans.Checked ? "1" : "0";
+			xmldSettings["fsxget"]["settings"]["options"]["flightplans"].Attributes["Enabled"].Value = checkBoxLoadFlightPlans.Checked ? "1" : "0";
 		}
 
 
-		//private void LoadFlightPlans()
-		//{
-		//    bool bError = false;
+		private void LoadFlightPlans()
+		{
+			bool bError = false;
 
-		//    FlightPlan fpTemp;
-		//    XmlDocument xmldTemp = new XmlDocument();
+			FlightPlan fpTemp;
+			XmlDocument xmldTemp = new XmlDocument();
 
-		//    try
-		//    {
-		//        int iCount = 0;
+			try
+			{
+				int iCount = 0;
+				
+				fpTemp.szName = "";
+				fpTemp.uiID = 0;
+				fpTemp.xmldPlan = null;
 
-		//        fpTemp.szName = "";
-		//        fpTemp.uiID = 0;
-		//        fpTemp.xmldPlan = null;
+				for (XmlNode xmlnTemp = xmldSettings["fsxget"]["settings"]["options"]["flightplans"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
+				{
+					try
+					{
+						if (xmlnTemp.Attributes["Show"].Value == "0")
+							continue;
 
-		//        for (XmlNode xmlnTemp = xmldSettings["fsxget"]["settings"]["options"]["flightplans"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
-		//        {
-		//            try
-		//            {
-		//                if (xmlnTemp.Attributes["Show"].Value == "0")
-		//                    continue;
+						XmlReader xmlrTemp = new XmlTextReader(xmlnTemp.Attributes["File"].Value);
 
-		//                XmlReader xmlrTemp = new XmlTextReader(xmlnTemp.Attributes["File"].Value);
+						fpTemp.uiID = iCount;
+						fpTemp.xmldPlan = new XmlDocument();
+						fpTemp.xmldPlan.Load(xmlrTemp);
 
-		//                fpTemp.uiID = iCount;
-		//                fpTemp.xmldPlan = new XmlDocument();
-		//                fpTemp.xmldPlan.Load(xmlrTemp);
+						xmlrTemp.Close();
+						xmlrTemp = null;
+					}
+					catch
+					{
+						bError = true;
+						continue;
+					}
 
-		//                xmlrTemp.Close();
-		//                xmlrTemp = null;
-		//            }
-		//            catch
-		//            {
-		//                bError = true;
-		//                continue;
-		//            }
+					lock (lockFlightPlanList)
+					{
+						listFlightPlans.Add(fpTemp);
+					}
+					iCount++;
+				}
+			}
+			catch
+			{
+				MessageBox.Show("Could not read flight plan list from settings file! No flight plans will be loaded.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			}
 
-		//            lock (lockFlightPlanList)
-		//            {
-		//                listFlightPlans.Add(fpTemp);
-		//            }
-		//            iCount++;
-		//        }
-		//    }
-		//    catch
-		//    {
-		//        MessageBox.Show("Could not read flight plan list from settings file! No flight plans will be loaded.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-		//    }
+			if (bError)
+				MessageBox.Show("There were errors loading some of the flight plans! These flight plans will not be shown.\n\nThis problem might be due to incorrect or no longer existing flight plan files.\nPlease remove them from the flight plan list in the options dialog.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-		//    if (bError)
-		//        MessageBox.Show("There were errors loading some of the flight plans! These flight plans will not be shown.\n\nThis problem might be due to incorrect or no longer existing flight plan files.\nPlease remove them from the flight plan list in the options dialog.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-		//}
+		}
 
 
 		#endregion
@@ -2997,7 +2995,7 @@ namespace FSX_Google_Earth_Tracker
 
 		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			safeShowMainDialog(5);
+			safeShowMainDialog(6);
 		}
 
 		private void clearUserAircraftPathToolStripMenuItem_Click(object sender, EventArgs e)
@@ -3429,10 +3427,10 @@ namespace FSX_Google_Earth_Tracker
 		{
 			if (MessageBox.Show("Are you sure you want to remove the selected items?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
 			{
-				//foreach (ListViewItem lviTemp in listViewFlightPlans.SelectedItems)
-				//{
-				//    listViewFlightPlans.Items.Remove(lviTemp);
-				//}
+				foreach (ListViewItem lviTemp in listViewFlightPlans.SelectedItems)
+				{
+					listViewFlightPlans.Items.Remove(lviTemp);
+				}
 			}
 		}
 	}

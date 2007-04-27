@@ -15,12 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_0BE8FB02D77D4B60B823AF9DA80054E5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_5AA44FB18D6240BD9AAAE629013BBB33"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -144,26 +138,6 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0BE8FB02D77D4B60B823AF9DA80054E5"
-            {
-            "SourcePath" = "8:Banner.jpg"
-            "TargetName" = "8:Banner.jpg"
-            "Tag" = "8:"
-            "Folder" = "8:_AE2D839156F94BA6BE94E4D8FE4C87E4"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:TRUE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_5BA9335CC919C9EC8B9301CC11F67061"
             {
             "AssemblyRegister" = "3:1"
@@ -281,14 +255,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:FSX Google Earth Tracker"
-        "ProductCode" = "8:{05A97B8C-C9EB-4BDF-A9DB-E99FEA68D736}"
-        "PackageCode" = "8:{AB5DCCB6-8843-4959-A509-D4D7104CEBF8}"
+        "ProductCode" = "8:{5FA0B636-E75D-4E2F-AFEB-0E8740412489}"
+        "PackageCode" = "8:{5DEE11F6-FB95-4BFB-9AB4-EA4566C7DCEC}"
         "UpgradeCode" = "8:{FC6486CA-8012-4D57-A42C-C164A39D4066}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.3.1"
+        "ProductVersion" = "8:0.5.0"
         "Manufacturer" = "8:Jürgen Treml"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.juergentreml.de/fsxget"
@@ -296,9 +270,9 @@
         "Subject" = "8:"
         "ARPCONTACT" = "8:Jürgen Treml"
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:"
+        "ARPCOMMENTS" = "8:Special Build"
         "ARPURLINFOABOUT" = "8:http://www.juergentreml.de/"
-        "ARPPRODUCTICON" = "8:_E731B2878E8245339BCECDAD1CDD1FF1"
+        "ARPPRODUCTICON" = "8:"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
@@ -414,8 +388,7 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:2"
-                            "Value" = "8:_0BE8FB02D77D4B60B823AF9DA80054E5"
+                            "Setting" = "3:1"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -437,8 +410,7 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:2"
-                            "Value" = "8:_0BE8FB02D77D4B60B823AF9DA80054E5"
+                            "Setting" = "3:1"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -486,8 +458,7 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:2"
-                            "Value" = "8:_0BE8FB02D77D4B60B823AF9DA80054E5"
+                            "Setting" = "3:1"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -518,8 +489,7 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:2"
-                            "Value" = "8:_0BE8FB02D77D4B60B823AF9DA80054E5"
+                            "Setting" = "3:1"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
@@ -563,8 +533,7 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:2"
-                            "Value" = "8:_0BE8FB02D77D4B60B823AF9DA80054E5"
+                            "Setting" = "3:1"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "ShowProgress"
@@ -614,8 +583,7 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:2"
-                            "Value" = "8:_0BE8FB02D77D4B60B823AF9DA80054E5"
+                            "Setting" = "3:1"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "UpdateText"
@@ -659,8 +627,7 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:2"
-                            "Value" = "8:_0BE8FB02D77D4B60B823AF9DA80054E5"
+                            "Setting" = "3:1"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -682,8 +649,7 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:2"
-                            "Value" = "8:_0BE8FB02D77D4B60B823AF9DA80054E5"
+                            "Setting" = "3:1"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "InstallAllUsersVisible"
@@ -718,8 +684,7 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:2"
-                            "Value" = "8:_0BE8FB02D77D4B60B823AF9DA80054E5"
+                            "Setting" = "3:1"
                             "UsePlugInResources" = "11:TRUE"
                             }
                             "CopyrightWarning"
@@ -776,8 +741,7 @@
                             "Type" = "3:8"
                             "ContextData" = "8:Bitmap"
                             "Attributes" = "3:4"
-                            "Setting" = "3:2"
-                            "Value" = "8:_0BE8FB02D77D4B60B823AF9DA80054E5"
+                            "Setting" = "3:1"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
