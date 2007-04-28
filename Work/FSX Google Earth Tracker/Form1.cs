@@ -22,15 +22,15 @@ namespace FSX_Google_Earth_Tracker
 {
 	public partial class Form1 : Form
 	{
-        //Config config;
+		//Config config;
 
 		#region Global Variables
 
-        bool bErrorOnLoad = false;
+		bool bErrorOnLoad = false;
 
-        String szAppPath = "";
-        //String szCommonPath = "";
-        String szUserAppPath = "";
+		String szAppPath = "";
+		//String szCommonPath = "";
+		String szUserAppPath = "";
 
 		String szFilePathPub = "";
 		String szFilePathData = "";
@@ -111,7 +111,7 @@ namespace FSX_Google_Earth_Tracker
 		//System.Object lockFlightPlanList = new System.Object();
 
 		byte[] imgNoImage;
-        byte[] imgLogo;
+		byte[] imgLogo;
 
 		#endregion
 
@@ -205,7 +205,7 @@ namespace FSX_Google_Earth_Tracker
 			//public double dSpeedY;
 			//public double dSpeedZ;
 			public double dTime;
-            public double dHeading;
+			public double dHeading;
 		};
 
 
@@ -242,7 +242,7 @@ namespace FSX_Google_Earth_Tracker
 			public double dLong;
 			public double dAlt;
 			public double dTime;
-        }
+		}
 
 
 		struct ObjectImage
@@ -318,7 +318,7 @@ namespace FSX_Google_Earth_Tracker
 		struct ListBoxPredictionTimesItem
 		{
 			public double dTime;
-			
+
 			public override String ToString()
 			{
 				if (dTime < 60)
@@ -355,11 +355,13 @@ namespace FSX_Google_Earth_Tracker
 
 		public Form1()
 		{
+			//ConfigAttribute<TestObject>.readFromGiven("5");
+
 			//As this method doesn't start any other threads we don't need to lock anything here (especially not the config file xml document)
 
 			InitializeComponent();
 
-			
+
 			Text = AssemblyTitle;
 
 
@@ -370,23 +372,23 @@ namespace FSX_Google_Earth_Tracker
 			this.labelCompanyName.Text = AssemblyCompany;
 
 
-            // Set file path
+			// Set file path
 #if DEBUG
-            szAppPath = Application.StartupPath + "\\..\\..";
-            //szCommonPath = szAppPath + "\\Common Files Folder";
-            szUserAppPath = szAppPath + "\\User's Application Data Folder";
+			szAppPath = Application.StartupPath + "\\..\\..";
+			//szCommonPath = szAppPath + "\\Common Files Folder";
+			szUserAppPath = szAppPath + "\\User's Application Data Folder";
 #else
             szAppPath = Application.StartupPath;
 			//szAppPath = Application.StartupPath + "\\..\\..";
             //szCommonPath = Application.CommonAppDataPath;
             szUserAppPath = Application.UserAppDataPath;
 #endif
-            //config = new Config();
+			//config = new Config();
 
 			szFilePathPub = szAppPath + "\\pub";
 			szFilePathData = szAppPath + "\\data";
 
-            // Check if config file for current user exists
+			// Check if config file for current user exists
 			if (!File.Exists(szUserAppPath + "\\settings.cfg"))
 			{
 				if (!Directory.Exists(szUserAppPath))
@@ -396,7 +398,7 @@ namespace FSX_Google_Earth_Tracker
 			}
 
 			// Load config file into memory
-            xmlrSeetingsFile = new XmlTextReader(szUserAppPath + "\\settings.cfg");
+			xmlrSeetingsFile = new XmlTextReader(szUserAppPath + "\\settings.cfg");
 			xmldSettings = new XmlDocument();
 			xmldSettings.Load(xmlrSeetingsFile);
 			xmlrSeetingsFile.Close();
@@ -527,7 +529,7 @@ namespace FSX_Google_Earth_Tracker
 
 				// no-image image
 				imgNoImage = File.ReadAllBytes(szFilePathPub + xmldSettings["fsxget"]["gfx"]["scenery"]["noimage"].Attributes["Img"].Value);
-                imgLogo = File.ReadAllBytes(szFilePathPub + xmldSettings["fsxget"]["gfx"]["scenery"]["logo"].Attributes["Img"].Value);
+				imgLogo = File.ReadAllBytes(szFilePathPub + xmldSettings["fsxget"]["gfx"]["scenery"]["logo"].Attributes["Img"].Value);
 
 				// object images
 				listImgUnitsAir = new List<ObjectImage>(xmldSettings["fsxget"]["gfx"]["scenery"]["air"].ChildNodes.Count);
@@ -596,15 +598,15 @@ namespace FSX_Google_Earth_Tracker
 			// Load FSX and Google Earth path from registry
 			const string szRegKeyFSX = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft Games\\flight simulator\\10.0";
 			const string szRegKeyGE = "HKEY_CLASSES_ROOT\\.kml";
-//			const string szRegKeyGE2 = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Google\\Google Earth Pro";
+			//			const string szRegKeyGE2 = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Google\\Google Earth Pro";
 
 			szPathGE = (string)Registry.GetValue(szRegKeyGE, "", "");
 			szPathFSX = (string)Registry.GetValue(szRegKeyFSX, "SetupPath", "");
 
 			if (szPathGE != "")
 			{
-//				szPathGE += "\\googleearth.exe";
-//				if (File.Exists(szPathGE))
+				//				szPathGE += "\\googleearth.exe";
+				//				if (File.Exists(szPathGE))
 				runGoogleEarthToolStripMenuItem.Enabled = true;
 			}
 			else
@@ -821,7 +823,7 @@ namespace FSX_Google_Earth_Tracker
 				//simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Velocity World Y", "meter per second", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 				//simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Velocity World Z", "meter per second", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 				simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Absolute Time", "seconds", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
-                simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "PLANE HEADING DEGREES TRUE", "degrees", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+				simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "PLANE HEADING DEGREES TRUE", "degrees", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 
 				// IMPORTANT: register it with the simconnect managed wrapper marshaller
 				// if you skip this step, you will only receive a uint in the .dwData field.
@@ -933,7 +935,7 @@ namespace FSX_Google_Earth_Tracker
 									ppPos1.dLat = drroTemp.bmsoObject.dLatitude;
 									ppPos1.dAlt = drroTemp.bmsoObject.dAltitude;
 									ppPos1.dTime = drroTemp.bmsoObject.dTime;
-                                    ppPos1.bInitialized = true;
+									ppPos1.bInitialized = true;
 									return;
 								}
 								else
@@ -943,8 +945,8 @@ namespace FSX_Google_Earth_Tracker
 										ppPos2.dLong = drroTemp.bmsoObject.dLongitude;
 										ppPos2.dLat = drroTemp.bmsoObject.dLatitude;
 										ppPos2.dAlt = drroTemp.bmsoObject.dAltitude;
-                                        ppPos2.dTime = drroTemp.bmsoObject.dTime;
-                                        ppPos2.bInitialized = true;
+										ppPos2.dTime = drroTemp.bmsoObject.dTime;
+										ppPos2.bInitialized = true;
 									}
 									else
 									{
@@ -953,8 +955,8 @@ namespace FSX_Google_Earth_Tracker
 										ppPos2.dLong = drroTemp.bmsoObject.dLongitude;
 										ppPos2.dLat = drroTemp.bmsoObject.dLatitude;
 										ppPos2.dAlt = drroTemp.bmsoObject.dAltitude;
-                                        ppPos2.dTime = drroTemp.bmsoObject.dTime;
-                                        //ppPos2.bInitialized = true;
+										ppPos2.dTime = drroTemp.bmsoObject.dTime;
+										//ppPos2.bInitialized = true;
 									}
 								}
 
@@ -975,7 +977,7 @@ namespace FSX_Google_Earth_Tracker
 											ppsTemp.dLong = dLongNew;
 											ppsTemp.dAlt = dAltNew;
 											ppsTemp.dTime = gconffixCurrent.dPredictionTimes[n];
-                                            listKmlPredictionPoints.Add(ppsTemp);
+											listKmlPredictionPoints.Add(ppsTemp);
 
 											szKmlUserPrediction += dLongNew.ToString().Replace(",", ".") + "," + dLatNew.ToString().Replace(",", ".") + "," + dAltNew.ToString().Replace(",", ".") + "\n";
 										}
@@ -1432,7 +1434,7 @@ namespace FSX_Google_Earth_Tracker
 				throw new System.Exception("Wrong coordinate format!");
 			}
 
-			
+
 			double d1 = System.Double.Parse(szParts[0], System.Globalization.NumberFormatInfo.InvariantInfo);
 			int iSign = Math.Sign(d1);
 			d1 = Math.Abs(d1);
@@ -1591,103 +1593,103 @@ namespace FSX_Google_Earth_Tracker
 				bool bContentSet = false;
 
 
-                if (request.Url.PathAndQuery.ToLower().StartsWith("/gfx/scenery/"))
-                {
-                    String strTmp = request.Url.PathAndQuery.Substring(13);
-                    if (strTmp.StartsWith("air/"))
-                    {
-                        String szTemp = request.Url.PathAndQuery.Substring(17);
+				if (request.Url.PathAndQuery.ToLower().StartsWith("/gfx/scenery/"))
+				{
+					String strTmp = request.Url.PathAndQuery.Substring(13);
+					if (strTmp.StartsWith("air/"))
+					{
+						String szTemp = request.Url.PathAndQuery.Substring(17);
 
-                        if (szTemp.Length >= 4)
-                        {
-                            // Cut the .png suffix from the url
-                            szTemp = szTemp.Substring(0, szTemp.Length - 4);
+						if (szTemp.Length >= 4)
+						{
+							// Cut the .png suffix from the url
+							szTemp = szTemp.Substring(0, szTemp.Length - 4);
 
-                            foreach (ObjectImage aimgCurrent in listImgUnitsAir)
-                            {
-                                String szTemp2 = HttpUtility.UrlDecode(szTemp);
-                                if (aimgCurrent.szTitle.ToLower() == HttpUtility.UrlDecode(szTemp).ToLower())
-                                {
-                                    buffer = aimgCurrent.bData;
-                                    szHeader = "image/png";
-                                    bContentSet = true;
-                                    break;
-                                }
-                            }
+							foreach (ObjectImage aimgCurrent in listImgUnitsAir)
+							{
+								String szTemp2 = HttpUtility.UrlDecode(szTemp);
+								if (aimgCurrent.szTitle.ToLower() == HttpUtility.UrlDecode(szTemp).ToLower())
+								{
+									buffer = aimgCurrent.bData;
+									szHeader = "image/png";
+									bContentSet = true;
+									break;
+								}
+							}
 
-                            if (!bContentSet)
-                            {
-                                buffer = imgNoImage;
-                                szHeader = "image/png";
-                                bContentSet = true;
-                            }
-                        }
-                    }
-                    else if (strTmp.StartsWith("water/"))
-                    {
-                        String szTemp = request.Url.PathAndQuery.Substring(19);
+							if (!bContentSet)
+							{
+								buffer = imgNoImage;
+								szHeader = "image/png";
+								bContentSet = true;
+							}
+						}
+					}
+					else if (strTmp.StartsWith("water/"))
+					{
+						String szTemp = request.Url.PathAndQuery.Substring(19);
 
-                        if (szTemp.Length >= 4)
-                        {
-                            // Cut the .png suffix from the url
-                            szTemp = szTemp.Substring(0, szTemp.Length - 4);
+						if (szTemp.Length >= 4)
+						{
+							// Cut the .png suffix from the url
+							szTemp = szTemp.Substring(0, szTemp.Length - 4);
 
-                            foreach (ObjectImage aimgCurrent in listImgUnitsWater)
-                            {
-                                String szTemp2 = HttpUtility.UrlDecode(szTemp);
-                                if (aimgCurrent.szTitle.ToLower() == HttpUtility.UrlDecode(szTemp).ToLower())
-                                {
-                                    buffer = aimgCurrent.bData;
-                                    szHeader = "image/png";
-                                    bContentSet = true;
-                                    break;
-                                }
-                            }
+							foreach (ObjectImage aimgCurrent in listImgUnitsWater)
+							{
+								String szTemp2 = HttpUtility.UrlDecode(szTemp);
+								if (aimgCurrent.szTitle.ToLower() == HttpUtility.UrlDecode(szTemp).ToLower())
+								{
+									buffer = aimgCurrent.bData;
+									szHeader = "image/png";
+									bContentSet = true;
+									break;
+								}
+							}
 
-                            if (!bContentSet)
-                            {
-                                buffer = imgNoImage;
-                                szHeader = "image/png";
-                                bContentSet = true;
-                            }
-                        }
-                    }
-                    else if (strTmp.StartsWith("ground/"))
-                    {
-                        String szTemp = request.Url.PathAndQuery.Substring(20);
+							if (!bContentSet)
+							{
+								buffer = imgNoImage;
+								szHeader = "image/png";
+								bContentSet = true;
+							}
+						}
+					}
+					else if (strTmp.StartsWith("ground/"))
+					{
+						String szTemp = request.Url.PathAndQuery.Substring(20);
 
-                        if (szTemp.Length >= 4)
-                        {
-                            // Cut the .png suffix from the url
-                            szTemp = szTemp.Substring(0, szTemp.Length - 4);
+						if (szTemp.Length >= 4)
+						{
+							// Cut the .png suffix from the url
+							szTemp = szTemp.Substring(0, szTemp.Length - 4);
 
-                            foreach (ObjectImage aimgCurrent in listImgUnitsGround)
-                            {
-                                String szTemp2 = HttpUtility.UrlDecode(szTemp);
-                                if (aimgCurrent.szTitle.ToLower() == HttpUtility.UrlDecode(szTemp).ToLower())
-                                {
-                                    buffer = aimgCurrent.bData;
-                                    szHeader = "image/png";
-                                    bContentSet = true;
-                                    break;
-                                }
-                            }
+							foreach (ObjectImage aimgCurrent in listImgUnitsGround)
+							{
+								String szTemp2 = HttpUtility.UrlDecode(szTemp);
+								if (aimgCurrent.szTitle.ToLower() == HttpUtility.UrlDecode(szTemp).ToLower())
+								{
+									buffer = aimgCurrent.bData;
+									szHeader = "image/png";
+									bContentSet = true;
+									break;
+								}
+							}
 
-                            if (!bContentSet)
-                            {
-                                buffer = imgNoImage;
-                                szHeader = "image/png";
-                                bContentSet = true;
-                            }
-                        }
-                    }
-                    else if (strTmp.Equals("logo.png"))
-                    {
-                        buffer = imgLogo;
-                        szHeader = "image/png";
-                        bContentSet = true;
-                    }
-                }
+							if (!bContentSet)
+							{
+								buffer = imgNoImage;
+								szHeader = "image/png";
+								bContentSet = true;
+							}
+						}
+					}
+					else if (strTmp.Equals("logo.png"))
+					{
+						buffer = imgLogo;
+						szHeader = "image/png";
+						bContentSet = true;
+					}
+				}
 				else if (request.Url.PathAndQuery.ToLower().StartsWith("/gfx/ge/icons/"))
 				{
 					String szTemp = request.Url.PathAndQuery.Substring(14);
@@ -1722,22 +1724,22 @@ namespace FSX_Google_Earth_Tracker
 				else if (request.Url.PathAndQuery.ToLower() == "/fsxu.kml")
 				{
 					bContentSet = true;
-                    String str = KmlGenFile(KML_FILES.REQUEST_USER_AIRCRAFT, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserAircraft, request.UserHostName);
-                    szHeader = "application/vnd.google-earth.kml+xml";
+					String str = KmlGenFile(KML_FILES.REQUEST_USER_AIRCRAFT, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserAircraft, request.UserHostName);
+					szHeader = "application/vnd.google-earth.kml+xml";
 					buffer = System.Text.Encoding.UTF8.GetBytes(str);
-                    System.Diagnostics.Trace.WriteLine(str);
-                }
+					System.Diagnostics.Trace.WriteLine(str);
+				}
 				else if (request.Url.PathAndQuery.ToLower() == "/fsxp.kml")
 				{
 					bContentSet = true;
 					szHeader = "application/vnd.google-earth.kml+xml";
-                    buffer = System.Text.Encoding.UTF8.GetBytes(KmlGenFile(KML_FILES.REQUEST_USER_PATH, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserPath, request.UserHostName));
+					buffer = System.Text.Encoding.UTF8.GetBytes(KmlGenFile(KML_FILES.REQUEST_USER_PATH, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserPath, request.UserHostName));
 				}
 				else if (request.Url.PathAndQuery.ToLower() == "/fsxpre.kml")
 				{
 					bContentSet = true;
-                    szHeader = "application/vnd.google-earth.kml+xml";
-                    buffer = System.Text.Encoding.UTF8.GetBytes(KmlGenFile(KML_FILES.REQUEST_USER_PREDICTION, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserPrediction, request.UserHostName));
+					szHeader = "application/vnd.google-earth.kml+xml";
+					buffer = System.Text.Encoding.UTF8.GetBytes(KmlGenFile(KML_FILES.REQUEST_USER_PREDICTION, KML_ACCESS_MODES.MODE_SERVER, true, (uint)gconffixCurrent.iUpdateGEUserPrediction, request.UserHostName));
 				}
 				else if (request.Url.PathAndQuery.ToLower() == "/fsxaip.kml")
 				{
@@ -2043,8 +2045,8 @@ namespace FSX_Google_Earth_Tracker
 					"<IconStyle><Icon><href>" + KmlGetIconLink(AccessMode, KML_ICON_TYPES.USER_AIRCRAFT_POSITION, szServer) + "</href></Icon><scale>0.8</scale></IconStyle>" +
 					"<LabelStyle><scale>1.0</scale></LabelStyle>" +
 					"</Style>" +
-                    "<Point><altitudeMode>absolute</altitudeMode><coordinates>" + suadCurrent.dLongitude.ToString().Replace(",", ".") + "," + suadCurrent.dLatitude.ToString().Replace(",", ".") + "," + suadCurrent.dAltitude.ToString().Replace(",", ".") + "</coordinates><extrude>1</extrude></Point></Placemark>" +
-                    "<LookAt><longitude>" + XmlConvert.ToString(suadCurrent.dLongitude) + "</longitude><latitude>" + XmlConvert.ToString(suadCurrent.dLatitude) + "</latitude><heading>" + XmlConvert.ToString(suadCurrent.dHeading) + "</heading></LookAt>";
+					"<Point><altitudeMode>absolute</altitudeMode><coordinates>" + suadCurrent.dLongitude.ToString().Replace(",", ".") + "," + suadCurrent.dLatitude.ToString().Replace(",", ".") + "," + suadCurrent.dAltitude.ToString().Replace(",", ".") + "</coordinates><extrude>1</extrude></Point></Placemark>" +
+					"<LookAt><longitude>" + XmlConvert.ToString(suadCurrent.dLongitude) + "</longitude><latitude>" + XmlConvert.ToString(suadCurrent.dLatitude) + "</latitude><heading>" + XmlConvert.ToString(suadCurrent.dHeading) + "</heading></LookAt>";
 			}
 		}
 
@@ -2389,79 +2391,79 @@ namespace FSX_Google_Earth_Tracker
 
 		#region Update Check
 
-//        private void checkForProgramUpdate()
-//        {
-//            try
-//            {
-//                szOnlineVersionCheckData = "";
+		//        private void checkForProgramUpdate()
+		//        {
+		//            try
+		//            {
+		//                szOnlineVersionCheckData = "";
 
-//                wrOnlineVersionCheck = WebRequest.Create("http://juergentreml.online.de/fsxget/provide/version.txt");
-//                wrOnlineVersionCheck.BeginGetResponse(new AsyncCallback(RespCallback), wrOnlineVersionCheck);
-//            }
-//            catch
-//            {
-//#if DEBUG
-//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
-//#endif
-//            }
-//        }
+		//                wrOnlineVersionCheck = WebRequest.Create("http://juergentreml.online.de/fsxget/provide/version.txt");
+		//                wrOnlineVersionCheck.BeginGetResponse(new AsyncCallback(RespCallback), wrOnlineVersionCheck);
+		//            }
+		//            catch
+		//            {
+		//#if DEBUG
+		//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
+		//#endif
+		//            }
+		//        }
 
-//        private void RespCallback(IAsyncResult asynchronousResult)
-//        {
-//            try
-//            {
-//                WebRequest myWebRequest = (WebRequest)asynchronousResult.AsyncState;
-//                wrespOnlineVersionCheck = myWebRequest.EndGetResponse(asynchronousResult);
-//                Stream responseStream = wrespOnlineVersionCheck.GetResponseStream();
+		//        private void RespCallback(IAsyncResult asynchronousResult)
+		//        {
+		//            try
+		//            {
+		//                WebRequest myWebRequest = (WebRequest)asynchronousResult.AsyncState;
+		//                wrespOnlineVersionCheck = myWebRequest.EndGetResponse(asynchronousResult);
+		//                Stream responseStream = wrespOnlineVersionCheck.GetResponseStream();
 
-//                responseStream.BeginRead(bOnlineVersionCheckRawData, 0, iOnlineVersionCheckRawDataLength, new AsyncCallback(ReadCallBack), responseStream);
-//            }
-//            catch
-//            {
-//#if DEBUG
-//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
-//#endif
-//            }
-//        }
+		//                responseStream.BeginRead(bOnlineVersionCheckRawData, 0, iOnlineVersionCheckRawDataLength, new AsyncCallback(ReadCallBack), responseStream);
+		//            }
+		//            catch
+		//            {
+		//#if DEBUG
+		//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
+		//#endif
+		//            }
+		//        }
 
-//        private void ReadCallBack(IAsyncResult asyncResult)
-//        {
-//            try
-//            {
-//                Stream responseStream = (Stream)asyncResult.AsyncState;
-//                int iRead = responseStream.EndRead(asyncResult);
-//                if (iRead > 0)
-//                {
-//                    szOnlineVersionCheckData += Encoding.ASCII.GetString(bOnlineVersionCheckRawData, 0, iRead);
-//                    responseStream.BeginRead(bOnlineVersionCheckRawData, 0, iOnlineVersionCheckRawDataLength, new AsyncCallback(ReadCallBack), responseStream);
-//                }
-//                else
-//                {
-//                    responseStream.Close();
-//                    wrespOnlineVersionCheck.Close();
+		//        private void ReadCallBack(IAsyncResult asyncResult)
+		//        {
+		//            try
+		//            {
+		//                Stream responseStream = (Stream)asyncResult.AsyncState;
+		//                int iRead = responseStream.EndRead(asyncResult);
+		//                if (iRead > 0)
+		//                {
+		//                    szOnlineVersionCheckData += Encoding.ASCII.GetString(bOnlineVersionCheckRawData, 0, iRead);
+		//                    responseStream.BeginRead(bOnlineVersionCheckRawData, 0, iOnlineVersionCheckRawDataLength, new AsyncCallback(ReadCallBack), responseStream);
+		//                }
+		//                else
+		//                {
+		//                    responseStream.Close();
+		//                    wrespOnlineVersionCheck.Close();
 
-//                    char[] szSeperator = { '.' };
-//                    String[] szVersionLocal = Application.ProductVersion.Split(szSeperator);
-//                    String[] szVersionOnline = szOnlineVersionCheckData.Split(szSeperator);
-//                    for (int i = 0; i < Math.Min(szVersionLocal.GetLength(0), szVersionOnline.GetLength(0)); i++)
-//                    {
-//                        if (Int64.Parse(szVersionOnline[i]) > Int64.Parse(szVersionLocal[i]))
-//                        {
-//                            notifyIconMain.ShowBalloonTip(30, Text, "A new program version is available!\n\nLatest Version:\t" + szOnlineVersionCheckData + "\nYour Version:\t" + Application.ProductVersion, ToolTipIcon.Info);
-//                            break;
-//                        }
-//                        else if (Int64.Parse(szVersionOnline[i]) < Int64.Parse(szVersionLocal[i]))
-//                            break;
-//                    }
-//                }
-//            }
-//            catch
-//            {
-//#if DEBUG
-//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
-//#endif
-//            }
-//        }
+		//                    char[] szSeperator = { '.' };
+		//                    String[] szVersionLocal = Application.ProductVersion.Split(szSeperator);
+		//                    String[] szVersionOnline = szOnlineVersionCheckData.Split(szSeperator);
+		//                    for (int i = 0; i < Math.Min(szVersionLocal.GetLength(0), szVersionOnline.GetLength(0)); i++)
+		//                    {
+		//                        if (Int64.Parse(szVersionOnline[i]) > Int64.Parse(szVersionLocal[i]))
+		//                        {
+		//                            notifyIconMain.ShowBalloonTip(30, Text, "A new program version is available!\n\nLatest Version:\t" + szOnlineVersionCheckData + "\nYour Version:\t" + Application.ProductVersion, ToolTipIcon.Info);
+		//                            break;
+		//                        }
+		//                        else if (Int64.Parse(szVersionOnline[i]) < Int64.Parse(szVersionLocal[i]))
+		//                            break;
+		//                    }
+		//                }
+		//            }
+		//            catch
+		//            {
+		//#if DEBUG
+		//                notifyIconMain.ShowBalloonTip(5, Text, "Couldn't check for program update online!", ToolTipIcon.Warning);
+		//#endif
+		//            }
+		//        }
 
 
 		#endregion
@@ -2722,7 +2724,7 @@ namespace FSX_Google_Earth_Tracker
 			//    ListViewItem lviTemp = listViewFlightPlans.Items.Insert(iCount, xmlnTemp.Attributes["Name"].Value);
 			//    lviTemp.Checked = (xmlnTemp.Attributes["Show"].Value == "1" ? true : false);
 			//    lviTemp.SubItems.Add(xmlnTemp.Attributes["File"].Value);
-				
+
 			//    iCount++;
 			//}
 
@@ -2827,7 +2829,7 @@ namespace FSX_Google_Earth_Tracker
 		//    try
 		//    {
 		//        int iCount = 0;
-				
+
 		//        fpTemp.szName = "";
 		//        fpTemp.uiID = 0;
 		//        fpTemp.xmldPlan = null;
