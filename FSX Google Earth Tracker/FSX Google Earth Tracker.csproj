@@ -65,6 +65,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config.cs" />
+    <None Include="Config2.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -100,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.ico" />
+    <None Include="Config.cd" />
     <None Include="fsxget.exe.manifest" />
     <Content Include="data\fsxget-fsxaib.part" />
     <Content Include="data\fsxget-fsxaig.part" />
