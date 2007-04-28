@@ -14,7 +14,7 @@ namespace FSX_Google_Earth_Tracker
 {
 
     #region SettingsClasses
-    public class Value
+    public class ConfigValue
     {
         #region Variables
         protected enum TYPE
@@ -30,7 +30,7 @@ namespace FSX_Google_Earth_Tracker
         #endregion 
 
         #region Construction
-        public Value(String strType)
+        public ConfigValue(String strType)
         {
             Init(strType);
         }
@@ -49,7 +49,7 @@ namespace FSX_Google_Earth_Tracker
             else
                 throw new Exception("Invalid value type");
         }
-        protected Value()
+        protected ConfigValue()
         {
             tType = TYPE.VOID;
         }
@@ -165,14 +165,14 @@ namespace FSX_Google_Earth_Tracker
         }
         #endregion
     }
-    public class Attribute : Value
+    public class ConfigAttribute : ConfigValue
     {
         #region Variables
         protected String strName;
         #endregion
 
         #region Construction
-        public Attribute(String strAttribute)
+        public ConfigAttribute(String strAttribute)
         {
             int nPos1 = strAttribute.IndexOf('<');
             int nPos2 = strAttribute.IndexOf('>');
@@ -315,22 +315,42 @@ namespace FSX_Google_Earth_Tracker
         #endregion
 
         #region Accessors
-        public abstract Attribute this[String strName]
+        public virtual ConfigAttribute this[String strName]
+        {
+            get
+            {
+                return this[strName, 0];
+            }
+        }
+        public abstract ConfigAttribute this[String strName, int nIdx]
         {
             get;
         }
-        public abstract Value Value
+
+        public virtual ConfigValue Value
+        {
+            get
+            {
+                return this[0];
+            }
+            set
+            {
+                this[0] = value;
+            }
+        }
+        public abstract ConfigValue this[int nIdx]
         {
             get;
             set;
         }
+        
         #endregion
 
     }
     public class SettingsObject : Settings
     {
         #region Variables
-        protected Value value;
+        protected ConfigValue value;
         protected Hashtable attributes;
         #endregion
 
@@ -344,12 +364,12 @@ namespace FSX_Google_Earth_Tracker
                 attributes = new Hashtable();
                 foreach (String strAttribute in strAttributesParts)
                 {
-                    Attribute attribute = new Attribute(strAttribute);
+                    ConfigAttribute attribute = new ConfigAttribute(strAttribute);
                     attributes.Add(attribute.Name, attribute);
                 }
             }
             if (strValueType != null && strValueType.Length > 0)
-                value = new Value(strValueType);
+                value = new ConfigValue(strValueType);
         }
         #endregion
 
@@ -362,7 +382,7 @@ namespace FSX_Google_Earth_Tracker
             {
                 foreach (DictionaryEntry entry in attributes)
                 {
-                    ((Attribute)entry.Value).ReadFromXML(ref xmln);
+                    ((ConfigAttribute)entry.Value).ReadFromXML(ref xmln);
                 }
             }
         }
@@ -374,29 +394,35 @@ namespace FSX_Google_Earth_Tracker
             {
                 foreach (DictionaryEntry entry in attributes)
                 {
-                    ((Attribute)entry.Value).WriteToXML(ref xmln);
+                    ((ConfigAttribute)entry.Value).WriteToXML(ref xmln);
                 }
             }
         }
         #endregion
 
         #region Accessors
-        public override Value Value
+        public override ConfigValue this[int nIdx]
         {
             get
             {
+                if (nIdx != 0)
+                    throw new IndexOutOfRangeException();
                 return value;
             }
             set
             {
+                if (nIdx != 0)
+                    throw new IndexOutOfRangeException();
                 this.value = value;
             }
         }
-        public override Attribute this[String strName]
+        public override ConfigAttribute this[String strName, int nIdx]
         {
             get
             {
-                return (Attribute)attributes[strName];
+                if (nIdx != 0)
+                    throw new IndexOutOfRangeException();
+                return (ConfigAttribute)attributes[strName];
             }
         }
         #endregion
@@ -451,25 +477,14 @@ namespace FSX_Google_Earth_Tracker
         #endregion
 
         #region Accessors
-        public override Value Value
-        {
-            get
-            {
-                return this[0];
-            }
-            set
-            {
-                this[0] = value;
-            }
-        }
-        public override Attribute this[String strName]
+        public override ConfigAttribute this[String strName]
         {
             get
             {
                 return this[strName, 0];
             }
         }
-        public Value this[int nIdx]
+        public override ConfigValue this[int nIdx]
         {
             get
             {
@@ -480,7 +495,7 @@ namespace FSX_Google_Earth_Tracker
                 listSettings[nIdx].Value = value;
             }
         }
-        public Attribute this[String strName,int nIdx]
+        public override ConfigAttribute this[String strName,int nIdx]
         {
             get
             {
@@ -671,21 +686,16 @@ namespace FSX_Google_Earth_Tracker
             obj["Enabled"].BoolValue = true;
             obj["Interval"].IntValue = 5000;
 
-            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", null, "Time<int>");
-            obj["Time"].IntValue = 30;
-            ((SettingsList)settings[(int)SETTING.PREDICTION_POINTS]).listSettings.Add((SettingsObject)obj);
-            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", null, "Time<int>");
-            obj["Time"].IntValue = 150;
-            ((SettingsList)settings[(int)SETTING.PREDICTION_POINTS]).listSettings.Add((SettingsObject)obj);
-            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", null, "Time<int>");
-            obj["Time"].IntValue = 300;
-            ((SettingsList)settings[(int)SETTING.PREDICTION_POINTS]).listSettings.Add((SettingsObject)obj);
-            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", null, "Time<int>");
-            obj["Time"].IntValue = 600;
-            ((SettingsList)settings[(int)SETTING.PREDICTION_POINTS]).listSettings.Add((SettingsObject)obj);
-            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", null, "Time<int>");
-            obj["Time"].IntValue = 1200;
-            ((SettingsList)settings[(int)SETTING.PREDICTION_POINTS]).listSettings.Add((SettingsObject)obj);
+
+            for (int i = 0; i < 5; i++)
+            {
+                ((SettingsList)settings[(int)SETTING.PREDICTION_POINTS]).listSettings.Add(new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", null, "Time<int>"));
+            }
+            settings[(int)SETTING.PREDICTION_POINTS]["Time", 0].IntValue = 30;
+            settings[(int)SETTING.PREDICTION_POINTS]["Time", 1].IntValue = 150;
+            settings[(int)SETTING.PREDICTION_POINTS]["Time", 2].IntValue = 300;
+            settings[(int)SETTING.PREDICTION_POINTS]["Time", 3].IntValue = 600;
+            settings[(int)SETTING.PREDICTION_POINTS]["Time", 4].IntValue = 1200;
 
             settings[(int)SETTING.QUERY_AI_OBJECTS]["Enabled"].BoolValue = true;
 
