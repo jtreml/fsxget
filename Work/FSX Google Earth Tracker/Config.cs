@@ -12,28 +12,30 @@ using System.Reflection;
 
 namespace FSX_Google_Earth_Tracker
 {
+
     #region SettingsClasses
-    public class Attribute
+    public class Value
     {
+        #region Variables
         protected enum TYPE
         {
-            INT = 0,
+            VOID = 0,
+            INT,
             FLOAT,
             STRING,
             BOOL
         } ;
-        protected String strName;
         protected TYPE tType;
         protected object value;
+        #endregion 
 
-        public Attribute(String strAttribute)
+        #region Construction
+        public Value(String strType)
         {
-            int nPos1 = strAttribute.IndexOf('<');
-            int nPos2 = strAttribute.IndexOf('>');
-            if (nPos1 < 1 || nPos2 < 1)
-                throw new Exception("Invalid attribute format");
-            strName = strAttribute.Substring(0, nPos1);
-            String strType = strAttribute.Substring(nPos1 + 1, nPos2 - nPos1 - 1).ToLower();
+            Init(strType);
+        }
+        protected void Init(String strType)
+        {
             if (strType == "int")
                 tType = TYPE.INT;
             else if (strType == "float")
@@ -42,13 +44,154 @@ namespace FSX_Google_Earth_Tracker
                 tType = TYPE.STRING;
             else if (strType == "bool")
                 tType = TYPE.BOOL;
+            else if (strType == "void")
+                tType = TYPE.VOID;
             else
-                throw new Exception("Invalid attribute type");
+                throw new Exception("Invalid value type");
         }
-
-        public void ReadFromXML(ref XmlNode xmln)
+        protected Value()
         {
-            String strValue = GetXMLAttribute(ref xmln).Value;
+            tType = TYPE.VOID;
+        }
+        #endregion
+
+        #region XML-Handling
+        public virtual void ReadFromXML(ref XmlNode xmln)
+        {
+            XmlNode xmlnText = xmln.FirstChild;
+            if (xmlnText == null)
+                throw new InvalidDataException("XmlNode has no data");
+            switch (tType)
+            {
+                case TYPE.INT:
+                    value = int.Parse(xmln.FirstChild.Value);
+                    break;
+                case TYPE.FLOAT:
+                    value = float.Parse(xmln.FirstChild.Value);
+                    break;
+                case TYPE.STRING:
+                    value = xmln.FirstChild.Value;
+                    break;
+                case TYPE.BOOL:
+                    if (xmln.FirstChild.Value.ToLower() == "true" || xmln.FirstChild.Value == "1")
+                        value = true;
+                    else
+                        value = false;
+                    break;
+            }
+        }
+        public virtual void WriteToXML(ref XmlNode xmln)
+        {
+            if (value != null)
+            {
+                xmln.AppendChild(xmln.OwnerDocument.CreateTextNode(""));
+                switch (tType)
+                {
+                    case TYPE.INT:
+                        xmln.FirstChild.Value = XmlConvert.ToString((int)value);
+                        break;
+                    case TYPE.FLOAT:
+                        xmln.FirstChild.Value = XmlConvert.ToString((float)value);
+                        break;
+                    case TYPE.STRING:
+                        xmln.FirstChild.Value = (String)value;
+                        break;
+                    case TYPE.BOOL:
+                        xmln.FirstChild.Value = XmlConvert.ToString((bool)value);
+                        break;
+                }
+            }
+            else
+                throw new InvalidDataException("No data assigned to XmlNode");
+        }
+        #endregion
+
+        #region Accessors
+        public int IntValue
+        {
+            get
+            {
+                return (int)value;
+            }
+            set
+            {
+                if (tType == TYPE.INT)
+                    this.value = value;
+                else
+                    throw new InvalidCastException("Value is not of int type");
+            }
+        }
+        public float FloatValue
+        {
+            get
+            {
+                return (float)value;
+            }
+            set
+            {
+                if (tType == TYPE.FLOAT)
+                    this.value = value;
+                else
+                    throw new InvalidCastException("Value is not of float type");
+            }
+        }
+        public String StringValue
+        {
+            get
+            {
+                return (String)value;
+            }
+            set
+            {
+                if (tType == TYPE.STRING)
+                    this.value = value;
+                else
+                    throw new InvalidCastException("Value is not of string type");
+            }
+        }
+        public bool BoolValue
+        {
+            get
+            {
+                return (bool)value;
+            }
+            set
+            {
+                if (tType == TYPE.BOOL)
+                    this.value = value;
+                else
+                    throw new InvalidCastException("Value is not of bool type");
+            }
+        }
+        #endregion
+    }
+    public class Attribute : Value
+    {
+        #region Variables
+        protected String strName;
+        #endregion
+
+        #region Construction
+        public Attribute(String strAttribute)
+        {
+            int nPos1 = strAttribute.IndexOf('<');
+            int nPos2 = strAttribute.IndexOf('>');
+            if (nPos1 < 1 || nPos2 < 1)
+                throw new Exception("Invalid attribute format");
+            strName = strAttribute.Substring(0, nPos1);
+            String strType = strAttribute.Substring(nPos1 + 1, nPos2 - nPos1 - 1).ToLower();
+            Init(strType);
+            if (tType == TYPE.VOID)
+            {
+                throw new InvalidDataException("Attribute can not have the type void");
+            }
+        }
+        #endregion
+
+        #region XML-Handling
+        public override void ReadFromXML(ref XmlNode xmln)
+        {
+            String strValue = GetXmlAttribute(ref xmln).Value;
             switch (tType)
             {
                 case TYPE.INT:
@@ -68,29 +211,31 @@ namespace FSX_Google_Earth_Tracker
                     break;
             }
         }
-
-        public void WriteToXML(ref XmlNode xmln)
+        public override void WriteToXML(ref XmlNode xmln)
         {
-            XmlAttribute xmla = GetXMLAttribute(ref xmln);
-
-            switch (tType)
+            XmlAttribute xmla = GetXmlAttribute(ref xmln);
+            if (value != null)
             {
-                case TYPE.INT:
-                    xmla.Value = XmlConvert.ToString((int)value);
-                    break;
-                case TYPE.FLOAT:
-                    xmla.Value = XmlConvert.ToString((float)value);
-                    break;
-                case TYPE.STRING:
-                    xmla.Value = (String)value;
-                    break;
-                case TYPE.BOOL:
-                    xmla.Value = XmlConvert.ToString((bool)value);
-                    break;
+                switch (tType)
+                {
+                    case TYPE.INT:
+                        xmla.Value = XmlConvert.ToString((int)value);
+                        break;
+                    case TYPE.FLOAT:
+                        xmla.Value = XmlConvert.ToString((float)value);
+                        break;
+                    case TYPE.STRING:
+                        xmla.Value = (String)value;
+                        break;
+                    case TYPE.BOOL:
+                        xmla.Value = XmlConvert.ToString((bool)value);
+                        break;
+                }
             }
+            else
+                throw new InvalidDataException("Attribute has no data");
         }
-
-        protected XmlAttribute GetXMLAttribute(ref XmlNode xmln)
+        protected XmlAttribute GetXmlAttribute(ref XmlNode xmln)
         {
             XmlAttribute xmla = xmln.Attributes[strName];
             if (xmla == null)
@@ -101,7 +246,9 @@ namespace FSX_Google_Earth_Tracker
             return xmla;
 
         }
+        #endregion
 
+        #region Accessors
         public String Name
         {
             get
@@ -109,76 +256,22 @@ namespace FSX_Google_Earth_Tracker
                 return strName;
             }
         }
-
-        public int IntValue
-        {
-            get
-            {
-                return (int)value;
-            }
-            set
-            {
-                if (tType == TYPE.INT)
-                    this.value = value;
-                else
-                    throw new InvalidCastException("Attribute is not of int type");
-            }
-        }
-
-        public float FloatValue
-        {
-            get
-            {
-                return (float)value;
-            }
-            set
-            {
-                if (tType == TYPE.FLOAT)
-                    this.value = value;
-                else
-                    throw new InvalidCastException("Attribute is not of float type");
-            }
-        }
-
-        public String StringValue
-        {
-            get
-            {
-                return (String)value;
-            }
-            set
-            {
-                if (tType == TYPE.STRING)
-                    this.value = value;
-                else
-                    throw new InvalidCastException("Attribute is not of string type");
-            }
-        }
-
-        public bool BoolValue
-        {
-            get
-            {
-                return (bool)value;
-            }
-            set
-            {
-                if (tType == TYPE.BOOL)
-                    this.value = value;
-                else
-                    throw new InvalidCastException("Attribute is not of bool type");
-            }
-        }
+        #endregion
     }
-    abstract class Settings
+    public abstract class Settings
     {
+        #region Variables
         protected String[] strPathParts;
+        #endregion
 
+        #region Construction
         public Settings(String strXMLPath)
         {
             this.strPathParts = strXMLPath.Split('/');
         }
+        #endregion
 
+        #region XML-Handling
         public virtual void ReadFromXML(ref XmlDocument xmld)
         {
             XmlNode xmln = GetXmlNode(ref xmld);
@@ -189,13 +282,9 @@ namespace FSX_Google_Earth_Tracker
             XmlNode xmln = GetXmlNode(ref xmld);
             WriteToXML(ref xmln);
         }
-
         public abstract void ReadFromXML(ref XmlNode xmln);
         public abstract void WriteToXML(ref XmlNode xmln);
-
-        public abstract Attribute GetAttribute(String strName);
-
-        protected XmlNode GetXmlNode(ref XmlDocument xmld)
+        protected virtual XmlNode GetXmlNode(ref XmlDocument xmld)
         {
             XmlNode xmln = null;
             for (int i = 0; i < strPathParts.Length; i++)
@@ -213,8 +302,7 @@ namespace FSX_Google_Earth_Tracker
             }
             return xmln;
         }
-
-        protected XmlAttribute GetXMLAttribute(ref XmlNode xmln, String strName)
+        protected XmlAttribute GetXmlAttribute(ref XmlNode xmln, String strName)
         {
             XmlAttribute xmla = xmln.Attributes[strName];
             if (xmla == null)
@@ -224,73 +312,127 @@ namespace FSX_Google_Earth_Tracker
             }
             return xmla;
         }
+        #endregion
+
+        #region Accessors
+        public abstract Attribute this[String strName]
+        {
+            get;
+        }
+        public abstract Value Value
+        {
+            get;
+            set;
+        }
+        #endregion
 
     }
-    class SettingsObject : Settings
+    public class SettingsObject : Settings
     {
-
+        #region Variables
+        protected Value value;
         protected Hashtable attributes;
+        #endregion
 
-        public SettingsObject(String strXMLPath, String strAttributes)
+        #region Construction
+        public SettingsObject(String strXMLPath, String strValueType, String strAttributes)
             : base(strXMLPath)
         {
-            String[] strAttributesParts = strAttributes.Split(';');
-            attributes = new Hashtable();
-            foreach (String strAttribute in strAttributesParts)
+            if (strAttributes != null)
             {
-                Attribute attribute = new Attribute(strAttribute);
-                attributes.Add(attribute.Name, attribute);
+                String[] strAttributesParts = strAttributes.Split(';');
+                attributes = new Hashtable();
+                foreach (String strAttribute in strAttributesParts)
+                {
+                    Attribute attribute = new Attribute(strAttribute);
+                    attributes.Add(attribute.Name, attribute);
+                }
             }
+            if (strValueType != null && strValueType.Length > 0)
+                value = new Value(strValueType);
         }
+        #endregion
 
+        #region XML-Handling
         public override void ReadFromXML(ref XmlNode xmln)
         {
-            foreach (DictionaryEntry entry in attributes)
+            if (value != null)
+                value.ReadFromXML(ref xmln);
+            if (attributes != null)
             {
-                ((Attribute)entry.Value).ReadFromXML(ref xmln);
+                foreach (DictionaryEntry entry in attributes)
+                {
+                    ((Attribute)entry.Value).ReadFromXML(ref xmln);
+                }
             }
         }
-
         public override void WriteToXML(ref XmlNode xmln)
         {
-            foreach (DictionaryEntry entry in attributes)
+            if( value != null )
+                value.WriteToXML(ref xmln);
+            if (attributes != null)
             {
-                ((Attribute)entry.Value).WriteToXML(ref xmln);
+                foreach (DictionaryEntry entry in attributes)
+                {
+                    ((Attribute)entry.Value).WriteToXML(ref xmln);
+                }
             }
         }
+        #endregion
 
-
-        public override Attribute GetAttribute(String strName)
+        #region Accessors
+        public override Value Value
         {
-            return (Attribute)attributes[strName];
+            get
+            {
+                return value;
+            }
+            set
+            {
+                this.value = value;
+            }
         }
+        public override Attribute this[String strName]
+        {
+            get
+            {
+                return (Attribute)attributes[strName];
+            }
+        }
+        #endregion
     }
-    class SettingsList : Settings
+    public class SettingsList : Settings
     {
+        #region Variables
         public List<SettingsObject> listSettings;
         protected String strXMLPath;
+        protected String strValueType;
         protected String strAttributes;
         protected String strElementName;
+        #endregion
 
-        public SettingsList(String strXMLPath, String strElementName, String strAttributes)
+        #region Construction
+        public SettingsList(String strXMLPath, String strElementName, String strValueType, String strAttributes)
             : base(strXMLPath)
         {
             listSettings = new List<SettingsObject>();
             this.strXMLPath = strXMLPath;
+            this.strValueType = strValueType;
             this.strAttributes = strAttributes;
             this.strElementName = strElementName;
         }
+        #endregion
 
+        #region XML-Handling
         public override void ReadFromXML(ref XmlNode xmln)
         {
             for (XmlNode xmlnChild = xmln.FirstChild; xmlnChild != null; xmlnChild = xmlnChild.NextSibling)
             {
-                SettingsObject setting = new SettingsObject(strXMLPath + "/" + strElementName, strAttributes);
+                SettingsObject setting = new SettingsObject(strXMLPath + "/" + strElementName, strValueType, strAttributes);
                 setting.ReadFromXML(ref xmlnChild);
                 listSettings.Add(setting);
             }
         }
-
         public override void WriteToXML(ref XmlNode xmln)
         {
             XmlNode xmlnChild;
@@ -306,24 +448,53 @@ namespace FSX_Google_Earth_Tracker
                 xmln.AppendChild(xmlnChild);
             }
         }
+        #endregion
 
-        public override Attribute GetAttribute(String strName)
+        #region Accessors
+        public override Value Value
         {
-            return GetAttribute(strName, 0);
+            get
+            {
+                return this[0];
+            }
+            set
+            {
+                this[0] = value;
+            }
         }
-
-        public Attribute GetAttribute(String strName, int nIdx)
+        public override Attribute this[String strName]
         {
-            return listSettings[nIdx].GetAttribute(strName);
+            get
+            {
+                return this[strName, 0];
+            }
         }
+        public Value this[int nIdx]
+        {
+            get
+            {
+                return listSettings[nIdx].Value;
+            }
+            set
+            {
+                listSettings[nIdx].Value = value;
+            }
+        }
+        public Attribute this[String strName,int nIdx]
+        {
+            get
+            {
+                return listSettings[nIdx][strName];
+            }
+        }
+        #endregion
     }
     #endregion
 
-    class Config
+    public class Config
     {
 
         #region Variable-Declaration
-
         public enum SETTING
         {
             ENABLE_ON_STARTUP = 0,
@@ -333,7 +504,7 @@ namespace FSX_Google_Earth_Tracker
             QUERY_USER_AIRCRAFT,
             QUERY_USER_PATH,
             USER_PATH_PREDICTION,
-            PREDITCTION_POINTS,
+            PREDICTION_POINTS,
             QUERY_AI_OBJECTS,
             QUERY_AI_AIRCRAFTS,
             QUERY_AI_HELICOPTERS,
@@ -362,37 +533,41 @@ namespace FSX_Google_Earth_Tracker
 
         private bool bCanRunGE;
         private bool bCanRunFSX;
-
         #endregion
 
+        #region Construction
         public Config()
         {
+            #region Create Settings-Array
             settings = new List<Settings>(Enum.GetValues(typeof(SETTING)).Length);
 
-            settings.Add(new SettingsObject("fsxget/settings/options/general/enable-on-startup", "Enabled<bool>"));
-            settings.Add(new SettingsObject("fsxget/settings/options/general/show-balloon-tips", "Enabled<bool>"));
-            settings.Add(new SettingsObject("fsxget/settings/options/general/load-kml-file", "Enabled<bool>"));
-            settings.Add(new SettingsObject("fsxget/settings/options/general/update-check", "Enabled<bool>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/general/enable-on-startup", null, "Enabled<bool>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/general/show-balloon-tips", null, "Enabled<bool>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/general/load-kml-file", null, "Enabled<bool>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/general/update-check", null, "Enabled<bool>"));
 
-            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-user-aircraft", "Enabled<bool>;Interval<int>"));
-            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-user-path", "Enabled<bool>;Interval<int>"));
-            settings.Add(new SettingsObject("fsxget/settings/options/fsx/user-path-prediction", "Enabled<bool>;Interval<int>"));
-            settings.Add(new SettingsList("fsxget/settings/options/fsx/user-path-prediction", "prediction-point", "Time<int>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-user-aircraft", null, "Enabled<bool>;Interval<int>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-user-path", null, "Enabled<bool>;Interval<int>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/fsx/user-path-prediction", null, "Enabled<bool>;Interval<int>"));
+            settings.Add(new SettingsList("fsxget/settings/options/fsx/user-path-prediction", "prediction-point", null, "Time<int>"));
 
-            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects", "Enabled<bool>"));
-            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects/query-ai-aircrafts", "Enabled<bool>;Interval<int>;Range<int>;Prediction<bool>;PredictionPoints<bool>"));
-            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects/query-ai-helicopters", "Enabled<bool>;Interval<int>;Range<int>;Prediction<bool>;PredictionPoints<bool>"));
-            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects/query-ai-boats", "Enabled<bool>;Interval<int>;Range<int>;Prediction<bool>;PredictionPoints<bool>"));
-            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects/query-ai-ground-units", "Enabled<bool>;Interval<int>;Range<int>;Prediction<bool>;PredictionPoints<bool>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects", null, "Enabled<bool>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects/query-ai-aircrafts", null, "Enabled<bool>;Interval<int>;Range<int>;Prediction<bool>;PredictionPoints<bool>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects/query-ai-helicopters", null, "Enabled<bool>;Interval<int>;Range<int>;Prediction<bool>;PredictionPoints<bool>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects/query-ai-boats", null, "Enabled<bool>;Interval<int>;Range<int>;Prediction<bool>;PredictionPoints<bool>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects/query-ai-ground-units", null, "Enabled<bool>;Interval<int>;Range<int>;Prediction<bool>;PredictionPoints<bool>"));
 
-            settings.Add(new SettingsObject("fsxget/settings/options/ge/server-settings/port", "Value<int>"));
-            settings.Add(new SettingsObject("fsxget/settings/options/ge/server-settings/access-level", "Value<int>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/ge/server-settings/port", null, "Value<int>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/ge/server-settings/access-level", null, "Value<int>"));
 
-            settings.Add(new SettingsList("fsxget/gfx/program/icons", "icon", "Name<String>;Img<String>"));
-            settings.Add(new SettingsList("fsxget/gfx/scenery/air", "aircraft", "Name<String>;Img<String>"));
-            settings.Add(new SettingsList("fsxget/gfx/scenery/water", "boat", "Name<String>;Img<String>"));
-            settings.Add(new SettingsList("fsxget/gfx/scenery/ground", "ground_unit", "Name<String>;Img<String>"));
-            settings.Add(new SettingsList("fsxget/gfx/ge/icons", "icon", "Name<String>;Img<String>"));
+            settings.Add(new SettingsList("fsxget/gfx/program/icons", "icon", null, "Name<String>;Img<String>"));
+            settings.Add(new SettingsList("fsxget/gfx/scenery/air", "aircraft", null, "Name<String>;Img<String>"));
+            settings.Add(new SettingsList("fsxget/gfx/scenery/water", "boat", null, "Name<String>;Img<String>"));
+            settings.Add(new SettingsList("fsxget/gfx/scenery/ground", "ground_unit", null, "Name<String>;Img<String>"));
+            settings.Add(new SettingsList("fsxget/gfx/ge/icons", "icon", null, "Name<String>;Img<String>"));
+            #endregion
+
+            #region Initialize non xml-settings
 
 #if DEBUG
             strAppPath = Application.StartupPath + "\\..\\..";
@@ -406,15 +581,6 @@ namespace FSX_Google_Earth_Tracker
 
             strXMLFile = strUserAppPath + "\\settings.cfg";
 
-            // Check if config file for current user exists
-            if (!File.Exists(strXMLFile))
-            {
-                if (!Directory.Exists(strUserAppPath))
-                    Directory.CreateDirectory(strUserAppPath);
-                SetDefaults();
-            }
-            else
-                ReadFromXML();
 
             const String strRegKeyFSX = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft Games\\flight simulator\\10.0";
             const String strRegKeyGE = "HKEY_CLASSES_ROOT\\.kml";
@@ -437,11 +603,29 @@ namespace FSX_Google_Earth_Tracker
             }
             else
                 bCanRunFSX = false;
-        }
+            #endregion
 
+
+            #region Fill Settings-objects
+            // Check if config file for current user exists
+            if (!File.Exists(strXMLFile))
+            {
+                if (!Directory.Exists(strUserAppPath))
+                    Directory.CreateDirectory(strUserAppPath);
+                SetDefaults();
+            }
+            else
+                ReadFromXML();
+            #endregion
+
+        }
+        #endregion
+
+        #region Read, Write and Defaults
         protected void ReadFromXML()
         {
             XmlTextReader xmlrSeetingsFile = new XmlTextReader(strXMLFile);
+//            XmlTextReader xmlrSeetingsFile = new XmlTextReader("C:\\test.xml");
             XmlDocument xmldSettings = new XmlDocument();
             xmldSettings.Load(xmlrSeetingsFile);
             xmlrSeetingsFile.Close();
@@ -469,97 +653,74 @@ namespace FSX_Google_Earth_Tracker
         public void SetDefaults()
         {
             Settings obj;
-            
-            settings[(int)SETTING.ENABLE_ON_STARTUP].GetAttribute("Enabled").BoolValue = true;
-            settings[(int)SETTING.SHOW_BALLOON_TIPS].GetAttribute("Enabled").BoolValue = true;
-            settings[(int)SETTING.LOAD_KML_FILE].GetAttribute("Enabled").BoolValue = true;
-            settings[(int)SETTING.UPDATE_CHECK].GetAttribute("Enabled").BoolValue = true;
+
+            settings[(int)SETTING.ENABLE_ON_STARTUP]["Enabled"].BoolValue = true;
+            settings[(int)SETTING.SHOW_BALLOON_TIPS]["Enabled"].BoolValue = true;
+            settings[(int)SETTING.LOAD_KML_FILE]["Enabled"].BoolValue = true;
+            settings[(int)SETTING.UPDATE_CHECK]["Enabled"].BoolValue = true;
 
             obj = settings[(int)SETTING.QUERY_USER_AIRCRAFT];
-            obj.GetAttribute("Enabled").BoolValue = true;
-            obj.GetAttribute("Interval").IntValue = 1000;
+            obj["Enabled"].BoolValue = true;
+            obj["Interval"].IntValue = 1000;
 
             obj = settings[(int)SETTING.QUERY_USER_PATH];
-            obj.GetAttribute("Enabled").BoolValue = true;
-            obj.GetAttribute("Interval").IntValue = 5000;
+            obj["Enabled"].BoolValue = true;
+            obj["Interval"].IntValue = 5000;
 
             obj = settings[(int)SETTING.USER_PATH_PREDICTION];
-            obj.GetAttribute("Enabled").BoolValue = true;
-            obj.GetAttribute("Interval").IntValue = 5000;
+            obj["Enabled"].BoolValue = true;
+            obj["Interval"].IntValue = 5000;
 
-            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", "Time<int>");
-            obj.GetAttribute("Time").IntValue = 30;
-            ((SettingsList)settings[(int)SETTING.PREDITCTION_POINTS]).listSettings.Add((SettingsObject)obj);
-            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", "Time<int>");
-            obj.GetAttribute("Time").IntValue = 150;
-            ((SettingsList)settings[(int)SETTING.PREDITCTION_POINTS]).listSettings.Add((SettingsObject)obj);
-            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", "Time<int>");
-            obj.GetAttribute("Time").IntValue = 300;
-            ((SettingsList)settings[(int)SETTING.PREDITCTION_POINTS]).listSettings.Add((SettingsObject)obj);
-            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", "Time<int>");
-            obj.GetAttribute("Time").IntValue = 600;
-            ((SettingsList)settings[(int)SETTING.PREDITCTION_POINTS]).listSettings.Add((SettingsObject)obj);
-            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", "Time<int>");
-            obj.GetAttribute("Time").IntValue = 1200;
-            ((SettingsList)settings[(int)SETTING.PREDITCTION_POINTS]).listSettings.Add((SettingsObject)obj);
+            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", null, "Time<int>");
+            obj["Time"].IntValue = 30;
+            ((SettingsList)settings[(int)SETTING.PREDICTION_POINTS]).listSettings.Add((SettingsObject)obj);
+            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", null, "Time<int>");
+            obj["Time"].IntValue = 150;
+            ((SettingsList)settings[(int)SETTING.PREDICTION_POINTS]).listSettings.Add((SettingsObject)obj);
+            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", null, "Time<int>");
+            obj["Time"].IntValue = 300;
+            ((SettingsList)settings[(int)SETTING.PREDICTION_POINTS]).listSettings.Add((SettingsObject)obj);
+            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", null, "Time<int>");
+            obj["Time"].IntValue = 600;
+            ((SettingsList)settings[(int)SETTING.PREDICTION_POINTS]).listSettings.Add((SettingsObject)obj);
+            obj = new SettingsObject("fsxget/settings/options/fsx/user-path-prediction/prediction-point", null, "Time<int>");
+            obj["Time"].IntValue = 1200;
+            ((SettingsList)settings[(int)SETTING.PREDICTION_POINTS]).listSettings.Add((SettingsObject)obj);
 
-            settings[(int)SETTING.QUERY_AI_OBJECTS].GetAttribute("Enabled").BoolValue = true;
+            settings[(int)SETTING.QUERY_AI_OBJECTS]["Enabled"].BoolValue = true;
 
             obj = settings[(int)SETTING.QUERY_AI_AIRCRAFTS];
-            obj.GetAttribute("Enabled").BoolValue = true;
-            obj.GetAttribute("Interval").IntValue = 3000;
-            obj.GetAttribute("Range").IntValue = 50000;
-            obj.GetAttribute("Prediction").BoolValue = true;
-            obj.GetAttribute("PredictionPoints").BoolValue = false;
+            obj["Enabled"].BoolValue = true;
+            obj["Interval"].IntValue = 3000;
+            obj["Range"].IntValue = 50000;
+            obj["Prediction"].BoolValue = true;
+            obj["PredictionPoints"].BoolValue = false;
 
             obj = settings[(int)SETTING.QUERY_AI_HELICOPTERS];
-            obj.GetAttribute("Enabled").BoolValue = true;
-            obj.GetAttribute("Interval").IntValue = 3000;
-            obj.GetAttribute("Range").IntValue = 50000;
-            obj.GetAttribute("Prediction").BoolValue = true;
-            obj.GetAttribute("PredictionPoints").BoolValue = false;
+            obj["Enabled"].BoolValue = true;
+            obj["Interval"].IntValue = 3000;
+            obj["Range"].IntValue = 50000;
+            obj["Prediction"].BoolValue = true;
+            obj["PredictionPoints"].BoolValue = false;
 
             obj = settings[(int)SETTING.QUERY_AI_BOATS];
-            obj.GetAttribute("Enabled").BoolValue = true;
-            obj.GetAttribute("Interval").IntValue = 5000;
-            obj.GetAttribute("Range").IntValue = 100000;
-            obj.GetAttribute("Prediction").BoolValue = false;
-            obj.GetAttribute("PredictionPoints").BoolValue = false;
+            obj["Enabled"].BoolValue = true;
+            obj["Interval"].IntValue = 5000;
+            obj["Range"].IntValue = 100000;
+            obj["Prediction"].BoolValue = false;
+            obj["PredictionPoints"].BoolValue = false;
 
             obj = settings[(int)SETTING.QUERY_AI_GROUND_UNITS];
-            obj.GetAttribute("Enabled").BoolValue = true;
-            obj.GetAttribute("Interval").IntValue = 5000;
-            obj.GetAttribute("Range").IntValue = 100000;
-            obj.GetAttribute("Prediction").BoolValue = false;
-            obj.GetAttribute("PredictionPoints").BoolValue = false;
+            obj["Enabled"].BoolValue = true;
+            obj["Interval"].IntValue = 5000;
+            obj["Range"].IntValue = 100000;
+            obj["Prediction"].BoolValue = false;
+            obj["PredictionPoints"].BoolValue = false;
 
-            settings[(int)SETTING.GE_SERVER_PORT].GetAttribute("Value").IntValue = 8087;
-            settings[(int)SETTING.GE_ACCESS_LEVEL].GetAttribute("Value").IntValue = 1;
-            
-            /*
-            ENABLE_ON_STARTUP = 0,
-            SHOW_BALLOON_TIPS,
-            LOAD_KML_FILE,
-            UPDATE_CHECK,
-            QUERY_USER_AIRCRAFT,
-            QUERY_USER_PATH,
-            USER_PATH_PREDICTION,
-            PREDITCTION_POINTS,
-            QUERY_AI_OBJECTS,
-            QUERY_AI_AIRCRAFTS,
-            QUERY_AI_HELICOPTERS,
-            QUERY_AI_BOATS,
-            QUERY_AI_GROUND_UNITS,
-            GE_SERVER_PORT,
-            GE_ACCESS_LEVEL,
-            PRG_ICON_LIST,
-            AIR_IMG_LIST,
-            WATER_IMG_LIST,
-            GROUND_IMG_LIST,
-            GE_IMG_LIST
-*/
-            WriteToXML();
+            settings[(int)SETTING.GE_SERVER_PORT]["Value"].IntValue = 8087;
+            settings[(int)SETTING.GE_ACCESS_LEVEL]["Value"].IntValue = 1;
         }
+        #endregion
 
         #region Accessors
         public bool CanRunGE
@@ -613,9 +774,12 @@ namespace FSX_Google_Earth_Tracker
                 }
             }
         }
-        public Settings GetSettings(SETTING idx)
+        public Settings this[SETTING idx]
         {
-            return settings[(int)idx];
+            get
+            {
+                return settings[(int)idx];
+            }
         }
 
         #endregion
