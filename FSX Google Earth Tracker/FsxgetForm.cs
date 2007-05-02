@@ -18,17 +18,17 @@ using Microsoft.FlightSimulator.SimConnect;
 using System.Runtime.InteropServices;
 
 
-namespace FSX_Google_Earth_Tracker
+namespace Fsxget
 {
-	public partial class FSXGetFrorm : Form
+	public partial class FsxetForm : Form
 	{
 		#region Global Variables
 
-        public FSXConnection fsxCon;
-        public KMLFactory kmlFactory;
+        public FsxConnection fsxCon;
+        public KmlFactory kmlFactory;
         
 		bool bClose = false;
-		bool bConnected = false;
+		//bool bConnected = false;
         bool bErrorOnLoad = false;
 
 		Icon icActive, icDisabled, icReceive;
@@ -41,15 +41,15 @@ namespace FSX_Google_Earth_Tracker
 		#region Form Functions
 
 
-		public FSXGetFrorm()
+		public FsxetForm()
 		{
 			//As this method doesn't start any other threads we don't need to lock anything here (especially not the config file xml document)
 
 			InitializeComponent();
 
             Text = Program.Config.AssemblyTitle;
-            fsxCon = new FSXConnection(this, false);
-            kmlFactory = new KMLFactory(ref fsxCon);
+            fsxCon = new FsxConnection(this, false);
+            kmlFactory = new KmlFactory(ref fsxCon);
             kmlFactory.CreateStartupKML(Program.Config.UserDataPath + "/pub/fsxget.kml");
 
 			timerIPAddressRefresh.Interval = 10000;

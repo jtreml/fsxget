@@ -1,6 +1,6 @@
-namespace FSX_Google_Earth_Tracker
+namespace Fsxget
 {
-	partial class FSXGetFrorm
+	partial class FsxetForm
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -29,7 +29,7 @@ namespace FSX_Google_Earth_Tracker
 		private void InitializeComponent()
 		{
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FSXGetFrorm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FsxetForm));
             this.notifyIconMain = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStripNotifyIcon = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.enableTrackerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();

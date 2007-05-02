@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace FSX_Google_Earth_Tracker
+namespace Fsxget
 {
 	static class Program
 	{
@@ -18,7 +18,7 @@ namespace FSX_Google_Earth_Tracker
 			
 			//Form frmMain = new Form1();
 			//frmMain.Visible = false;
-			Application.Run(new FSXGetFrorm());
+			Application.Run(new FsxetForm());
 		}
 
         public static Config Config

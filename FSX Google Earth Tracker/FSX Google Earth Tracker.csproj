@@ -7,7 +7,7 @@
     <ProjectGuid>{86BDE965-A297-492B-9604-B4749CA25759}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FSX_Google_Earth_Tracker</RootNamespace>
+    <RootNamespace>Fsxget</RootNamespace>
     <AssemblyName>fsxget</AssemblyName>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <ManifestCertificateThumbprint>16E743BE2505F55166F04E5C1111397831AFD8E6</ManifestCertificateThumbprint>
@@ -66,19 +66,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
-    <Compile Include="FSXGetFrorm.cs">
+    <Compile Include="FsxgetForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FSXGetFrorm.Designer.cs">
-      <DependentUpon>FSXGetFrorm.cs</DependentUpon>
+    <Compile Include="FsxgetForm.Designer.cs">
+      <DependentUpon>FsxgetForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="FSXConnection.cs" />
-    <Compile Include="KMLFactory.cs" />
+    <Compile Include="FsxConnection.cs" />
+    <Compile Include="KmlFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="FSXGetFrorm.resx">
+    <EmbeddedResource Include="FsxgetForm.resx">
       <SubType>Designer</SubType>
-      <DependentUpon>FSXGetFrorm.cs</DependentUpon>
+      <DependentUpon>FsxgetForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
