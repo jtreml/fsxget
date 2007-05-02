@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using System.Reflection;
 
 
-namespace FSX_Google_Earth_Tracker
+namespace Fsxget
 {
 
     #region SettingsClasses
