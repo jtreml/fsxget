@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+<Document>
+	<name>FSX Google Earth Tracker</name>
+	<ScreenOverlay>
+		<name>Logo</name>
+		<color>ffffffff</color>
+		<visibility>1</visibility>
+		<Icon>
+			<href>%SERVER%/gfx/logo.png</href>
+		</Icon>
+		<overlayXY x="0" y="1" xunits="fraction" yunits="fraction"/>
+		<screenXY x="5" y="5" xunits="pixels" yunits="insetPixels"/>
+		<size x="69" y="69" xunits="pixel" yunits="pixel"/>
+	</ScreenOverlay>
+	<Folder id="uacdata">
+		<name>User Aircraft</name>
+		<Folder id="uacpos">
+			<name>Current Position</name>
+			<NetworkLink>
+				<name>Update</name>
+				<Link>
+					<href>%SERVER%/fsxuu.kml</href>
+					<refreshMode>onInterval</refreshMode>
+					<refreshInterval>1</refreshInterval>
+				</Link>
+				<flyToView>1</flyToView>
+			</NetworkLink>
+		</Folder>
+		<Folder id="uacpath">
+			<name>Flight Path</name>
+			<NetworkLink>
+				<name>Update</name>
+				<Link>
+					<href>%SERVER%/fsxpu.kml</href>
+					<refreshMode>onExpire</refreshMode>
+				</Link>
+			</NetworkLink>
+		</Folder>
+		<Folder id="uacpre">
+			<name>Course Prediction</name>
+			<Folder id="uacprepts">
+				<name>ETA Points</name>
+			</Folder>
+			<NetworkLink>
+				<name>Update</name>
+				<Link>
+					<href>%SERVER%/fsxpreu.kml</href>
+					<refreshMode>onExpire</refreshMode>
+				</Link>
+			</NetworkLink>
+		</Folder>
+	</Folder>
+	<Folder>
+		<name>AI Objects</name>
+		<Folder>
+			<name>AI Aircrafts</name>
+			<Folder id="aiap">
+				<name>Aircraft Positions</name>
+			</Folder>
+			<Folder id="aiac">
+				<name>Aircraft Courses</name>
+			</Folder>
+			<NetworkLink>
+				<name>Update</name>
+				<Link>
+					<href>%SERVER%/fsxaipu.kml</href>
+					<refreshMode>onExpire</refreshMode>
+				</Link>
+			</NetworkLink>
+		</Folder>
+		<Folder>
+			<name>AI Helicopters</name>
+			<Folder id="aihp">
+				<name>Helicopter Positions</name>
+			</Folder>
+			<Folder id="aihc">
+				<name>Helicopter Courses</name>
+			</Folder>
+			<NetworkLink>
+				<name>Update</name>
+				<Link>
+					<href>%SERVER%/fsxaihu.kml</href>
+					<refreshMode>onExpire</refreshMode>
+				</Link>
+			</NetworkLink>
+		</Folder>
+		<Folder>
+			<name>AI Boats</name>
+			<Folder id="aibp">
+				<name>Boat Positions</name>
+			</Folder>
+			<NetworkLink>
+				<name>Update</name>
+				<Link>
+					<href>%SERVER%/fsxaibu.kml</href>
+					<refreshMode>onExpire</refreshMode>
+				</Link>
+			</NetworkLink>
+		</Folder>
+		<Folder>
+			<name>AI Ground Units</name>
+			<Folder id="aigp">
+				<name>Ground Unit Positions</name>
+			</Folder>
+			<NetworkLink>
+				<name>Update</name>
+				<Link>
+					<href>%SERVER%/fsxaigu.kml</href>
+					<refreshMode>onExpire</refreshMode>
+				</Link>
+			</NetworkLink>
+		</Folder>
+	</Folder>
+</Document>
+</kml>

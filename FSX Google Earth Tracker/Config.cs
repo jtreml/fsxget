@@ -525,6 +525,11 @@ namespace FSX_Google_Earth_Tracker
             QUERY_AI_HELICOPTERS,
             QUERY_AI_BOATS,
             QUERY_AI_GROUND_UNITS,
+            REFRESH_USER_AIRCRAFT,
+            REFRESH_AI_AIRCRAFTS,
+            REFRESH_AI_HELICOPTERS,
+            REFRESH_AI_BOATS,
+            REFRESH_AI_GROUND_UNITS,
             GE_SERVER_PORT,
             GE_ACCESS_LEVEL,
             PRG_ICON_LIST,
@@ -543,11 +548,13 @@ namespace FSX_Google_Earth_Tracker
 
         private String strFilePathPub;
         private String strFilePathData;
-
+        private String strServer;
         private const string strRegKeyRun = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 
         private bool bCanRunGE;
         private bool bCanRunFSX;
+
+        private String strPathFSX;
         #endregion
 
         #region Construction
@@ -572,6 +579,12 @@ namespace FSX_Google_Earth_Tracker
             settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects/query-ai-boats", null, "Enabled<bool>;Interval<int>;Range<int>;Prediction<bool>;PredictionPoints<bool>"));
             settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects/query-ai-ground-units", null, "Enabled<bool>;Interval<int>;Range<int>;Prediction<bool>;PredictionPoints<bool>"));
 
+            settings.Add(new SettingsObject("fsxget/settings/options/ge/refresh-rates/user-aircraft", null, "Interval<int>" ));
+            settings.Add(new SettingsObject("fsxget/settings/options/ge/refresh-rates/ai-aircrafts", null, "Interval<int>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/ge/refresh-rates/ai-helicopters", null, "Interval<int>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/ge/refresh-rates/ai-boats", null, "Interval<int>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/ge/refresh-rates/ai-ground-units", null, "Interval<int>"));
+            
             settings.Add(new SettingsObject("fsxget/settings/options/ge/server-settings/port", null, "Value<int>"));
             settings.Add(new SettingsObject("fsxget/settings/options/ge/server-settings/access-level", null, "Value<int>"));
 
@@ -601,7 +614,7 @@ namespace FSX_Google_Earth_Tracker
             const String strRegKeyGE = "HKEY_CLASSES_ROOT\\.kml";
 
             String strPathGE = (String)Registry.GetValue(strRegKeyGE, "", "");
-            String strPathFSX = (String)Registry.GetValue(strRegKeyFSX, "SetupPath", "");
+            strPathFSX = (String)Registry.GetValue(strRegKeyFSX, "SetupPath", "");
 
             if (strPathGE == "Google Earth.kmlfile")
                 bCanRunGE = true;
@@ -618,6 +631,8 @@ namespace FSX_Google_Earth_Tracker
             }
             else
                 bCanRunFSX = false;
+
+            strServer = "http://localhost";
             #endregion
 
 
@@ -761,6 +776,20 @@ namespace FSX_Google_Earth_Tracker
                 return strUserAppPath;
             }
         }
+        public String FilePathPub
+        {
+            get
+            {
+                return strFilePathPub;
+            }
+        }
+        public String FilePathData
+        {
+            get
+            {
+                return strFilePathData;
+            }
+        }
         public bool RunOnStartup
         {
             get
@@ -784,6 +813,17 @@ namespace FSX_Google_Earth_Tracker
                 }
             }
         }
+        public String Server
+        {
+            get
+            {
+                return strServer + ":" + this[SETTING.GE_SERVER_PORT]["Value"].IntValue.ToString();
+            }
+            set
+            {
+                strServer = value;
+            }
+        }
         public Settings this[SETTING idx]
         {
             get
@@ -791,7 +831,13 @@ namespace FSX_Google_Earth_Tracker
                 return settings[(int)idx];
             }
         }
-
+        public String FSXPath
+        {
+            get
+            {
+                return strPathFSX;
+            }
+        }
         #endregion
 
         #region Assembly Attribute Accessors
