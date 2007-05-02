@@ -64,9 +64,9 @@ namespace Fsxget
 			listener = new HttpListener();
 			listener.Prefixes.Add("http://+:" + Program.Config[Config.SETTING.GE_SERVER_PORT]["Value"].IntValue.ToString() + "/");
 
-            icActive = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("FSX_Google_Earth_Tracker.data.gfx.icons.tbenabled.ico"));
-            icDisabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("FSX_Google_Earth_Tracker.data.gfx.icons.tbdisabled.ico"));
-            icReceive = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("FSX_Google_Earth_Tracker.data.gfx.icons.tbpaused.ico"));
+            icActive = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbenabled.ico"));
+            icDisabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbdisabled.ico"));
+            icReceive = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbpaused.ico"));
 
 			notifyIconMain.Icon = icDisabled;
 			notifyIconMain.Text = this.Text;

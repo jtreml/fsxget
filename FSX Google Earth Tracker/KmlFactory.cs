@@ -140,8 +140,8 @@ namespace Fsxget
                 lstImgs.Add(new ObjectImage(img));
             }
 
-            lstImgs.Add(new ObjectImage( "Logo", "/gfx/logo.png", Assembly.GetCallingAssembly().GetManifestResourceStream("FSX_Google_Earth_Tracker.pub.gfx.logo.png")));
-            imgNoImage = new ObjectImage("NoImage", "/gfx/noimage.png", Assembly.GetCallingAssembly().GetManifestResourceStream("FSX_Google_Earth_Tracker.pub.gfx.noimage.png"));
+            lstImgs.Add(new ObjectImage( "Logo", "/gfx/logo.png", Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.logo.png")));
+            imgNoImage = new ObjectImage("NoImage", "/gfx/noimage.png", Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.noimage.png"));
 
             String[] strPartFiles = Directory.GetFiles(Program.Config.AppPath + "\\data", "*.part");
             foreach (String strPartFile in strPartFiles)
