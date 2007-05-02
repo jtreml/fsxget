@@ -6,7 +6,8 @@ namespace FSX_Google_Earth_Tracker
 {
 	static class Program
 	{
-		/// <summary>
+        private static Config config = new Config();
+        /// <summary>
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
@@ -17,7 +18,15 @@ namespace FSX_Google_Earth_Tracker
 			
 			//Form frmMain = new Form1();
 			//frmMain.Visible = false;
-			Application.Run(new Form1());
+			Application.Run(new FSXGetFrorm());
 		}
+
+        public static Config Config
+        {
+            get
+            {
+                return config;
+            }
+        }
 	}
 }
