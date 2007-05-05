@@ -52,18 +52,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ChilkatDotNet, Version=8.0.0.0, Culture=neutral, PublicKeyToken=16dba5cb7b161beb">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Programme\Microsoft Games\Microsoft Flight Simulator X SDK\Tools\BGL2XML\ChilkatDotNet.dll</HintPath>
-    </Reference>
-    <Reference Include="jmCommonLib, Version=1.3.2647.31259, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Programme\Microsoft Games\Microsoft Flight Simulator X SDK\Tools\BGL2XML\jmCommonLib.dll</HintPath>
-    </Reference>
-    <Reference Include="jmFlightSimLib, Version=0.95.2664.12803, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Programme\Microsoft Games\Microsoft Flight Simulator X SDK\Tools\BGL2XML\jmFlightSimLib.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.FlightSimulator.SimConnect, Version=10.0.60905.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\Program Files\Microsoft Games\Microsoft Flight Simulator X SDK\SDK\Core Utilities Kit\SimConnect SDK\lib\managed\Microsoft.FlightSimulator.SimConnect.dll</HintPath>
