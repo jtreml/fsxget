@@ -130,10 +130,12 @@ namespace Fsxget
             protected STATE tState;
             protected DATA_REQUESTS tType;
             protected uint unID;
+            public bool bDataRecieved;
 
             public SceneryObject(uint unID, DATA_REQUESTS tType)
             {
                 tState = STATE.NEW;
+                bDataRecieved = true;
                 this.tType = tType;
                 this.unID = unID;
             }
@@ -384,13 +386,14 @@ namespace Fsxget
                 strATCFlightNumber.Value = obj.szATCFlightNumber;
                 dHeading.Value = obj.dHeading;
                 dTime = obj.dTime;
-                if (tState == STATE.DATAREAD)
+                if (tState == STATE.DATAREAD || tState == STATE.UNCHANGED )
                 {
                     if (HasMoved || HasChanged)
                         tState = STATE.MODIFIED;
                     else
                         tState = STATE.UNCHANGED;
                 }
+                bDataRecieved = true;
             }
 
             public void ConfigChanged()
@@ -821,6 +824,8 @@ namespace Fsxget
             public Object lockObject;
             public Hashtable htObjects;
             public System.Timers.Timer timer;
+            public int nPreAnz;
+            public int nPostAnz;
         }
         #endregion
 
@@ -1039,17 +1044,7 @@ namespace Fsxget
                     {
                         if (data.dwObjectID != uiUserAircraftID)
                         {
-                            if (data.dwoutof == 0)
-                                MarkDeletedObjects(ref objAIAircrafts.htObjects, obj.dTime);
-                            else
-                            {
-                                if (objAIAircrafts.htObjects.ContainsKey(data.dwObjectID))
-                                    ((SceneryMovingObject)objAIAircrafts.htObjects[data.dwObjectID]).Update(ref obj);
-                                else
-                                    objAIAircrafts.htObjects.Add(data.dwObjectID, new SceneryMovingObject(data.dwObjectID, DATA_REQUESTS.REQUEST_AI_PLANE, ref obj));
-                                if (data.dwentrynumber == data.dwoutof && objAIAircrafts.htObjects.Count > data.dwoutof)
-                                    MarkDeletedObjects(ref objAIAircrafts.htObjects, obj.dTime);
-                            }
+                            HandleSimObjectRecieved(ref objAIAircrafts, ref data );
                         }
                     }
                     break;
@@ -1058,50 +1053,20 @@ namespace Fsxget
                     {
                         if (data.dwObjectID != uiUserAircraftID)
                         {
-                            if (data.dwoutof == 0)
-                                MarkDeletedObjects(ref objAIHelicopters.htObjects, obj.dTime);
-                            else
-                            {
-                                if (objAIHelicopters.htObjects.ContainsKey(data.dwObjectID))
-                                    ((SceneryMovingObject)objAIHelicopters.htObjects[data.dwObjectID]).Update(ref obj);
-                                else
-                                    objAIHelicopters.htObjects.Add(data.dwObjectID, new SceneryMovingObject(data.dwObjectID, DATA_REQUESTS.REQUEST_AI_HELICOPTER, ref obj));
-                                if (data.dwentrynumber == data.dwoutof && objAIHelicopters.htObjects.Count > data.dwoutof)
-                                    MarkDeletedObjects(ref objAIHelicopters.htObjects, obj.dTime);
-                            }
+                            HandleSimObjectRecieved(ref objAIHelicopters, ref data);
                         }
                     }
                     break;
                 case DATA_REQUESTS.REQUEST_AI_BOAT:
                     lock (objAIBoats.lockObject)
                     {
-                        if (data.dwoutof == 0)
-                            MarkDeletedObjects(ref objAIBoats.htObjects, obj.dTime);
-                        else
-                        {
-                            if (objAIBoats.htObjects.ContainsKey(data.dwObjectID))
-                                ((SceneryMovingObject)objAIBoats.htObjects[data.dwObjectID]).Update(ref obj);
-                            else
-                                objAIBoats.htObjects.Add(data.dwObjectID, new SceneryMovingObject(data.dwObjectID, DATA_REQUESTS.REQUEST_AI_BOAT, ref obj));
-                            if (data.dwentrynumber == data.dwoutof && objAIBoats.htObjects.Count > data.dwoutof)
-                                MarkDeletedObjects(ref objAIBoats.htObjects, obj.dTime);
-                        }
+                        HandleSimObjectRecieved(ref objAIBoats, ref data);
                     }
                     break;
                 case DATA_REQUESTS.REQUEST_AI_GROUND:
                     lock (objAIGroundUnits.lockObject)
                     {
-                        if (data.dwoutof == 0)
-                            MarkDeletedObjects(ref objAIGroundUnits.htObjects, obj.dTime);
-                        else
-                        {
-                            if (objAIGroundUnits.htObjects.ContainsKey(data.dwObjectID))
-                                ((SceneryMovingObject)objAIGroundUnits.htObjects[data.dwObjectID]).Update(ref obj);
-                            else
-                                objAIGroundUnits.htObjects.Add(data.dwObjectID, new SceneryMovingObject(data.dwObjectID, DATA_REQUESTS.REQUEST_AI_GROUND, ref obj));
-                            if (data.dwentrynumber == data.dwoutof && objAIGroundUnits.htObjects.Count > data.dwoutof)
-                                MarkDeletedObjects(ref objAIGroundUnits.htObjects, obj.dTime);
-                        }
+                        HandleSimObjectRecieved(ref objAIGroundUnits, ref data);
                     }
                     break;
                 default:
@@ -1112,14 +1077,43 @@ namespace Fsxget
             }
         }
 
-        protected void MarkDeletedObjects(ref Hashtable ht, double dTime)
+        protected void HandleSimObjectRecieved(ref StructObjectContainer objs, ref SIMCONNECT_RECV_SIMOBJECT_DATA_BYTYPE data)
+        {
+            StructBasicMovingSceneryObject obj = (StructBasicMovingSceneryObject)data.dwData[0];
+            if (data.dwoutof == 0)
+                MarkDeletedObjects(ref objs.htObjects);
+            else
+            {
+                if( data.dwentrynumber == 1 )   
+                {
+                    objs.nPreAnz = objs.htObjects.Count;
+                    objs.nPostAnz = 0;
+                }
+                if (objs.htObjects.ContainsKey(data.dwObjectID))
+                {
+                    ((SceneryMovingObject)objs.htObjects[data.dwObjectID]).Update(ref obj);
+                    objs.nPostAnz++;
+                }
+                else
+                {
+                    objs.htObjects.Add(data.dwObjectID, new SceneryMovingObject(data.dwObjectID, (DATA_REQUESTS)data.dwRequestID, ref obj));
+                }
+                if (data.dwentrynumber == data.dwoutof && objs.nPostAnz < objs.nPreAnz)
+                {
+                    MarkDeletedObjects(ref objs.htObjects);
+                }
+            }
+        }
+
+        protected void MarkDeletedObjects(ref Hashtable ht)
         {
             foreach (DictionaryEntry entry in ht)
             {
-                if (dTime == 0.0 || ((SceneryMovingObject)entry.Value).Time < dTime)
+                if (!((SceneryMovingObject)entry.Value).bDataRecieved)
                 {
                     ((SceneryMovingObject)entry.Value).State = SceneryMovingObject.STATE.DELETED;
                 }
+                ((SceneryMovingObject)entry.Value).bDataRecieved = false;
             }
         }
         public void DeleteAllObjects()
