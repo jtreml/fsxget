@@ -6,12 +6,19 @@ using Microsoft.FlightSimulator.SimConnect;
 using System.Timers;
 using System.Runtime.InteropServices;
 using System.Xml;
+using System.IO;
+using System.Threading;
 
 namespace Fsxget
 {
+/*      http://www.fsdeveloper.com/
+        http://www.scruffyduckscenery.co.uk/
+        http://www.scenery.org/design_utilities_e.htm
+*/
     public class FsxConnection
     {
-        
+
+        #region Classes
         public class ObjectData<T>
         {
             private bool bModified;
@@ -131,7 +138,7 @@ namespace Fsxget
                 this.unID = unID;
             }
         
-            public STATE ObjectState
+            public STATE State
             {
                 get
                 {
@@ -159,6 +166,7 @@ namespace Fsxget
         }
         public class SceneryMovingObject : SceneryObject
         {
+            #region Classes
             public class ObjectPath
             {
                 protected String strCoordinates;
@@ -310,6 +318,7 @@ namespace Fsxget
                     }
                 }
             }
+            #endregion
 
             #region Variables
             protected ObjectData<String> strTitle;
@@ -527,18 +536,6 @@ namespace Fsxget
                 }
             }
 
-            public STATE State
-            {
-                get
-                {
-                    return tState;
-                }
-                set
-                {
-                    tState = value;
-                }
-            }
-
             public bool HasMoved
             {
                 get
@@ -565,13 +562,14 @@ namespace Fsxget
 
             #endregion
         }
+        #endregion
 
         #region Variables
-        private FsxetForm frmMain;
+        private FsxgetForm frmMain;
         private IntPtr frmMainHandle;
         private const int WM_USER_SIMCONNECT = 0x0402;
-        private Timer timerConnect;
-        private Timer timerQueryUserAircraft;
+        private System.Timers.Timer timerConnect;
+        private System.Timers.Timer timerQueryUserAircraft;
         public SceneryMovingObject objUserAircraft;
         public Object lockUserAircraft;
         private uint uiUserAircraftID;
@@ -581,6 +579,45 @@ namespace Fsxget
         public StructObjectContainer objAIHelicopters;
         public StructObjectContainer objAIBoats;
         public StructObjectContainer objAIGroundUnits;
+        static String[] strMorseSigns = new String[]
+        {
+            "-----",
+            ".----",
+            "..---",
+            "...--",
+            "....-",
+            ".....",
+            "-....",
+            "--...",
+            "---..",
+            "----.",
+            ".- ",
+            "-... ",
+            "-.-. ",
+            "-.. ",
+            ". ",
+            "..-. ",
+            "--. ",
+            ".... ",
+            ".. ",
+            ".--- ",
+            "-.- ",
+            ".-.. ",
+            "-- ",
+            "-. ",
+            "--- ",
+            ".--. ",
+            "--.- ",
+            ".-. ",
+            "... ",
+            "- ",
+            "..- ",
+            "...- ",
+            ".-- ",
+            "-..- ",
+            "-.-- ",
+            "--.. ",
+        };
         #endregion
 
         #region Structs & Enums
@@ -633,12 +670,12 @@ namespace Fsxget
         {
             public Object lockObject;
             public Hashtable htObjects;
-            public Timer timer;
+            public System.Timers.Timer timer;
         }
         #endregion
 
         #region Construction
-        public FsxConnection(FsxetForm frmMain, bool bAddOn)
+        public FsxConnection(FsxgetForm frmMain, bool bAddOn)
         {
             this.frmMain = frmMain;
             this.frmMainHandle = frmMain.Handle;
@@ -652,69 +689,58 @@ namespace Fsxget
             }
             else
             {
-                timerConnect = new Timer();
+                timerConnect = new System.Timers.Timer();
                 timerConnect.Interval = 3000;
                 timerConnect.Elapsed += new ElapsedEventHandler(OnTimerConnectElapsed);
-                timerConnect.Start();
             }
 
             objAIAircrafts = new StructObjectContainer();
             objAIAircrafts.lockObject = new Object();
             objAIAircrafts.htObjects = new Hashtable();
-            objAIAircrafts.timer = new Timer();
+            objAIAircrafts.timer = new System.Timers.Timer();
             objAIAircrafts.timer.Elapsed += new ElapsedEventHandler(OnTimerQueryAIAircraftsElapsed);
 
             objAIHelicopters = new StructObjectContainer();
             objAIHelicopters.lockObject = new Object();
             objAIHelicopters.htObjects = new Hashtable();
-            objAIHelicopters.timer = new Timer();
+            objAIHelicopters.timer = new System.Timers.Timer();
             objAIHelicopters.timer.Elapsed += new ElapsedEventHandler(OnTimerQueryAIHelicoptersElapsed);
 
             objAIBoats= new StructObjectContainer();
             objAIBoats.lockObject = new Object();
             objAIBoats.htObjects = new Hashtable();
-            objAIBoats.timer = new Timer();
+            objAIBoats.timer = new System.Timers.Timer();
             objAIBoats.timer.Elapsed += new ElapsedEventHandler(OntimerQueryAIBoatsElapsed);
 
             objAIGroundUnits = new StructObjectContainer();
             objAIGroundUnits.lockObject = new Object();
             objAIGroundUnits.htObjects = new Hashtable();
-            objAIGroundUnits.timer = new Timer();
+            objAIGroundUnits.timer = new System.Timers.Timer();
             objAIGroundUnits.timer.Elapsed += new ElapsedEventHandler(OnTimerQueryAIGroundUnitsElapsed);
             
-            timerQueryUserAircraft = new Timer();
+            timerQueryUserAircraft = new System.Timers.Timer();
             timerQueryUserAircraft.Elapsed += new ElapsedEventHandler(OnTimerQueryUserAircraftElapsed);
 
             lockUserAircraft = new Object();
             lockSimConnect = new Object();
         }
-        public void InitializeTimers()
-        {
-            bool bQueryAI = Program.Config[Config.SETTING.QUERY_AI_OBJECTS]["Enabled"].BoolValue;
 
-            timerQueryUserAircraft.Stop();
-            timerQueryUserAircraft.Interval = Program.Config[Config.SETTING.QUERY_USER_AIRCRAFT]["Interval"].IntValue;
-            timerQueryUserAircraft.Enabled = Program.Config[Config.SETTING.QUERY_USER_AIRCRAFT]["Enabled"].BoolValue;
-
-            objAIAircrafts.timer.Stop();
-            objAIAircrafts.timer.Interval = Program.Config[Config.SETTING.QUERY_AI_AIRCRAFTS]["Interval"].IntValue;
-            objAIAircrafts.timer.Enabled = bQueryAI && Program.Config[Config.SETTING.QUERY_AI_AIRCRAFTS]["Enabled"].BoolValue;
-
-            objAIHelicopters.timer.Stop();
-            objAIHelicopters.timer.Interval = Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Interval"].IntValue;
-            objAIHelicopters.timer.Enabled = bQueryAI && Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Enabled"].BoolValue;
-
-            objAIBoats.timer.Stop();
-            objAIBoats.timer.Interval = Program.Config[Config.SETTING.QUERY_AI_BOATS]["Interval"].IntValue;
-            objAIBoats.timer.Enabled = bQueryAI && Program.Config[Config.SETTING.QUERY_AI_BOATS]["Enabled"].BoolValue;
-
-            objAIGroundUnits.timer.Stop();
-            objAIGroundUnits.timer.Interval = Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Interval"].IntValue;
-            objAIGroundUnits.timer.Enabled = bQueryAI && Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Enabled"].BoolValue;
-        }
         #endregion
 
         #region FSX-Handling
+        public void Connect()
+        {
+            lock (lockSimConnect)
+            {
+                if (simconnect == null)
+                    timerConnect.Start();
+            }
+        }
+        public void Disconnect()
+        {
+            closeConnection();
+            timerConnect.Stop();
+        }
         private bool openConnection()
         {
             if (simconnect == null)
@@ -738,18 +764,18 @@ namespace Fsxget
             else
                 return false;
         }
-        private void closeConnection()
+        public void closeConnection()
         {
-            if (simconnect != null)
+            lock (lockSimConnect)
             {
-                timerQueryUserAircraft.Stop();
-                objAIAircrafts.timer.Stop();
-                objAIHelicopters.timer.Stop();
-                objAIBoats.timer.Stop();
-                objAIGroundUnits.timer.Stop();
-                
-                simconnect.Dispose();
-                simconnect = null;
+                if (simconnect != null)
+                {
+                    EnableTimers(false);
+                    DeleteAllObjects();
+                    frmMain.Connected = false;
+                    simconnect.Dispose();
+                    simconnect = null;
+                }
             }
         }
         private bool initDataRequest()
@@ -812,41 +838,13 @@ namespace Fsxget
         }
         void simconnect_OnRecvOpen(SimConnect sender, SIMCONNECT_RECV_OPEN data)
         {
-/*            lock (lockUserAircraftID)
-            {
-                bUserAircraftIDSet = false;
-            }
-
-            if (gconffixCurrent.bQueryUserAircraft)
-                timerQueryUserAircraft.Start();
-
-            if (gconffixCurrent.bQueryUserPath)
-                timerQueryUserPath.Start();
-
-            if (gconffixCurrent.bUserPathPrediction)
-                timerUserPrediction.Start();
-
-            if (gconffixCurrent.bQueryAIObjects)
-            {
-                if (gconffixCurrent.bQueryAIAircrafts)
-                    objAIAircrafts.timer.Start();
-
-                if (gconffixCurrent.bQueryAIHelicopters)
-                    objAIHelicopters.timer.Start();
-
-                if (gconffixCurrent.bQueryAIBoats)
-                    objAIBoats.timer.Start();
-
-                if (gconffixCurrent.bQueryAIGroundUnits)
-                    objAIGroundUnits.timer.Start();
-            }
-
-            timerIPAddressRefresh_Tick(null, null);
-            timerIPAddressRefresh.Start();
- */ 
+ 
         }
         void simconnect_OnRecvQuit(SimConnect sender, SIMCONNECT_RECV data)
         {
+            DeleteAllObjects();
+            closeConnection();
+            frmMain.Connected = false;
             if (timerConnect != null)
                 timerConnect.Start();
             else
@@ -971,7 +969,41 @@ namespace Fsxget
                 }
             }
         }
-        
+        public void DeleteAllObjects()
+        {
+            lock (lockUserAircraft)
+            {
+                objUserAircraft.State = SceneryObject.STATE.DELETED;
+            }
+            lock (objAIAircrafts.lockObject)
+            {
+                foreach (DictionaryEntry entry in objAIAircrafts.htObjects)
+                {
+                    ((SceneryObject)(entry.Value)).State = SceneryObject.STATE.DELETED; 
+                }
+            }
+            lock (objAIHelicopters.lockObject)
+            {
+                foreach (DictionaryEntry entry in objAIHelicopters.htObjects)
+                {
+                    ((SceneryObject)(entry.Value)).State = SceneryObject.STATE.DELETED;
+                }
+            }
+            lock (objAIBoats.lockObject)
+            {
+                foreach (DictionaryEntry entry in objAIBoats.htObjects)
+                {
+                    ((SceneryObject)(entry.Value)).State = SceneryObject.STATE.DELETED;
+                }
+            }
+            lock (objAIGroundUnits.lockObject)
+            {
+                foreach (DictionaryEntry entry in objAIGroundUnits.htObjects)
+                {
+                    ((SceneryObject)(entry.Value)).State = SceneryObject.STATE.DELETED;
+                }
+            }
+        }
         public void CleanupHashtable(ref Hashtable ht)
         {
             ArrayList toDel = new ArrayList();
@@ -1013,10 +1045,43 @@ namespace Fsxget
         #endregion
 
         #region Timerfunctions
+        public void InitializeTimers()
+        {
+            timerQueryUserAircraft.Stop();
+            timerQueryUserAircraft.Interval = Program.Config[Config.SETTING.QUERY_USER_AIRCRAFT]["Interval"].IntValue;
+
+            objAIAircrafts.timer.Stop();
+            objAIAircrafts.timer.Interval = Program.Config[Config.SETTING.QUERY_AI_AIRCRAFTS]["Interval"].IntValue;
+
+            objAIHelicopters.timer.Stop();
+            objAIHelicopters.timer.Interval = Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Interval"].IntValue;
+
+            objAIBoats.timer.Stop();
+            objAIBoats.timer.Interval = Program.Config[Config.SETTING.QUERY_AI_BOATS]["Interval"].IntValue;
+
+            objAIGroundUnits.timer.Stop();
+            objAIGroundUnits.timer.Interval = Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Interval"].IntValue;
+            EnableTimers();
+        }
+        public void EnableTimers()
+        {
+            EnableTimers(true);
+        }
+        public void EnableTimers(bool bEnable)
+        {
+            bool bQueryAI = Program.Config[Config.SETTING.QUERY_AI_OBJECTS]["Enabled"].BoolValue;
+            timerQueryUserAircraft.Enabled = bEnable && Program.Config[Config.SETTING.QUERY_USER_AIRCRAFT]["Enabled"].BoolValue;
+            objAIAircrafts.timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_AIRCRAFTS]["Enabled"].BoolValue;
+            objAIHelicopters.timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Enabled"].BoolValue;
+            objAIBoats.timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_BOATS]["Enabled"].BoolValue;
+            objAIGroundUnits.timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Enabled"].BoolValue;
+        }
+
         private void OnTimerConnectElapsed(object sender, ElapsedEventArgs e)
         {
             if (openConnection())
             {
+                frmMain.Connected = true;
                 timerConnect.Stop();
             }
         }
@@ -1028,7 +1093,7 @@ namespace Fsxget
                 {
                     simconnect.RequestDataOnSimObjectType(DATA_REQUESTS.REQUEST_USER_AIRCRAFT, DEFINITIONS.StructBasicMovingSceneryObject, 0, SIMCONNECT_SIMOBJECT_TYPE.USER);
                 }
-                catch
+                catch (COMException ex)
                 {
                 }
             }
@@ -1056,7 +1121,7 @@ namespace Fsxget
                 {
                     simconnect.RequestDataOnSimObjectType(DATA_REQUESTS.REQUEST_AI_HELICOPTER, DEFINITIONS.StructBasicMovingSceneryObject, (uint)Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Range"].IntValue, SIMCONNECT_SIMOBJECT_TYPE.HELICOPTER);
                 }
-                catch
+                catch (COMException ex)
                 {
                 }
             }
@@ -1069,7 +1134,7 @@ namespace Fsxget
                 {
                     simconnect.RequestDataOnSimObjectType(DATA_REQUESTS.REQUEST_AI_BOAT, DEFINITIONS.StructBasicMovingSceneryObject, (uint)Program.Config[Config.SETTING.QUERY_AI_BOATS]["Range"].IntValue, SIMCONNECT_SIMOBJECT_TYPE.BOAT);
                 }
-                catch
+                catch (COMException ex)
                 {
                 }
             }
@@ -1082,11 +1147,232 @@ namespace Fsxget
                 {
                     simconnect.RequestDataOnSimObjectType(DATA_REQUESTS.REQUEST_AI_GROUND, DEFINITIONS.StructBasicMovingSceneryObject, (uint)Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Range"].IntValue, SIMCONNECT_SIMOBJECT_TYPE.GROUND);
                 }
-                catch
+                catch (COMException ex)
                 {
                 }
             }
         }
         #endregion
+
+        public void GetSceneryObjects()
+        {
+            String strPath = Path.GetDirectoryName(Program.Config.FSXPath);
+            String strBGL2XMLPath = @"C:\Programme\Microsoft Games\Microsoft Flight Simulator X SDK\Tools\BGL2XML_CMD\Bgl2Xml.exe";
+            strPath += "\\Scenery";
+            String strTmpFile = Path.GetTempFileName();
+            String[] strFiles = Directory.GetFiles(strPath, "NVX*.bgl", SearchOption.AllDirectories);
+
+            int nVORs = 0;
+            int nNDBs = 0;
+            
+            StreamWriter sVor = new StreamWriter(@"c:\fsxvor.kml", false, Encoding.UTF8);
+            sVor.Write( "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Document><name>VOR</name>" );
+
+            StreamWriter sNDB = new StreamWriter(@"c:\fsxndb.kml", false, Encoding.UTF8);
+            sNDB.Write("<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Document><name>NDB</name>");
+
+            foreach (String strBGLFile in strFiles)
+            {
+                System.Diagnostics.Trace.WriteLine(strBGLFile);
+                try
+                {
+                    System.Diagnostics.ProcessStartInfo ps = new System.Diagnostics.ProcessStartInfo(strBGL2XMLPath, "\"" + strBGLFile + "\" \"" + strTmpFile + "\"");
+                    ps.CreateNoWindow = true;
+                    ps.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                    System.Diagnostics.Process p = System.Diagnostics.Process.Start(ps);
+                    int nSecs = 0;
+                    while (!p.HasExited && nSecs < 10)
+                    {
+                        nSecs++;
+                        Thread.Sleep(1000);
+                    }
+                    if (!p.HasExited)
+                    {
+                        System.Diagnostics.Trace.WriteLine("Killed");
+                        p.Kill();
+                        continue;
+                    }
+                }
+                catch
+                {
+                }
+
+                try
+                {
+                    XmlDocument xmld = new XmlDocument();
+                    xmld.Load(strTmpFile);
+
+                    XmlNodeList nodes = xmld.GetElementsByTagName("Vor");
+
+                    foreach (XmlNode xmln in nodes)
+                    {
+                        bool bDme = false;
+                        bool bDmeOnly = false;
+                        double dLon = 0;
+                        double dLat = 0;
+                        double dAlt = 0;
+                        double dMagVar = 0;
+                        String strTempl = frmMain.kmlFactory.GetTemplate("fsxvor");
+                        foreach (XmlAttribute xmla in xmln.Attributes)
+                        {
+                            if (xmla.Name == "dme")
+                                bDme = xmla.Value.ToLower() == "true";
+                            else if (xmla.Name == "dmeOnly")
+                                bDmeOnly = xmla.Value.ToLower() == "true";
+                            else if (xmla.Name == "lat")
+                                dLat = double.Parse(xmla.Value.Replace(".", ","));
+                            else if (xmla.Name == "lon")
+                                dLon = double.Parse(xmla.Value.Replace(".", ","));
+                            else if (xmla.Name == "alt")
+                            {
+                                dAlt = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1).Replace(".", ","));
+                                strTempl = strTempl.Replace("%ALT%", XmlConvert.ToString(dAlt));
+                            }
+                            else if (xmla.Name == "range")
+                                strTempl = strTempl.Replace("%RANGE%", xmla.Value.Substring(0, xmla.Value.Length - 1));
+                            else if (xmla.Name == "frequency")
+                                strTempl = strTempl.Replace("%FREQ%", xmla.Value);
+                            else if (xmla.Name == "magvar") 
+                            {
+                                dMagVar = double.Parse(xmla.Value.Replace( ".", "," ));
+                                strTempl = strTempl.Replace("%MAGVAR%", xmla.Value);
+                            }
+                            else if (xmla.Name == "ident")
+                            {
+                                strTempl = strTempl.Replace("%IDENT%", xmla.Value);
+                                strTempl = strTempl.Replace("%MORSE%", GetMorseCode(xmla.Value));
+                            }
+                            else if (xmla.Name == "name")
+                                strTempl = strTempl.Replace("%NAME%", xmla.Value);
+                        }
+
+                        if (bDmeOnly)
+                        {
+                            strTempl = strTempl.Replace("%ICON%", "fsxdme.png" ); //frmMain.kmlFactory.GetIconLink(KMLFactory.KML_ICON_TYPES.DME));
+                            strTempl = strTempl.Replace("%TYPE%", "DME");
+                            strTempl = strTempl.Replace("%LINES%", "");
+                        }
+                        else
+                        {
+                            if (bDme)
+                            {
+                                strTempl = strTempl.Replace("%ICON%", "fsxvordme.png" ); //frmMain.kmlFactory.GetIconLink(KMLFactory.KML_ICON_TYPES.VORDME));
+                                strTempl = strTempl.Replace("%TYPE%", "VOR / DME");
+                            }
+                            else
+                                strTempl = strTempl.Replace("%ICON%", "fsxvor.png" ); //frmMain.kmlFactory.GetIconLink(KMLFactory.KML_ICON_TYPES.VOR));
+                            strTempl = strTempl.Replace("%TYPE%", "VOR");
+                        }
+                        strTempl = strTempl.Replace("%OVERLAY%", frmMain.kmlFactory.GenVorKML2(dLon, dLat, dMagVar));
+                        strTempl = strTempl.Replace("%COORDINATES%", XmlConvert.ToString(dLon) + "," + XmlConvert.ToString(dLat) + "," + XmlConvert.ToString(dAlt));
+                        sVor.Write(strTempl);
+                        nVORs++;
+                    }
+                    nodes = xmld.GetElementsByTagName("Ndb");
+                    foreach (XmlNode xmln in nodes)
+                    {
+                        double dLon = 0;
+                        double dLat = 0;
+                        double dAlt = 0;
+                        String strTempl = frmMain.kmlFactory.GetTemplate("fsxndb");
+                        foreach (XmlAttribute xmla in xmln.Attributes)
+                        {
+                            if (xmla.Name == "lat")
+                                dLat = double.Parse(xmla.Value.Replace(".", ","));
+                            else if (xmla.Name == "lon")
+                                dLon = double.Parse(xmla.Value.Replace(".", ","));
+                            else if (xmla.Name == "alt")
+                            {
+                                dAlt = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1).Replace(".", ","));
+                                strTempl = strTempl.Replace("%ALT%", XmlConvert.ToString(dAlt));
+                            }
+                            else if (xmla.Name == "range")
+                                strTempl = strTempl.Replace("%RANGE%", xmla.Value.Substring(0, xmla.Value.Length - 1));
+                            else if (xmla.Name == "frequency")
+                                strTempl = strTempl.Replace("%FREQ%", xmla.Value);
+                            else if (xmla.Name == "magvar")
+                                strTempl = strTempl.Replace("%MAGVAR%", xmla.Value);
+                            else if (xmla.Name == "ident")
+                            {
+                                strTempl = strTempl.Replace("%IDENT%", xmla.Value);
+                                strTempl = strTempl.Replace("%MORSE%", GetMorseCode(xmla.Value));
+                            }
+                            else if (xmla.Name == "name")
+                                strTempl = strTempl.Replace("%NAME%", xmla.Value);
+                        }
+                        strTempl = strTempl.Replace("%ICON%", frmMain.kmlFactory.GetIconLink(KmlFactory.KML_ICON_TYPES.NDB));
+                        strTempl = strTempl.Replace("%TYPE%", "NDB");
+                        strTempl = strTempl.Replace("%COORDINATES%", XmlConvert.ToString(dLon) + "," + XmlConvert.ToString(dLat) + "," + XmlConvert.ToString(dAlt));
+                        sNDB.Write(strTempl);
+                        nNDBs++;
+                    }
+
+                    xmld = null;
+                }
+                catch
+                {
+                }
+            }
+            sVor.Write("</Document></kml>");
+            sNDB.Write("</Document></kml>");
+            sVor.Close();
+            sNDB.Close();
+
+/*           
+            strFiles = Directory.GetFiles(strPath, "APX*.bgl", SearchOption.AllDirectories);
+            foreach (String strBGLFile in strFiles)
+            {
+                System.Diagnostics.Trace.WriteLine(strBGLFile);
+                try
+                {
+                    System.Diagnostics.ProcessStartInfo ps = new System.Diagnostics.ProcessStartInfo(strBGL2XMLPath, "\"" + strBGLFile + "\" \"" + strTmpFile + "\"");
+                    ps.CreateNoWindow = true;
+                    ps.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                    System.Diagnostics.Process p = System.Diagnostics.Process.Start(ps);
+                    int nSecs = 0;
+                    while (!p.HasExited && nSecs < 10)
+                    {
+                        nSecs++;
+                        Thread.Sleep(1000);
+                    }
+                    if (!p.HasExited)
+                    {
+                        System.Diagnostics.Trace.WriteLine("Killed");
+                        p.Kill();
+                        continue;
+                    }
+                }
+                catch
+                {
+                }
+
+                try
+                {
+                    XmlDocument xmld = new XmlDocument();
+                    xmld.Load(strTmpFile);
+                    XmlNodeList nodes = xmld.GetElementsByTagName("Airport");
+                }
+                catch
+                {
+                }
+            }
+ */
+            File.Delete(strTmpFile);
+        }
+        static public String GetMorseCode(String str)
+        {
+            str = str.ToUpper();
+            String strMorseCode = "";
+            for (int i = 0; i < str.Length; i++)
+            {
+                if( str[i] >= 'A' && str[i] <= 'Z' )
+                    strMorseCode += strMorseSigns[str[i] - 'A' + 10];
+                else if( str[i] >= '0' && str[i] <= '9' )
+                    strMorseCode += strMorseSigns[str[i] - '0'];
+                else 
+                    strMorseCode += "? ";
+            }
+            return strMorseCode;
+        }
     }
 }

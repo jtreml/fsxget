@@ -1,0 +1,197 @@
+<?xml version="1.0"?>
+<fsxget>
+  <settings>
+    <options>
+      <general>
+        <enable-on-startup Enabled="1" />
+        <show-balloon-tips Enabled="1" />
+        <load-kml-file Enabled="1" />
+        <update-check Enabled="1" />
+      </general>
+      <fsx>
+        <query-user-aircraft Enabled="1" Interval="1000" />
+        <query-user-path Enabled="1" Interval="5000" />
+        <user-path-prediction Enabled="1" Interval="1000">
+          <prediction-point Time="30" />
+          <prediction-point Time="150" />
+          <prediction-point Time="300" />
+          <prediction-point Time="600" />
+          <prediction-point Time="1200" />
+        </user-path-prediction>
+        <query-ai-objects Enabled="1">
+          <query-ai-aircrafts Enabled="1" Interval="3000" Range="100000" Prediction="1" PredictionPoints="0" />
+          <query-ai-helicopters Enabled="1" Interval="3000" Range="100000" Prediction="1" PredictionPoints="0" />
+          <query-ai-boats Enabled="1" Interval="5000" Range="50000" Prediction="0" PredictionPoints="0" />
+          <query-ai-ground-units Enabled="1" Interval="5000" Range="50000" Prediction="0" PredictionPoints="0" />
+        </query-ai-objects>
+      </fsx>
+      <ge>
+        <refresh-rates>
+          <user-aircraft Interval="2" />
+          <user-path Interval="5" />
+          <user-path-prediction Interval="2" />
+          <ai-aircrafts Interval="5" />
+          <ai-helicopters Interval="5" />
+          <ai-boats Interval="5" />
+          <ai-ground-units Interval="5" />
+        </refresh-rates>
+        <server-settings>
+          <port Value="8087" />
+          <access-level Value="1" />
+        </server-settings>
+      </ge>
+      <flightplans Enabled="1">
+        <flightplan Name="VFR Holtenau to Barajas" Show="1" File="C:\Documents and Settings\jtr\Desktop\VFR Holtenau to Barajas.PLN" />
+        <flightplan Name="VFR 02 Ranch to 100 Aker Wood" Show="1" File="C:\Documents and Settings\jtr\Desktop\VFR 02 Ranch to 100 Aker Wood.PLN" />
+        <flightplan Name="IFR 02 Ranch to 100 Aker Wood2" Show="0" File="C:\Documents and Settings\jtr\Desktop\IFR 02 Ranch to 100 Aker Wood2.PLN" />
+        <flightplan Name="VFR Holtenau to Barajas2" Show="0" File="C:\Documents and Settings\jtr\Desktop\VFR Holtenau to Barajas2.PLN" />
+        <flightplan Name="VFR Holtenau to Barajas3" Show="1" File="C:\Documents and Settings\jtr\Desktop\VFR Holtenau to Barajas3.PLN" />
+        <flightplan Name="IFR Holtenau to Barajas4" Show="0" File="C:\Documents and Settings\jtr\Desktop\IFR Holtenau to Barajas4.PLN" />
+      </flightplans>
+    </options>
+  </settings>
+  <gfx>
+    <program>
+      <!--All path specified in the program section are relative to the ./data directory in the program folder-->
+      <icons>
+        <icon Name="Taskbar - Enabled" Img="/gfx/icons/tbenabled.ico" />
+        <icon Name="Taskbar - Disabled" Img="/gfx/icons/tbdisabled.ico" />
+        <icon Name="Taskbar - Paused" Img="/gfx/icons/tbpaused.ico" />
+        <icon Name="Taskbar - Connected" Img="/gfx/icons/tbconnected.ico" />
+      </icons>
+    </program>
+    <scenery>
+      <!--All path specified in the scenery section are relative to the ./pub directory in the program folder-->
+      <air>
+        <aircraft Name="Aircreation582SL Blue" Img="/gfx/scenery/air/Aircreation Ultraligero Trike.png" />
+        <aircraft Name="Aircreation582SL red" Img="/gfx/scenery/air/Aircreation Ultraligero Trike.png" />
+        <aircraft Name="Aircreation582SL yellow, white and red" Img="/gfx/scenery/air/Aircreation Ultraligero Trike.png" />
+        <aircraft Name="title=Aircreation582SL" Img="/gfx/scenery/air/Aircreation Ultraligero Trike.png" />
+        <aircraft Name="Airbus A321 Paint2" Img="/gfx/scenery/air/Airbus A321.png" />
+        <aircraft Name="Airbus A321 Paint4" Img="/gfx/scenery/air/Airbus A321.png" />
+        <aircraft Name="Airbus A321 Paint5" Img="/gfx/scenery/air/Airbus A321.png" />
+        <aircraft Name="Airbus A321" Img="/gfx/scenery/air/Airbus A321.png" />
+        <aircraft Name="Beech Baron 58 w G1000" Img="/gfx/scenery/air/Beachcraft Baron 58 (G1000).png" />
+        <aircraft Name="Beech Baron 58 Paint1" Img="/gfx/scenery/air/Beachcraft Baron 58.png" />
+        <aircraft Name="Beech Baron 58 Paint2" Img="/gfx/scenery/air/Beachcraft Baron 58.png" />
+        <aircraft Name="Beech Baron 58 Paint3" Img="/gfx/scenery/air/Beachcraft Baron 58.png" />
+        <aircraft Name="Beech Baron 58" Img="/gfx/scenery/air/Beachcraft Baron 58.png" />
+        <aircraft Name="Beech King Air 350 Paint1" Img="/gfx/scenery/air/Beachcraft King Air 350.png" />
+        <aircraft Name="Beech King Air 350 Paint2" Img="/gfx/scenery/air/Beachcraft King Air 350.png" />
+        <aircraft Name="Beech King Air 350 Paint3" Img="/gfx/scenery/air/Beachcraft King Air 350.png" />
+        <aircraft Name="Beech King Air 350" Img="/gfx/scenery/air/Beachcraft King Air 350.png" />
+        <aircraft Name="Bell 206B JetRanger Paint1" Img="/gfx/scenery/air/Bell 206B JetRanger.png" />
+        <aircraft Name="Bell 206B JetRanger Paint2" Img="/gfx/scenery/air/Bell 206B JetRanger.png" />
+        <aircraft Name="Bell 206B JetRanger Paint3" Img="/gfx/scenery/air/Bell 206B JetRanger.png" />
+        <aircraft Name="Bell 206B JetRanger Paint4" Img="/gfx/scenery/air/Bell 206B JetRanger.png" />
+        <aircraft Name="Bell 206B JetRanger Paint5" Img="/gfx/scenery/air/Bell 206B JetRanger.png" />
+        <aircraft Name="Bell 206B JetRanger Paint6" Img="/gfx/scenery/air/Bell 206B JetRanger.png" />
+        <aircraft Name="Bell 206B JetRanger Paint7" Img="/gfx/scenery/air/Bell 206B JetRanger.png" />
+        <aircraft Name="Bell 206B JetRanger Paint8" Img="/gfx/scenery/air/Bell 206B JetRanger.png" />
+        <aircraft Name="Bell 206B JetRanger Paint9" Img="/gfx/scenery/air/Bell 206B JetRanger.png" />
+        <aircraft Name="Bell 206B JetRanger Paint10" Img="/gfx/scenery/air/Bell 206B JetRanger.png" />
+        <aircraft Name="Bell 206B JetRanger Paint11" Img="/gfx/scenery/air/Bell 206B JetRanger.png" />
+        <aircraft Name="Bell 206B JetRanger Paint12" Img="/gfx/scenery/air/Bell 206B JetRanger.png" />
+        <aircraft Name="Bell 206B JetRanger" Img="/gfx/scenery/air/Bell 206B JetRanger.png" />
+        <aircraft Name="Boeing 737-800 Paint1" Img="/gfx/scenery/air/Boeing 737-800.png" />
+        <aircraft Name="Boeing 737-800 Paint2" Img="/gfx/scenery/air/Boeing 737-800.png" />
+        <aircraft Name="Boeing 737-800 Paint4" Img="/gfx/scenery/air/Boeing 737-800.png" />
+        <aircraft Name="Boeing 737-800 Paint5" Img="/gfx/scenery/air/Boeing 737-800.png" />
+        <aircraft Name="Boeing 737-800 Paint6" Img="/gfx/scenery/air/Boeing 737-800.png" />
+        <aircraft Name="Boeing 737-800" Img="/gfx/scenery/air/Boeing 737-800.png" />
+        <aircraft Name="Boeing 747-400 Paint1" Img="/gfx/scenery/air/Boeing 747-400.png" />
+        <aircraft Name="Boeing 747-400 Paint2" Img="/gfx/scenery/air/Boeing 747-400.png" />
+        <aircraft Name="Boeing 747-400 Paint4" Img="/gfx/scenery/air/Boeing 747-400.png" />
+        <aircraft Name="Boeing 747-400 Paint5" Img="/gfx/scenery/air/Boeing 747-400.png" />
+        <aircraft Name="Boeing 747-400 Paint8" Img="/gfx/scenery/air/Boeing 747-400.png" />
+        <aircraft Name="Boeing 747-400 Paint9" Img="/gfx/scenery/air/Boeing 747-400.png" />
+        <aircraft Name="Boeing 747-400" Img="/gfx/scenery/air/Boeing 747-400.png" />
+        <aircraft Name="Bombardier CRJ 700 Paint1" Img="/gfx/scenery/air/Bombardier CRJ700.png" />
+        <aircraft Name="Bombardier CRJ 700 Paint2" Img="/gfx/scenery/air/Bombardier CRJ700.png" />
+        <aircraft Name="Bombardier CRJ 700 Paint4" Img="/gfx/scenery/air/Bombardier CRJ700.png" />
+        <aircraft Name="Bombardier CRJ 700" Img="/gfx/scenery/air/Bombardier CRJ700.png" />
+        <aircraft Name="Learjet 45" Img="/gfx/scenery/air/Bombardier Learjet 45.png" />
+        <aircraft Name="Learjet 45 Limited Edition" Img="/gfx/scenery/air/Bombardier Learjet 45.png" />
+        <aircraft Name="Cessna Skyhawk 172SP G1000" Img="/gfx/scenery/air/Cessna C172SP Skyhawk (G1000).png" />
+        <aircraft Name="Cessna Skyhawk 172SP Paint1" Img="/gfx/scenery/air/Cessna C172SP Skyhawk.png" />
+        <aircraft Name="Cessna Skyhawk 172SP Paint2" Img="/gfx/scenery/air/Cessna C172SP Skyhawk.png" />
+        <aircraft Name="Cessna Skyhawk 172SP Paint3" Img="/gfx/scenery/air/Cessna C172SP Skyhawk.png" />
+        <aircraft Name="Cessna Skyhawk 172SP Paint4" Img="/gfx/scenery/air/Cessna C172SP Skyhawk.png" />
+        <aircraft Name="Cessna Skyhawk 172SP" Img="/gfx/scenery/air/Cessna C172SP Skyhawk.png" />
+        <aircraft Name="Cessna Grand Caravan Paint1" Img="/gfx/scenery/air/Cessna C208B Grand Caravan.png" />
+        <aircraft Name="Cessna Grand Caravan Paint2" Img="/gfx/scenery/air/Cessna C208B Grand Caravan.png" />
+        <aircraft Name="Cessna Grand Caravan Paint3" Img="/gfx/scenery/air/Cessna C208B Grand Caravan.png" />
+        <aircraft Name="Cessna Grand Caravan" Img="/gfx/scenery/air/Cessna C208B Grand Caravan.png" />
+        <aircraft Name="DeHavilland Beaver DHC2 Paint1" Img="/gfx/scenery/air/de Havilland Beaver DHC2.png" />
+        <aircraft Name="DeHavilland Beaver DHC2 Paint2" Img="/gfx/scenery/air/de Havilland Beaver DHC2.png" />
+        <aircraft Name="DeHavilland Beaver DHC2" Img="/gfx/scenery/air/de Havilland Beaver DHC2.png" />
+        <aircraft Name="DG808S Paint1" Img="/gfx/scenery/air/DG Flugzeugbau DG-808S.png" />
+        <aircraft Name="DG808S Paint2" Img="/gfx/scenery/air/DG Flugzeugbau DG-808S.png" />
+        <aircraft Name="DG808S Paint3" Img="/gfx/scenery/air/DG Flugzeugbau DG-808S.png" />
+        <aircraft Name="DG808S" Img="/gfx/scenery/air/DG Flugzeugbau DG-808S.png" />
+        <aircraft Name="Douglas DC-3" Img="/gfx/scenery/air/Douglas DC-3.png" />
+        <aircraft Name="Douglas DC-3 Paint1" Img="/gfx/scenery/air/Douglas DC-3.png" />
+        <aircraft Name="Douglas DC-3 Paint2" Img="/gfx/scenery/air/Douglas DC-3.png" />
+        <aircraft Name="Douglas DC-3 Paint3" Img="/gfx/scenery/air/Douglas DC-3.png" />
+        <aircraft Name="Douglas DC-3 Paint4" Img="/gfx/scenery/air/Douglas DC-3.png" />
+        <aircraft Name="Douglas DC-3 Paint5" Img="/gfx/scenery/air/Douglas DC-3.png" />
+        <aircraft Name="Extra 300S Paint1" Img="/gfx/scenery/air/Extra 300S.png" />
+        <aircraft Name="Extra 300S Paint2" Img="/gfx/scenery/air/Extra 300S.png" />
+        <aircraft Name="Extra 300S Paint3" Img="/gfx/scenery/air/Extra 300S.png" />
+        <aircraft Name="Extra 300S Paint4" Img="/gfx/scenery/air/Extra 300S.png" />
+        <aircraft Name="Extra 300S" Img="/gfx/scenery/air/Extra 300S.png" />
+        <aircraft Name="Grumman Goose G21A paint1" Img="/gfx/scenery/air/Grumman Goose G21A.png" />
+        <aircraft Name="Grumman Goose G21A paint2" Img="/gfx/scenery/air/Grumman Goose G21A.png" />
+        <aircraft Name="Grumman Goose G21A paint3" Img="/gfx/scenery/air/Grumman Goose G21A.png" />
+        <aircraft Name="Grumman Goose G21A paint4" Img="/gfx/scenery/air/Grumman Goose G21A.png" />
+        <aircraft Name="Grumman Goose G21A paint5" Img="/gfx/scenery/air/Grumman Goose G21A.png" />
+        <aircraft Name="Grumman Goose G21A paint6" Img="/gfx/scenery/air/Grumman Goose G21A.png" />
+        <aircraft Name="Grumman Goose G21A" Img="/gfx/scenery/air/Grumman Goose G21A.png" />
+        <aircraft Name="Maule M7 260C Ski paint1" Img="/gfx/scenery/air/Maule Orion sobre esquíes.png" />
+        <aircraft Name="Maule M7 260C Ski" Img="/gfx/scenery/air/Maule Orion sobre esquíes.png" />
+        <aircraft Name="Maule M7 260C paint1" Img="/gfx/scenery/air/Maule Orion.png" />
+        <aircraft Name="Maule M7 260C paint2" Img="/gfx/scenery/air/Maule Orion.png" />
+        <aircraft Name="Maule M7 260C paint3" Img="/gfx/scenery/air/Maule Orion.png" />
+        <aircraft Name="Maule M7 260C paint4" Img="/gfx/scenery/air/Maule Orion.png" />
+        <aircraft Name="Maule M7 260C paint5" Img="/gfx/scenery/air/Maule Orion.png" />
+        <aircraft Name="Maule M7 260C" Img="/gfx/scenery/air/Maule Orion.png" />
+        <aircraft Name="Mooney Bravo With G1000" Img="/gfx/scenery/air/Mooney Bravo (G1000).png" />
+        <aircraft Name="Mooney Bravo" Img="/gfx/scenery/air/Mooney Bravo.png" />
+        <aircraft Name="Mooney Bravo Retro" Img="/gfx/scenery/air/Mooney Bravo.png" />
+        <aircraft Name="Piper Cub Paint1" Img="/gfx/scenery/air/Piper J-3 Cub.png" />
+        <aircraft Name="Piper Cub Paint2" Img="/gfx/scenery/air/Piper J-3 Cub.png" />
+        <aircraft Name="Piper Cub" Img="/gfx/scenery/air/Piper J-3 Cub.png" />
+        <aircraft Name="Robinson R22 Paint1" Img="/gfx/scenery/air/Robinson R22 Beta II.png" />
+        <aircraft Name="Robinson R22 Paint2" Img="/gfx/scenery/air/Robinson R22 Beta II.png" />
+        <aircraft Name="Robinson R22" Img="/gfx/scenery/air/Robinson R22 Beta II.png" />
+      </air>
+      <water>
+      </water>
+      <ground>
+      </ground>
+      <noimage Img="/gfx/scenery/noimage.png" />
+      <logo Img="/gfx/scenery/logo.png" />
+    </scenery>
+    <ge>
+      <icons>
+        <icon Name="fsxu" Img="/gfx/ge/icons/fsxu.png" />
+        <icon Name="fsxaip" Img="/gfx/ge/icons/fsxaip.png" />
+        <icon Name="fsxaih" Img="/gfx/ge/icons/fsxaih.png" />
+        <icon Name="fsxaib" Img="/gfx/ge/icons/fsxaib.png" />
+        <icon Name="fsxaig" Img="/gfx/ge/icons/fsxaig.png" />
+        <icon Name="fsxpm" Img="/gfx/ge/icons/fsxpm.png" />
+        <icon Name="fsxaippp" Img="/gfx/ge/icons/fsxaippp.png" />
+        <icon Name="fsxaihpp" Img="/gfx/ge/icons/fsxaihpp.png" />
+        <icon Name="fsxaibpp" Img="/gfx/ge/icons/fsxaibpp.png" />
+        <icon Name="fsxaigpp" Img="/gfx/ge/icons/fsxaigpp.png" />
+        <icon Name="plan-inter" Img="/gfx/ge/icons/fsx-p-inter.png" />
+        <icon Name="plan-user" Img="/gfx/ge/icons/fsx-p-user.png" />
+        <icon Name="plan-port" Img="/gfx/ge/icons/fsx-p-port.png" />
+        <icon Name="fsxvor" Img="/gfx/ge/icons/fsxvor.png" />
+        <icon Name="fsxdme" Img="/gfx/ge/icons/fsxdme.png" />
+        <icon Name="fsxvordme" Img="/gfx/ge/icons/fsxvordme.png" />
+        <icon Name="fsxndb" Img="/gfx/ge/icons/fsxndb.png" />
+      </icons>
+    </ge>
+  </gfx>
+</fsxget>

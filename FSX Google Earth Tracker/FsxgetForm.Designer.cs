@@ -1,6 +1,6 @@
 namespace Fsxget
 {
-	partial class FsxetForm
+	partial class FsxgetForm
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -29,7 +29,7 @@ namespace Fsxget
 		private void InitializeComponent()
 		{
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FsxetForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FsxgetForm));
             this.notifyIconMain = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStripNotifyIcon = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.enableTrackerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -39,6 +39,8 @@ namespace Fsxget
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.createGoogleEarthKMLFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.pauseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.recreateGoogleEarthObjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearUserAircraftPathToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -68,6 +70,8 @@ namespace Fsxget
             this.toolStripMenuItem4,
             this.createGoogleEarthKMLFileToolStripMenuItem,
             this.toolStripMenuItem3,
+            this.pauseToolStripMenuItem,
+            this.recreateGoogleEarthObjectsToolStripMenuItem,
             this.clearUserAircraftPathToolStripMenuItem,
             this.toolStripMenuItem2,
             this.optionsToolStripMenuItem,
@@ -75,7 +79,7 @@ namespace Fsxget
             this.aboutToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.contextMenuStripNotifyIcon.Name = "contextMenuStrip1";
-            this.contextMenuStripNotifyIcon.Size = new System.Drawing.Size(237, 210);
+            this.contextMenuStripNotifyIcon.Size = new System.Drawing.Size(237, 276);
             this.contextMenuStripNotifyIcon.Text = "Test";
             // 
             // enableTrackerToolStripMenuItem
@@ -86,6 +90,7 @@ namespace Fsxget
             this.enableTrackerToolStripMenuItem.Name = "enableTrackerToolStripMenuItem";
             this.enableTrackerToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
             this.enableTrackerToolStripMenuItem.Text = "&Enable Tracker";
+            this.enableTrackerToolStripMenuItem.Click += new System.EventHandler(this.enableTrackerToolStripMenuItem_Click);
             // 
             // test2ToolStripMenuItem
             // 
@@ -122,6 +127,21 @@ namespace Fsxget
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
             this.toolStripMenuItem3.Size = new System.Drawing.Size(233, 6);
+            // 
+            // pauseToolStripMenuItem
+            // 
+            this.pauseToolStripMenuItem.CheckOnClick = true;
+            this.pauseToolStripMenuItem.Name = "pauseToolStripMenuItem";
+            this.pauseToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
+            this.pauseToolStripMenuItem.Text = "Pause";
+            this.pauseToolStripMenuItem.Click += new System.EventHandler(this.pauseToolStripMenuItem_Click);
+            // 
+            // recreateGoogleEarthObjectsToolStripMenuItem
+            // 
+            this.recreateGoogleEarthObjectsToolStripMenuItem.Name = "recreateGoogleEarthObjectsToolStripMenuItem";
+            this.recreateGoogleEarthObjectsToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
+            this.recreateGoogleEarthObjectsToolStripMenuItem.Text = "Recreate Google Earth Objects";
+            this.recreateGoogleEarthObjectsToolStripMenuItem.Click += new System.EventHandler(this.recreateGoogleEarthObjectsToolStripMenuItem_Click);
             // 
             // clearUserAircraftPathToolStripMenuItem
             // 
@@ -186,7 +206,7 @@ namespace Fsxget
             this.saveFileDialogKMLFile.DefaultExt = "kml";
             this.saveFileDialogKMLFile.Filter = "Google Earth Files|*.kml";
             // 
-            // Form1
+            // FSXGetForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -198,7 +218,7 @@ namespace Fsxget
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "Form1";
+            this.Name = "FSXGetForm";
             this.Text = "FSX Google Earth Tracker";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Shown += new System.EventHandler(this.Form1_Shown);
@@ -230,6 +250,8 @@ namespace Fsxget
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.SaveFileDialog saveFileDialogKMLFile;
+        private System.Windows.Forms.ToolStripMenuItem pauseToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem recreateGoogleEarthObjectsToolStripMenuItem;
 	}
 }
 
