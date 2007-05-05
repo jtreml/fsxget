@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 
 namespace Fsxget
 {
-	public partial class FsxetForm : Form
+	public partial class FsxgetForm : Form
 	{
 		#region Global Variables
 
@@ -28,10 +28,10 @@ namespace Fsxget
         public KmlFactory kmlFactory;
         
 		bool bClose = false;
-		//bool bConnected = false;
+		bool bConnected = false;
         bool bErrorOnLoad = false;
 
-		Icon icActive, icDisabled, icReceive;
+		Icon icEnabled, icDisabled, icConnected, icPaused;
 
 		HttpListener listener;
 		System.Object lockListenerControl = new System.Object();
@@ -41,7 +41,7 @@ namespace Fsxget
 		#region Form Functions
 
 
-		public FsxetForm()
+		public FsxgetForm()
 		{
 			//As this method doesn't start any other threads we don't need to lock anything here (especially not the config file xml document)
 
@@ -51,6 +51,18 @@ namespace Fsxget
             fsxCon = new FsxConnection(this, false);
             kmlFactory = new KmlFactory(ref fsxCon);
             kmlFactory.CreateStartupKML(Program.Config.UserDataPath + "/pub/fsxget.kml");
+
+            enableTrackerToolStripMenuItem.Checked = Program.Config[Config.SETTING.ENABLE_ON_STARTUP]["Enabled"].BoolValue;
+            if (enableTrackerToolStripMenuItem.Checked)
+            {
+                fsxCon.Connect();
+            }
+            
+//            File.WriteAllText("c:\\test.kml", kmlFactory.GenVorKML(0, 0, 0), Encoding.UTF8);
+
+//            File.WriteAllText( "c:\\test.kml", kmlFactory.GenVorKML( 8.58423605561256, 48.9929445460439, 0 ), Encoding.UTF8 );
+
+//            fsxCon.GetSceneryObjects();
 
 			timerIPAddressRefresh.Interval = 10000;
 
@@ -64,11 +76,12 @@ namespace Fsxget
 			listener = new HttpListener();
 			listener.Prefixes.Add("http://+:" + Program.Config[Config.SETTING.GE_SERVER_PORT]["Value"].IntValue.ToString() + "/");
 
-            icActive = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbenabled.ico"));
+            icEnabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbenabled.ico"));
             icDisabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbdisabled.ico"));
-            icReceive = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbpaused.ico"));
+            icConnected = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbconnected.ico"));
+            icPaused = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbpaused.ico"));
 
-			notifyIconMain.Icon = icDisabled;
+            notifyIconMain.Icon = icEnabled;
 			notifyIconMain.Text = this.Text;
 			notifyIconMain.Visible = true;
 
@@ -76,7 +89,8 @@ namespace Fsxget
 
 		private void Form1_Load(object sender, EventArgs e)
 		{
-			if (bErrorOnLoad)
+
+            if (bErrorOnLoad)
 				return;
 		}
 
@@ -324,6 +338,22 @@ namespace Fsxget
 		}
 		#endregion
 
+        public bool Connected
+        {
+            get
+            {
+                return bConnected;
+            }
+            set
+            {
+                bConnected = value;
+                if (bConnected)
+                    notifyIconMain.Icon = icConnected;
+                else
+                    notifyIconMain.Icon = icEnabled;
+            }
+        }
+
 		#region User Interface Handlers
 
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -396,6 +426,34 @@ namespace Fsxget
 
         }
         #endregion
+
+        private void pauseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (bConnected)
+            {
+                notifyIconMain.Icon = pauseToolStripMenuItem.Checked ? icPaused : icConnected;
+                fsxCon.EnableTimers(!pauseToolStripMenuItem.Checked);
+            }
+        }
+
+        private void recreateGoogleEarthObjectsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            fsxCon.DeleteAllObjects();
+        }
+
+        private void enableTrackerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (enableTrackerToolStripMenuItem.Checked)
+            {
+                notifyIconMain.Icon = icEnabled;
+                fsxCon.Connect();
+            }
+            else
+            {
+                fsxCon.Disconnect();
+                notifyIconMain.Icon = icDisabled;
+            }
+        }
 
     }
 }

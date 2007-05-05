@@ -1,0 +1,16 @@
+<Placemark>
+	<name>%IDENT%</name>
+	<description><![CDATA[<B>Name:</B> %NAME%<br><B>Ident: </B> %IDENT% (<B>%MORSE%</B>)<br><B>Type:</B> NDB<br><B>Frequency:</B> %FREQ%<br><B>Altitude:</B> %ALT%<br><B>Magnetic Variation:</B> %MAGVAR%<br><B>Range:</B> %RANGE%<br>]]></description>
+	<Style>
+		<IconStyle>
+			<Icon>
+				<href>%ICON%</href>
+			</Icon>
+		</IconStyle>
+		<LabelStyle><scale>0.6</scale></LabelStyle>
+	</Style>
+	<Point>
+		<altitudeMode>absolute</altitudeMode>
+		<coordinates>%COORDINATES%</coordinates>
+	</Point>
+</Placemark>

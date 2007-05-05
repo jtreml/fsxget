@@ -1,0 +1,14 @@
+<GroundOverlay>
+   <color>ffffffff</color>
+   <drawOrder>1</drawOrder>
+   <Icon>
+      <href>fsxvorov.png</href>
+   </Icon>
+   <LatLonBox>
+      <north>%NORTH%</north>
+      <south>%SOUTH%</south>
+      <east>%EAST%</east>
+      <west>%WEST%</west>
+      <rotation>%MAGVAR%</rotation>
+   </LatLonBox>
+</GroundOverlay>

@@ -1,0 +1,5 @@
+<LookAt>
+	<longitude>%LONGITUDE%</longitude>
+	<latitude>%LATITUDE%</latitude>	
+	<heading>%HEADING%</heading>	
+</LookAt>

@@ -655,7 +655,6 @@ namespace Fsxget
         protected void ReadFromXML()
         {
             XmlTextReader xmlrSeetingsFile = new XmlTextReader(strXMLFile);
-//            XmlTextReader xmlrSeetingsFile = new XmlTextReader("C:\\test.xml");
             XmlDocument xmldSettings = new XmlDocument();
             xmldSettings.Load(xmlrSeetingsFile);
             xmlrSeetingsFile.Close();
@@ -682,6 +681,7 @@ namespace Fsxget
         }
         public void SetDefaults()
         {
+/*
             Settings obj;
 
             settings[(int)SETTING.ENABLE_ON_STARTUP]["Enabled"].BoolValue = true;
@@ -744,6 +744,9 @@ namespace Fsxget
 
             settings[(int)SETTING.GE_SERVER_PORT]["Value"].IntValue = 8087;
             settings[(int)SETTING.GE_ACCESS_LEVEL]["Value"].IntValue = 1;
+ */
+            File.Copy(strAppPath + "\\data\\settings.default", strUserAppPath + "\\settings.cfg");
+            ReadFromXML();
         }
         #endregion
 
