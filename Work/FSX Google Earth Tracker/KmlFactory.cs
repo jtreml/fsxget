@@ -365,12 +365,12 @@ namespace Fsxget
                         str = str.Replace("%COORDINATES%", strCoords);
                         strKML += str;
                         strKML += "</Folder></Folder></Create>";
+                        obj.State = FsxConnection.SceneryObject.STATE.DATAREAD;
                         break;
                     case FsxConnection.SceneryObject.STATE.DELETED:
                         strKML += "<Delete><Folder targetId=\"fp" + obj.ObjectID.ToString() + "\"/></Delete>";
                         break;
                 }
-                obj.State = FsxConnection.SceneryObject.STATE.DATAREAD;
             }
             fsxCon.CleanupHashtable(ref fsxCon.htFlightPlans);
             strKML += "</Update>" + strUpdateKMLFooter;
