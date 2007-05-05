@@ -113,6 +113,7 @@ namespace Fsxget
         protected String strUpdateKMLHeader;
         protected String strUpdateKMLFooter;
         protected Hashtable htKMLParts;
+        protected Hashtable htFlightPlans;
         #endregion
 
 //      public static int nFileNr = 1;
@@ -217,9 +218,9 @@ namespace Fsxget
                             fsxCon.objUserAircraft.ReplaceObjectInfos(ref strKMLPart);
                             break;
                         case FsxConnection.SceneryObject.STATE.DELETED:
-                            strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "\"/></Placemark></Delete>";
-                            strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "p\"/></Placemark></Delete>";
-                            strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "pp\"/></Placemark></Delete>";
+                            strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "\"/></Delete>";
+                            strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "p\"/></Delete>";
+                            strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "pp\"/></Delete>";
                             if (fsxCon.objUserAircraft.pathPrediction.HasPoints)
                             {
                                 for (int i = 1; i < fsxCon.objUserAircraft.pathPrediction.Positions.Length; i++)
@@ -335,6 +336,43 @@ namespace Fsxget
             {
                 strKML += GetAIObjectUpdate(fsxCon.objAIGroundUnits.htObjects, "aig", "fsxgu", KML_ICON_TYPES.AI_GROUND_UNIT, KML_ICON_TYPES.AI_GROUND_PREDICTION_POINT, "9fd20091");
             }
+            strKML += "</Update>" + strUpdateKMLFooter;
+            return strKML;
+        }
+        public String GenFlightplanUpdate()
+        {
+            String strKML = strUpdateKMLHeader + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
+            foreach (DictionaryEntry entry in fsxCon.htFlightPlans)
+            {
+                FsxConnection.FlightPlan obj = (FsxConnection.FlightPlan)entry.Value;
+                switch (obj.State)
+                {
+                    case FsxConnection.SceneryObject.STATE.NEW:
+                        String str;
+                        strKML += "<Create><Folder targetId=\"fsxfp\"><Folder id=\"fp" + obj.ObjectID.ToString() + "\"><name>" + obj.Name + "</name>";
+                        String strCoords = "";
+                        foreach (FsxConnection.FlightPlan.Waypoint wp in obj.Waypoints)
+                        {
+                            strCoords += XmlConvert.ToString(wp.Longitude) + "," + XmlConvert.ToString(wp.Latitude) + " ";
+                            str = (String)htKMLParts["fsxfpwp"];
+                            str = str.Replace("%NAME%", wp.Name);
+                            str = str.Replace("%ICON%", GetIconLink(wp.IconType));
+                            str = str.Replace("%LONGITUDE%", XmlConvert.ToString(wp.Longitude));
+                            str = str.Replace("%LATITUDE%", XmlConvert.ToString(wp.Latitude));
+                            strKML += str;
+                        }
+                        str = (String)htKMLParts["fsxfppath"];
+                        str = str.Replace("%COORDINATES%", strCoords);
+                        strKML += str;
+                        strKML += "</Folder></Folder></Create>";
+                        break;
+                    case FsxConnection.SceneryObject.STATE.DELETED:
+                        strKML += "<Delete><Folder targetId=\"fp" + obj.ObjectID.ToString() + "\"/></Delete>";
+                        break;
+                }
+                obj.State = FsxConnection.SceneryObject.STATE.DATAREAD;
+            }
+            fsxCon.CleanupHashtable(ref fsxCon.htFlightPlans);
             strKML += "</Update>" + strUpdateKMLFooter;
             return strKML;
         }
@@ -461,12 +499,10 @@ namespace Fsxget
         {
             return Program.Config.Server + "/gfx/ge/icons/" + strIconNames[(int)icon];
         }
-
         public String GetTemplate(String strName)
         {
             return (String)htKMLParts[strName];
         }
-
         public String GenVorKML(double dLongitude, double dLatitude, double dMagVar)
         {
             String strKMLPart = "";
@@ -502,7 +538,6 @@ namespace Fsxget
 
             return strKMLPart;
         }
-
         public String GenVorKML2(double dLongitude, double dLatitude, double dMagVar)
         {
             String strKMLPart = (String)htKMLParts["fsxvoroverlay"];
@@ -523,8 +558,8 @@ namespace Fsxget
 
             return strKMLPart;
         }
-
-        private void MovePoint(double dLongitude, double dLatitude, double dHeading, double dDistMeter, ref double dLonResult, ref double dLatResult)
+        
+        public static void MovePoint(double dLongitude, double dLatitude, double dHeading, double dDistMeter, ref double dLonResult, ref double dLatResult)
         {
             double dPI180 = Math.PI / 180;
             double d180PI = 180 / Math.PI;
@@ -544,6 +579,5 @@ namespace Fsxget
             dLatResult *= d180PI;
             dLonResult *= d180PI;
         }
-
     }
 }

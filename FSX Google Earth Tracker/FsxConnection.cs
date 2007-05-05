@@ -562,6 +562,153 @@ namespace Fsxget
 
             #endregion
         }
+        public class FlightPlan : SceneryObject
+        {
+            public class Waypoint
+            {
+                #region Variables
+                protected String strName;
+                protected double dLon;
+                protected double dLat;
+                KmlFactory.KML_ICON_TYPES tIconType;
+                #endregion
+
+                public Waypoint(String strName, double dLon, double dLat, KmlFactory.KML_ICON_TYPES tIconType)
+                {
+                    this.strName = strName;
+                    this.dLon = dLon;
+                    this.dLat = dLat;
+                    this.tIconType = tIconType;
+                }
+
+                #region Accessors
+                public String Name
+                {
+                    get
+                    {
+                        return strName;
+                    }
+                }
+                public double Longitude
+                {
+                    get
+                    {
+                        return dLon;
+                    }
+                }
+                public double Latitude
+                {
+                    get
+                    {
+                        return dLat;
+                    }
+                }
+                public KmlFactory.KML_ICON_TYPES IconType
+                {
+                    get
+                    {
+                        return tIconType;
+                    }
+                }
+                #endregion
+            }
+
+            protected List<Waypoint> lstWaypoints;
+            protected String strName;
+
+            public FlightPlan(uint unID, DATA_REQUESTS tType)
+                : base( unID, tType )
+            {
+                lstWaypoints = new List<Waypoint>();
+            }
+
+            public void AddWaypoint(String strName, double dLon, double dLat, KmlFactory.KML_ICON_TYPES tIconType)
+            {
+                lstWaypoints.Add( new Waypoint( String.Format( "Waypoint {0}: {1} ", lstWaypoints.Count+1, strName ), dLon, dLat, tIconType ));
+            }
+            public void AddWaypoint(XmlNode xmln)
+            {
+                String str;
+                KmlFactory.KML_ICON_TYPES tIconType = KmlFactory.KML_ICON_TYPES.NONE;
+                String strName = "";
+                double dLon = 0;
+                double dLat = 0;
+
+                if (xmln.Name != "ATCWaypoint")
+                    throw new InvalidDataException("XmlNode must have the name ATCWaypoint");
+
+                for (XmlNode node = xmln.FirstChild; node != null; node = node.NextSibling)
+                {
+                    if (node.Name == "ATCWaypointType")
+                    {
+                        str = node.InnerText.ToLower();
+                        if (str == "intersection")
+                        {
+                            strName += "Intersection ";
+                            tIconType = KmlFactory.KML_ICON_TYPES.PLAN_INTER;
+                        }
+                        else if (str == "vor")
+                        {
+                            strName += "VOR ";
+                            tIconType = KmlFactory.KML_ICON_TYPES.VOR;
+                        }
+                        else if (str == "airport")
+                        {
+                            strName += "Airport ";
+                            tIconType = KmlFactory.KML_ICON_TYPES.AIRPORT;
+                        }
+                        else if (str == "ndb")
+                        {
+                            strName += "NDB ";
+                            tIconType = KmlFactory.KML_ICON_TYPES.NDB;
+                        }
+                        else if (str == "user")
+                        {
+                            strName += "User ";
+                            tIconType = KmlFactory.KML_ICON_TYPES.PLAN_USER;
+                        }
+                        else
+                        {
+                            strName += xmln.InnerText + " ";
+                            tIconType = KmlFactory.KML_ICON_TYPES.NONE;
+                        }
+                    }
+                    else if (node.Name == "WorldPosition")
+                    {
+                        String[] strCoords = node.InnerText.Split( ',' );
+                        if (strCoords.Length != 3)
+                            throw new InvalidDataException("Invalid coordinateformat");
+                        dLat = FsxConnection.ConvertDegToDouble(strCoords[0]);
+                        dLon = FsxConnection.ConvertDegToDouble(strCoords[1]);
+                    }
+                }
+                if (xmln["ICAO"]["ICAOIdent"] != null)
+                    strName += xmln["ICAO"]["ICAOIdent"].InnerText;
+                else if (xmln.Attributes["id"] != null)
+                    strName += xmln.Attributes["id"].Value;
+
+                AddWaypoint(strName, dLon, dLat, tIconType);
+            }
+
+            public String Name
+            {
+                get
+                {
+                    return strName;
+                }
+                set
+                {
+                    strName = value;
+                }
+            }
+            public List<Waypoint> Waypoints
+            {
+                get
+                {
+                    return lstWaypoints;
+                }
+            }
+        }
         #endregion
 
         #region Variables
@@ -579,6 +726,8 @@ namespace Fsxget
         public StructObjectContainer objAIHelicopters;
         public StructObjectContainer objAIBoats;
         public StructObjectContainer objAIGroundUnits;
+        public Hashtable htFlightPlans;
+        private uint unFlightPlanNr;
         static String[] strMorseSigns = new String[]
         {
             "-----",
@@ -642,6 +791,7 @@ namespace Fsxget
             REQUEST_AI_PLANE,
             REQUEST_AI_BOAT,
             REQUEST_AI_GROUND,
+            FLIGHTPLAN,
         };
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
@@ -679,6 +829,7 @@ namespace Fsxget
         {
             this.frmMain = frmMain;
             this.frmMainHandle = frmMain.Handle;
+            unFlightPlanNr = 1;
             simconnect = null;
             if (bAddOn)
             {
@@ -723,6 +874,8 @@ namespace Fsxget
 
             lockUserAircraft = new Object();
             lockSimConnect = new Object();
+
+            htFlightPlans = new Hashtable();
         }
 
         #endregion
@@ -1009,7 +1162,7 @@ namespace Fsxget
             ArrayList toDel = new ArrayList();
             foreach (DictionaryEntry entry in ht)
             {
-                if (((SceneryMovingObject)entry.Value).State == SceneryObject.STATE.DELETED )
+                if (((SceneryObject)entry.Value).State == SceneryObject.STATE.DELETED )
                 {
                     toDel.Add(entry.Key);
                 }
@@ -1154,6 +1307,42 @@ namespace Fsxget
         }
         #endregion
 
+        public void AddFlightPlan(String strFileName)
+        {
+            try
+            {
+                XmlDocument xmld = new XmlDocument();
+                xmld.Load(strFileName);
+
+                FlightPlan flightPlan = new FlightPlan(unFlightPlanNr, DATA_REQUESTS.FLIGHTPLAN);
+
+                XmlElement xmle = xmld["SimBase.Document"]["FlightPlan.FlightPlan"];
+                if (xmle == null)
+                    throw new InvalidDataException("This is not a FSX flightplan");
+
+                xmle = xmle["Title"];
+                if (xmle != null)
+                    flightPlan.Name = xmle.InnerText;
+                else
+                    flightPlan.Name = "Flightplan";
+
+                xmle = xmle.ParentNode["FPType"];
+                if (xmle != null)
+                    flightPlan.Name += " (" + xmle.InnerText + ")";
+
+                XmlNodeList xmlnWP = xmld.GetElementsByTagName("ATCWaypoint");
+                foreach (XmlNode xmln in xmlnWP)
+                {
+                    flightPlan.AddWaypoint(xmln);
+                }
+                htFlightPlans.Add(unFlightPlanNr++, flightPlan);
+            }
+            catch
+            {
+                frmMain.NotifyError("Can not load the flight plan");
+            }
+        }
+        
         public void GetSceneryObjects()
         {
             String strPath = Path.GetDirectoryName(Program.Config.FSXPath);
@@ -1220,12 +1409,12 @@ namespace Fsxget
                             else if (xmla.Name == "dmeOnly")
                                 bDmeOnly = xmla.Value.ToLower() == "true";
                             else if (xmla.Name == "lat")
-                                dLat = double.Parse(xmla.Value.Replace(".", ","));
+                                dLat = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "lon")
-                                dLon = double.Parse(xmla.Value.Replace(".", ","));
+                                dLon = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "alt")
                             {
-                                dAlt = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1).Replace(".", ","));
+                                dAlt = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
                                 strTempl = strTempl.Replace("%ALT%", XmlConvert.ToString(dAlt));
                             }
                             else if (xmla.Name == "range")
@@ -1234,7 +1423,7 @@ namespace Fsxget
                                 strTempl = strTempl.Replace("%FREQ%", xmla.Value);
                             else if (xmla.Name == "magvar") 
                             {
-                                dMagVar = double.Parse(xmla.Value.Replace( ".", "," ));
+                                dMagVar = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                                 strTempl = strTempl.Replace("%MAGVAR%", xmla.Value);
                             }
                             else if (xmla.Name == "ident")
@@ -1278,12 +1467,12 @@ namespace Fsxget
                         foreach (XmlAttribute xmla in xmln.Attributes)
                         {
                             if (xmla.Name == "lat")
-                                dLat = double.Parse(xmla.Value.Replace(".", ","));
+                                dLat = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "lon")
-                                dLon = double.Parse(xmla.Value.Replace(".", ","));
+                                dLon = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "alt")
                             {
-                                dAlt = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1).Replace(".", ","));
+                                dAlt = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
                                 strTempl = strTempl.Replace("%ALT%", XmlConvert.ToString(dAlt));
                             }
                             else if (xmla.Name == "range")
@@ -1374,5 +1563,40 @@ namespace Fsxget
             }
             return strMorseCode;
         }
+
+        static public double ConvertDegToDouble(String szDeg)
+        {
+
+            String szTemp = szDeg;
+
+            szTemp = szTemp.Replace("N", "+");
+            szTemp = szTemp.Replace("S", "-");
+            szTemp = szTemp.Replace("E", "+");
+            szTemp = szTemp.Replace("W", "-");
+
+            szTemp = szTemp.Replace(" ", "");
+
+            szTemp = szTemp.Replace("\"", "");
+            szTemp = szTemp.Replace("'", "/");
+            szTemp = szTemp.Replace("°", "/");
+
+            char[] szSeperator = { '/' };
+            String[] szParts = szTemp.Split(szSeperator);
+
+            if (szParts.GetLength(0) != 3)
+            {
+                throw new System.Exception("Wrong coordinate format!");
+            }
+
+
+            double d1 = System.Double.Parse(szParts[0], System.Globalization.NumberFormatInfo.InvariantInfo);
+            int iSign = Math.Sign(d1);
+            d1 = Math.Abs(d1);
+            double d2 = System.Double.Parse(szParts[1], System.Globalization.NumberFormatInfo.InvariantInfo);
+            double d3 = System.Double.Parse(szParts[2], System.Globalization.NumberFormatInfo.InvariantInfo);
+
+            return iSign * (d1 + (d2 * 60.0 + d3) / 3600.0);
+        }
+
     }
 }

@@ -112,5 +112,16 @@
 			</NetworkLink>
 		</Folder>
 	</Folder>
+	<Folder id="fsxfp">
+		<name>Flight Plans</name>
+		<NetworkLink>
+		<name>Update</name>
+			<Link>
+				<href>%SERVER%/fsxfpu.kml</href>
+				<refreshMode>onInterval</refreshMode>
+				<refreshInterval>10</refreshInterval>
+			</Link>
+		</NetworkLink>
+	</Folder>
 </Document>
 </kml>

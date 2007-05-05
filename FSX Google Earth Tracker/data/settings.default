@@ -186,7 +186,7 @@
         <icon Name="fsxaigpp" Img="/gfx/ge/icons/fsxaigpp.png" />
         <icon Name="plan-inter" Img="/gfx/ge/icons/fsx-p-inter.png" />
         <icon Name="plan-user" Img="/gfx/ge/icons/fsx-p-user.png" />
-        <icon Name="plan-port" Img="/gfx/ge/icons/fsx-p-port.png" />
+        <icon Name="fsxairport" Img="/gfx/ge/icons/fsxairport.png" />
         <icon Name="fsxvor" Img="/gfx/ge/icons/fsxvor.png" />
         <icon Name="fsxdme" Img="/gfx/ge/icons/fsxdme.png" />
         <icon Name="fsxvordme" Img="/gfx/ge/icons/fsxvordme.png" />

@@ -58,11 +58,10 @@ namespace Fsxget
                 fsxCon.Connect();
             }
             
-//            File.WriteAllText("c:\\test.kml", kmlFactory.GenVorKML(0, 0, 0), Encoding.UTF8);
-
 //            File.WriteAllText( "c:\\test.kml", kmlFactory.GenVorKML( 8.58423605561256, 48.9929445460439, 0 ), Encoding.UTF8 );
-
 //            fsxCon.GetSceneryObjects();
+
+//            fsxCon.AddFlightPlan(@"D:\Eigene Dateien\Flight Simulator X-Dateien\VFR Munich to Frankfurt Main.PLN");
 
 			timerIPAddressRefresh.Interval = 10000;
 
@@ -177,42 +176,6 @@ namespace Fsxget
             return true;
 		}
 
-
-		private double ConvertDegToDouble(String szDeg)
-		{
-
-			String szTemp = szDeg;
-
-			szTemp = szTemp.Replace("N", "+");
-			szTemp = szTemp.Replace("S", "-");
-			szTemp = szTemp.Replace("E", "+");
-			szTemp = szTemp.Replace("W", "-");
-
-			szTemp = szTemp.Replace(" ", "");
-
-			szTemp = szTemp.Replace("\"", "");
-			szTemp = szTemp.Replace("'", "/");
-			szTemp = szTemp.Replace("°", "/");
-
-			char[] szSeperator = { '/' };
-			String[] szParts = szTemp.Split(szSeperator);
-
-			if (szParts.GetLength(0) != 3)
-			{
-				throw new System.Exception("Wrong coordinate format!");
-			}
-
-			
-			double d1 = System.Double.Parse(szParts[0], System.Globalization.NumberFormatInfo.InvariantInfo);
-			int iSign = Math.Sign(d1);
-			d1 = Math.Abs(d1);
-			double d2 = System.Double.Parse(szParts[1], System.Globalization.NumberFormatInfo.InvariantInfo);
-			double d3 = System.Double.Parse(szParts[2], System.Globalization.NumberFormatInfo.InvariantInfo);
-
-			return iSign * (d1 + (d2 * 60.0 + d3) / 3600.0);
-		}
-
-
 		#endregion
 
 		#region Server
@@ -313,6 +276,13 @@ namespace Fsxget
                 {
                     bContentSet = true;
                     String str = kmlFactory.GenUserPrediction();
+                    szHeader = "application/vnd.google-earth.kml+xml";
+                    buffer = System.Text.Encoding.UTF8.GetBytes(str);
+                }
+                else if (strRequest == "/fsxfpu.kml")
+                {
+                    bContentSet = true;
+                    String str = kmlFactory.GenFlightplanUpdate();
                     szHeader = "application/vnd.google-earth.kml+xml";
                     buffer = System.Text.Encoding.UTF8.GetBytes(str);
                 }
