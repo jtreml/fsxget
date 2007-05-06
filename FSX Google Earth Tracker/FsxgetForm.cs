@@ -59,7 +59,7 @@ namespace Fsxget
             }
             
 //            File.WriteAllText( "c:\\test.kml", kmlFactory.GenVorKML( 8.58423605561256, 48.9929445460439, 0 ), Encoding.UTF8 );
-//            fsxCon.GetSceneryObjects();
+            fsxCon.GetSceneryObjects("c:\\fsxnavaids.kml");
 
 //            fsxCon.AddFlightPlan(@"D:\Eigene Dateien\Flight Simulator X-Dateien\VFR Munich to Frankfurt Main.PLN");
 

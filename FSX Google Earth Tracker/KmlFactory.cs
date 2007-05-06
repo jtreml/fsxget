@@ -571,7 +571,65 @@ namespace Fsxget
 
             return strKMLPart;
         }
-        
+        public void CreateNavAidsKML(String strFileName, ref List<FsxConnection.StructNavAid> lstVOR, ref List<FsxConnection.StructNavAid> lstNDB)
+        {
+            StreamWriter s = new StreamWriter(strFileName, false, Encoding.UTF8);
+            s.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Folder><name>FSX</name><Folder><name>VOR</name>");
+            foreach (FsxConnection.StructNavAid navaid in lstVOR)
+            {
+                s.WriteLine(GenNavAidKml(navaid));
+            }
+            s.WriteLine("</Folder><Folder><name>NDB</name>");
+            foreach (FsxConnection.StructNavAid navaid in lstNDB)
+            {
+                s.WriteLine(GenNavAidKml(navaid));
+            }
+            s.WriteLine("</Folder></Folder></kml>");
+            s.Close();
+        }
+        private String GenNavAidKml( FsxConnection.StructNavAid navaid )
+        {
+            String strKMLPart = "";
+            switch (navaid.tIconType)
+            {
+                case KML_ICON_TYPES.DME:
+                    strKMLPart = (String)htKMLParts["fsxvor"];
+                    strKMLPart = strKMLPart.Replace("%TYPE%", "DME");
+                    strKMLPart = strKMLPart.Replace("%ICON%", "fsxdme.png");
+                    break;
+                case KML_ICON_TYPES.VOR:
+                    strKMLPart = (String)htKMLParts["fsxvor"];
+                    strKMLPart = strKMLPart.Replace("%TYPE%", "VOR");
+                    strKMLPart = strKMLPart.Replace("%ICON%", "fsxvor.png");
+                    strKMLPart += GenVorKML2(navaid.dLon, navaid.dLat, navaid.dMagVar);
+                    break;
+                case KML_ICON_TYPES.VORDME:
+                    strKMLPart = (String)htKMLParts["fsxvor"];
+                    strKMLPart = strKMLPart.Replace("%TYPE%", "VOR / DME");
+                    strKMLPart = strKMLPart.Replace("%ICON%", "fsxvordme.png");
+                    strKMLPart += GenVorKML2(navaid.dLon, navaid.dLat, navaid.dMagVar);
+                    break;
+                case KML_ICON_TYPES.NDB:
+                    strKMLPart = (String)htKMLParts["fsxndb"];
+                    strKMLPart = strKMLPart.Replace("%TYPE%", "NDB");
+                    strKMLPart = strKMLPart.Replace("%ICON%", "fsxndb.png");
+                    break;
+                default:
+                    return "";
+            }
+            strKMLPart = strKMLPart.Replace("%NAME%", navaid.strName);
+            strKMLPart = strKMLPart.Replace("%MAGVAR%", navaid.dMagVar.ToString() );
+            strKMLPart = strKMLPart.Replace("%IDENT%", navaid.strIdent);
+            strKMLPart = strKMLPart.Replace("%MORSE%", FsxConnection.GetMorseCode(navaid.strIdent));
+            strKMLPart = strKMLPart.Replace("%FREQUENCY%", navaid.strFreq);
+            strKMLPart = strKMLPart.Replace("%ALTITUDE%", XmlConvert.ToString( navaid.dAlt ) );
+            strKMLPart = strKMLPart.Replace("%ALTITUDE_UF%", String.Format( "{0:F2}ft", navaid.dAlt * 3.28095));
+            strKMLPart = strKMLPart.Replace("%LONGITUDE%", XmlConvert.ToString( navaid.dLon ) );
+            strKMLPart = strKMLPart.Replace("%LATITUDE%", XmlConvert.ToString( navaid.dLat) );
+            strKMLPart = strKMLPart.Replace("%REGION%", navaid.strRegion );
+            return strKMLPart;
+        }
+
         public static void MovePoint(double dLongitude, double dLatitude, double dHeading, double dDistMeter, ref double dLonResult, ref double dLatResult)
         {
             double dPI180 = Math.PI / 180;
