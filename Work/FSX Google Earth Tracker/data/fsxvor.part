@@ -1,6 +1,6 @@
 <Placemark>
 	<name>%IDENT%</name>
-	<description><![CDATA[<B>Name:</B> %NAME%<br><B>Ident: </B> %IDENT% (<B>%MORSE%</B>)<br><B>Type:</B> %TYPE%<br><B>Frequency:</B> %FREQ%<br><B>Altitude:</B>  %ALT%<br><B>Magnetic Variation:</B>  %MAGVAR%<br><B>Range:</B>  %RANGE%<br>]]></description>
+	<description><![CDATA[<B>Name:</B> %NAME%<br><B>Ident: </B> %IDENT% (<B>%MORSE%</B>)<br><B>Type:</B> %TYPE%<br><B>Frequency:</B> %FREQUENCY%<br><B>Altitude:</B>  %ALTITUDE_UF%%<br><B>Magnetic Variation:</B>  %MAGVAR%]]></description>
 	<Style>
 		<IconStyle>
 			<scale>2.0</scale>
@@ -12,7 +12,6 @@
 	</Style>
 	<Point>
 		<altitudeMode>absolute</altitudeMode>
-		<coordinates>%COORDINATES%</coordinates>
+		<coordinates>%LONGITUDE%,%LATITUDE%</coordinates>
 	</Point>
 </Placemark>
-%OVERLAY%

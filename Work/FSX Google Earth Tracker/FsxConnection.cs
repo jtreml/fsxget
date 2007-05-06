@@ -1337,8 +1337,22 @@ namespace Fsxget
                 frmMain.NotifyError("Can not load the flight plan");
             }
         }
-        
-        public void GetSceneryObjects()
+
+        public struct StructNavAid
+        {
+            public String strName;
+            public String strIdent;
+            public String strRegion;
+            public KmlFactory.KML_ICON_TYPES tIconType;
+            public double dLon;
+            public double dLat;
+            public String strFreq;
+            public double dMagVar;
+            public double dAlt;
+            public double dRange;
+        }
+
+        public void GetSceneryObjects(String strFileName)
         {
             String strPath = Path.GetDirectoryName(Program.Config.FSXPath);
             String strBGL2XMLPath = @"C:\Programme\Microsoft Games\Microsoft Flight Simulator X SDK\Tools\BGL2XML_CMD\Bgl2Xml.exe";
@@ -1349,11 +1363,8 @@ namespace Fsxget
             int nVORs = 0;
             int nNDBs = 0;
             
-            StreamWriter sVor = new StreamWriter(@"c:\fsxvor.kml", false, Encoding.UTF8);
-            sVor.Write( "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Document><name>VOR</name>" );
-
-            StreamWriter sNDB = new StreamWriter(@"c:\fsxndb.kml", false, Encoding.UTF8);
-            sNDB.Write("<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Document><name>NDB</name>");
+            List<StructNavAid> lstVOR = new List<StructNavAid>();
+            List<StructNavAid> lstNDB = new List<StructNavAid>();
 
             foreach (String strBGLFile in strFiles)
             {
@@ -1385,18 +1396,14 @@ namespace Fsxget
                 {
                     XmlDocument xmld = new XmlDocument();
                     xmld.Load(strTmpFile);
-
+                    StructNavAid navaid;
                     XmlNodeList nodes = xmld.GetElementsByTagName("Vor");
 
                     foreach (XmlNode xmln in nodes)
                     {
                         bool bDme = false;
                         bool bDmeOnly = false;
-                        double dLon = 0;
-                        double dLat = 0;
-                        double dAlt = 0;
-                        double dMagVar = 0;
-                        String strTempl = frmMain.kmlFactory.GetTemplate("fsxvor");
+                        navaid = new StructNavAid();
                         foreach (XmlAttribute xmla in xmln.Attributes)
                         {
                             if (xmla.Name == "dme")
@@ -1404,91 +1411,77 @@ namespace Fsxget
                             else if (xmla.Name == "dmeOnly")
                                 bDmeOnly = xmla.Value.ToLower() == "true";
                             else if (xmla.Name == "lat")
-                                dLat = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                navaid.dLat = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "lon")
-                                dLon = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                navaid.dLon = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "alt")
                             {
-                                dAlt = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
-                                strTempl = strTempl.Replace("%ALT%", XmlConvert.ToString(dAlt));
+                                navaid.dAlt = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
                             }
                             else if (xmla.Name == "range")
-                                strTempl = strTempl.Replace("%RANGE%", xmla.Value.Substring(0, xmla.Value.Length - 1));
+                                navaid.dRange = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "frequency")
-                                strTempl = strTempl.Replace("%FREQ%", xmla.Value);
-                            else if (xmla.Name == "magvar") 
+                                navaid.strFreq = xmla.Value;
+                            else if (xmla.Name == "magvar")
                             {
-                                dMagVar = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-                                strTempl = strTempl.Replace("%MAGVAR%", xmla.Value);
+                                navaid.dMagVar = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             }
                             else if (xmla.Name == "ident")
                             {
-                                strTempl = strTempl.Replace("%IDENT%", xmla.Value);
-                                strTempl = strTempl.Replace("%MORSE%", GetMorseCode(xmla.Value));
+                                navaid.strIdent = xmla.Value;
                             }
                             else if (xmla.Name == "name")
-                                strTempl = strTempl.Replace("%NAME%", xmla.Value);
+                                navaid.strName = xmla.Value;
+                            else if (xmla.Name == "region")
+                                navaid.strRegion = xmla.Value;
                         }
 
                         if (bDmeOnly)
                         {
-                            strTempl = strTempl.Replace("%ICON%", "fsxdme.png" ); //frmMain.kmlFactory.GetIconLink(KMLFactory.KML_ICON_TYPES.DME));
-                            strTempl = strTempl.Replace("%TYPE%", "DME");
-                            strTempl = strTempl.Replace("%LINES%", "");
+                            navaid.tIconType = KmlFactory.KML_ICON_TYPES.DME;
                         }
                         else
                         {
                             if (bDme)
                             {
-                                strTempl = strTempl.Replace("%ICON%", "fsxvordme.png" ); //frmMain.kmlFactory.GetIconLink(KMLFactory.KML_ICON_TYPES.VORDME));
-                                strTempl = strTempl.Replace("%TYPE%", "VOR / DME");
+                                navaid.tIconType = KmlFactory.KML_ICON_TYPES.VORDME;
                             }
                             else
-                                strTempl = strTempl.Replace("%ICON%", "fsxvor.png" ); //frmMain.kmlFactory.GetIconLink(KMLFactory.KML_ICON_TYPES.VOR));
-                            strTempl = strTempl.Replace("%TYPE%", "VOR");
+                                navaid.tIconType = KmlFactory.KML_ICON_TYPES.VOR;
                         }
-                        strTempl = strTempl.Replace("%OVERLAY%", frmMain.kmlFactory.GenVorKML2(dLon, dLat, dMagVar));
-                        strTempl = strTempl.Replace("%COORDINATES%", XmlConvert.ToString(dLon) + "," + XmlConvert.ToString(dLat) + "," + XmlConvert.ToString(dAlt));
-                        sVor.Write(strTempl);
                         nVORs++;
+                        lstVOR.Add(navaid);
                     }
                     nodes = xmld.GetElementsByTagName("Ndb");
                     foreach (XmlNode xmln in nodes)
                     {
-                        double dLon = 0;
-                        double dLat = 0;
-                        double dAlt = 0;
-                        String strTempl = frmMain.kmlFactory.GetTemplate("fsxndb");
+                        navaid = new StructNavAid();
                         foreach (XmlAttribute xmla in xmln.Attributes)
                         {
                             if (xmla.Name == "lat")
-                                dLat = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                navaid.dLat = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "lon")
-                                dLon = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                navaid.dLon = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "alt")
                             {
-                                dAlt = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
-                                strTempl = strTempl.Replace("%ALT%", XmlConvert.ToString(dAlt));
+                                navaid.dAlt = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
                             }
                             else if (xmla.Name == "range")
-                                strTempl = strTempl.Replace("%RANGE%", xmla.Value.Substring(0, xmla.Value.Length - 1));
+                                navaid.dRange = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "frequency")
-                                strTempl = strTempl.Replace("%FREQ%", xmla.Value);
+                                navaid.strFreq = xmla.Value;
                             else if (xmla.Name == "magvar")
-                                strTempl = strTempl.Replace("%MAGVAR%", xmla.Value);
+                                navaid.dMagVar = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "ident")
                             {
-                                strTempl = strTempl.Replace("%IDENT%", xmla.Value);
-                                strTempl = strTempl.Replace("%MORSE%", GetMorseCode(xmla.Value));
+                                navaid.strIdent = xmla.Value;
                             }
                             else if (xmla.Name == "name")
-                                strTempl = strTempl.Replace("%NAME%", xmla.Value);
+                                navaid.strName = xmla.Value;
                         }
-                        strTempl = strTempl.Replace("%ICON%", frmMain.kmlFactory.GetIconLink(KmlFactory.KML_ICON_TYPES.NDB));
-                        strTempl = strTempl.Replace("%TYPE%", "NDB");
-                        strTempl = strTempl.Replace("%COORDINATES%", XmlConvert.ToString(dLon) + "," + XmlConvert.ToString(dLat) + "," + XmlConvert.ToString(dAlt));
-                        sNDB.Write(strTempl);
+                        navaid.tIconType = KmlFactory.KML_ICON_TYPES.NDB;
                         nNDBs++;
+                        lstNDB.Add(navaid);
                     }
 
                     xmld = null;
@@ -1497,11 +1490,8 @@ namespace Fsxget
                 {
                 }
             }
-            sVor.Write("</Document></kml>");
-            sNDB.Write("</Document></kml>");
-            sVor.Close();
-            sNDB.Close();
 
+            frmMain.kmlFactory.CreateNavAidsKML(strFileName, ref lstVOR, ref lstNDB);
 /*           
             strFiles = Directory.GetFiles(strPath, "APX*.bgl", SearchOption.AllDirectories);
             foreach (String strBGLFile in strFiles)
@@ -1559,6 +1549,83 @@ namespace Fsxget
             return strMorseCode;
         }
 
+        static public String GetRegionName(String strICAORegionCode)
+        {
+            String strRegion = "Unbekannt";
+            if (strICAORegionCode != null && strICAORegionCode.Length >= 1 )
+            {
+                switch (strICAORegionCode[0])
+                {
+                    case 'A':
+                        strRegion = "Südwest-Pazifik";
+                        break;
+                    case 'B':
+                        strRegion = "Polarregion";
+                        break;
+                    case 'C':
+                        strRegion = "Kanada";
+                        break;
+                    case 'D':
+                        strRegion = "Westafrika";
+                        break;
+                    case 'E':
+                        strRegion = "Nordeuropa";
+                        break;
+                    case 'F':
+                        strRegion = "Südafrika";
+                        break;
+                    case 'G':
+                        strRegion = "Westafrikanische Küste";
+                        break;
+                    case 'H':
+                        strRegion = "Ostafrika";
+                        break;
+                    case 'K':
+                        strRegion = "USA";
+                        break;
+                    case 'L':
+                        strRegion = "Südeuropa";
+                        break;
+                    case 'M':
+                        strRegion = "Zentralamerika";
+                        break;
+                    case 'N':
+                        strRegion = "Südpazifik";
+                        break;
+                    case 'O':
+                        strRegion = "Naher Osten";
+                        break;
+                    case 'P':
+                        strRegion = "Nördlicher Pazifik";
+                        break;
+                    case 'R':
+                        strRegion = "Ostasien";
+                        break;
+                    case 'S':
+                        strRegion = "Südamerika";
+                        break;
+                    case 'T':
+                        strRegion = "Karibik";
+                        break;
+                    case 'U':
+                        strRegion = "Russische Föderation";
+                        break;
+                    case 'V':
+                        strRegion = "Südasien";
+                        break;
+                    case 'W':
+                        strRegion = "Südostasien";
+                        break;
+                    case 'Y':
+                        strRegion = "Australien";
+                        break;
+                    case 'Z':
+                        strRegion = "China";
+                        break;
+                }
+            }
+            return strRegion;
+        }
         static public double ConvertDegToDouble(String szDeg)
         {
 
