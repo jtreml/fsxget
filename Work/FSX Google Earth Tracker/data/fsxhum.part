@@ -1,6 +1,5 @@
 <Placemark %ID%>
-    <Snippet>%ATCTYPE% %ATCMODEL% (%TITLE%), %ATCID%
-Altitude: %ALTITUDE%</Snippet>
+    <name>%ATCTYPE% %ATCMODEL% (%ATCID%), %ALTITUDE_UF%</name>
 	<Style>
 		<IconStyle>
 			<heading>%HEADING%</heading>
