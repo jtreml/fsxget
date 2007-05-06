@@ -18,7 +18,7 @@ namespace Fsxget
 			
 			//Form frmMain = new Form1();
 			//frmMain.Visible = false;
-			Application.Run(new FsxetForm());
+			Application.Run(new FsxgetForm());
 		}
 
         public static Config Config

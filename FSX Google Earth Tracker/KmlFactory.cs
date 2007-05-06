@@ -20,14 +20,7 @@ namespace Fsxget
             {
                 strTitle = img["Name"].StringValue;
                 strPath = img["Img"].StringValue;
-                try
-                {
-                    bData = File.ReadAllBytes(Program.Config.FilePathPub + strPath);
-                }
-                catch
-                {
-                    bData = null;
-                }
+                LoadImgData(Program.Config.FilePathPub + strPath);
             }
             public ObjectImage(String strTitle, String strPath, Stream s)
             {
@@ -35,6 +28,24 @@ namespace Fsxget
                 this.strPath = strPath;
                 bData = new byte[s.Length];
                 s.Read(bData, 0, (int)s.Length);
+            }
+            public ObjectImage(String strLocalPath)
+            {
+                this.strTitle = System.IO.Path.GetFileNameWithoutExtension(strLocalPath);
+                this.strPath = strLocalPath.Replace('\\', '/');
+                LoadImgData(Program.Config.AppPath + "\\pub" + strLocalPath);
+            }
+
+            private void LoadImgData( String strPath )
+            {
+                try
+                {
+                    bData = File.ReadAllBytes(strPath);
+                }
+                catch( Exception e )
+                {
+                    bData = null;
+                }
             }
 
             public String Title
@@ -122,14 +133,16 @@ namespace Fsxget
         {
             this.fsxCon = fsxCon;
             htKMLParts = new Hashtable();
-            SettingsList lstImg = (SettingsList)Program.Config[Config.SETTING.GE_IMG_LIST];
-            lstImgs = new List<ObjectImage>(lstImg.listSettings.Count);
-            foreach (SettingsObject img in lstImg.listSettings)
+            lstImgs = new List<ObjectImage>();
+
+            String[] strFiles = Directory.GetFiles(Program.Config.AppPath + "\\pub\\gfx\\ge\\icons");
+            int nIdx = Program.Config.AppPath.Length + 4;
+            foreach (String strFile in strFiles)
             {
-                lstImgs.Add(new ObjectImage(img));
+                lstImgs.Add(new ObjectImage(strFile.Substring( nIdx )));
             }
 
-            lstImg = (SettingsList)Program.Config[Config.SETTING.AIR_IMG_LIST];
+            SettingsList lstImg = (SettingsList)Program.Config[Config.SETTING.AIR_IMG_LIST];
             foreach (SettingsObject img in lstImg.listSettings)
             {
                 lstImgs.Add(new ObjectImage(img));

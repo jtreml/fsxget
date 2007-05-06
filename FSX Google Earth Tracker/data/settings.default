@@ -172,26 +172,5 @@
       <noimage Img="/gfx/scenery/noimage.png" />
       <logo Img="/gfx/scenery/logo.png" />
     </scenery>
-    <ge>
-      <icons>
-        <icon Name="fsxu" Img="/gfx/ge/icons/fsxu.png" />
-        <icon Name="fsxaip" Img="/gfx/ge/icons/fsxaip.png" />
-        <icon Name="fsxaih" Img="/gfx/ge/icons/fsxaih.png" />
-        <icon Name="fsxaib" Img="/gfx/ge/icons/fsxaib.png" />
-        <icon Name="fsxaig" Img="/gfx/ge/icons/fsxaig.png" />
-        <icon Name="fsxpm" Img="/gfx/ge/icons/fsxpm.png" />
-        <icon Name="fsxaippp" Img="/gfx/ge/icons/fsxaippp.png" />
-        <icon Name="fsxaihpp" Img="/gfx/ge/icons/fsxaihpp.png" />
-        <icon Name="fsxaibpp" Img="/gfx/ge/icons/fsxaibpp.png" />
-        <icon Name="fsxaigpp" Img="/gfx/ge/icons/fsxaigpp.png" />
-        <icon Name="plan-inter" Img="/gfx/ge/icons/fsx-p-inter.png" />
-        <icon Name="plan-user" Img="/gfx/ge/icons/fsx-p-user.png" />
-        <icon Name="fsxairport" Img="/gfx/ge/icons/fsxairport.png" />
-        <icon Name="fsxvor" Img="/gfx/ge/icons/fsxvor.png" />
-        <icon Name="fsxdme" Img="/gfx/ge/icons/fsxdme.png" />
-        <icon Name="fsxvordme" Img="/gfx/ge/icons/fsxvordme.png" />
-        <icon Name="fsxndb" Img="/gfx/ge/icons/fsxndb.png" />
-      </icons>
-    </ge>
   </gfx>
 </fsxget>
