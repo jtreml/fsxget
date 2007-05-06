@@ -1,5 +1,5 @@
 <Placemark %ID%>
-	<name>%TITLE%</name>
+	<name>%ATCTYPE% %ATCMODEL% (%ATCID%) %ALTITUDE_UF%</name>
 	<description>
 		<![CDATA[Microsoft Flightsimulator X - User Aircraft<br>&nbsp;<br>
 <b>Title:</b>%TITLE%<br>&nbsp;<br>
@@ -11,8 +11,7 @@
 <b>Altitude:</b>%ALTITUDE%><br>&nbsp;<br>
 <center><img src="%IMAGE%"></center>]]>
 	</description>
-    <Snippet>%ATCTYPE% %ATCMODEL% (%TITLE%), %ATCID%
-Altitude: %ALTITUDE%</Snippet>
+    <Snippet></Snippet>
 	<Style>
 		<IconStyle>
 			<Icon>

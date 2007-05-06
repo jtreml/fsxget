@@ -453,6 +453,7 @@ namespace Fsxget
                 str = str.Replace("%ATCAIRLINE%", ATCAirline.Value);
                 str = str.Replace("%LONGITUDE%", XmlConvert.ToString(ObjectPosition.Longitude.Value));
                 str = str.Replace("%LATITUDE%", XmlConvert.ToString(ObjectPosition.Latitude.Value));
+                str = str.Replace("%ALTITUDE_UF%", String.Format("{0:F0}ft", ObjectPosition.Altitude.Value * 3.28095));
                 str = str.Replace("%ALTITUDE%", XmlConvert.ToString(ObjectPosition.Altitude.Value));
                 str = str.Replace("%HEADING%", XmlConvert.ToString(Heading.Value));
                 str = str.Replace("%IMAGE%", Program.Config.Server + "/" + Title.Value);
