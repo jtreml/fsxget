@@ -592,7 +592,7 @@ namespace Fsxget
             settings.Add(new SettingsList("fsxget/gfx/scenery/air", "aircraft", null, "Name<String>;Img<String>"));
             settings.Add(new SettingsList("fsxget/gfx/scenery/water", "boat", null, "Name<String>;Img<String>"));
             settings.Add(new SettingsList("fsxget/gfx/scenery/ground", "ground_unit", null, "Name<String>;Img<String>"));
-            settings.Add(new SettingsList("fsxget/gfx/ge/icons", "icon", null, "Name<String>;Img<String>"));
+
             #endregion
 
             #region Initialize non xml-settings
