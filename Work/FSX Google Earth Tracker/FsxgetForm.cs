@@ -58,7 +58,7 @@ namespace Fsxget
                 fsxCon.Connect();
             }
             
-            fsxCon.GetSceneryObjects("c:\\fsxnavaids.kml");
+//            fsxCon.GetSceneryObjects("c:\\fsxnavaids.kml");
 
 //            fsxCon.AddFlightPlan(@"D:\Eigene Dateien\Flight Simulator X-Dateien\IFR Frankfurt Main to Stuttgart.PLN");
 
