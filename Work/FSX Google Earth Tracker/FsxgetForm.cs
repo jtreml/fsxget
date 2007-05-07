@@ -424,5 +424,10 @@ namespace Fsxget
             }
         }
 
+		private void timerIPAddressRefresh_Tick(object sender, EventArgs e)
+		{
+
+		}
+
     }
 }
