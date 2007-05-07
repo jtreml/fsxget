@@ -42,7 +42,7 @@ namespace Fsxget
                 {
                     bData = File.ReadAllBytes(strPath);
                 }
-                catch( Exception e )
+                catch
                 {
                     bData = null;
                 }

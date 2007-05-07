@@ -1241,7 +1241,7 @@ namespace Fsxget
                 {
                     simconnect.RequestDataOnSimObjectType(DATA_REQUESTS.REQUEST_USER_AIRCRAFT, DEFINITIONS.StructBasicMovingSceneryObject, 0, SIMCONNECT_SIMOBJECT_TYPE.USER);
                 }
-                catch (COMException ex)
+                catch
                 {
                 }
             }
@@ -1269,7 +1269,7 @@ namespace Fsxget
                 {
                     simconnect.RequestDataOnSimObjectType(DATA_REQUESTS.REQUEST_AI_HELICOPTER, DEFINITIONS.StructBasicMovingSceneryObject, (uint)Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Range"].IntValue, SIMCONNECT_SIMOBJECT_TYPE.HELICOPTER);
                 }
-                catch (COMException ex)
+                catch
                 {
                 }
             }
@@ -1282,7 +1282,7 @@ namespace Fsxget
                 {
                     simconnect.RequestDataOnSimObjectType(DATA_REQUESTS.REQUEST_AI_BOAT, DEFINITIONS.StructBasicMovingSceneryObject, (uint)Program.Config[Config.SETTING.QUERY_AI_BOATS]["Range"].IntValue, SIMCONNECT_SIMOBJECT_TYPE.BOAT);
                 }
-                catch (COMException ex)
+                catch
                 {
                 }
             }
@@ -1295,7 +1295,7 @@ namespace Fsxget
                 {
                     simconnect.RequestDataOnSimObjectType(DATA_REQUESTS.REQUEST_AI_GROUND, DEFINITIONS.StructBasicMovingSceneryObject, (uint)Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Range"].IntValue, SIMCONNECT_SIMOBJECT_TYPE.GROUND);
                 }
-                catch (COMException ex)
+                catch
                 {
                 }
             }
