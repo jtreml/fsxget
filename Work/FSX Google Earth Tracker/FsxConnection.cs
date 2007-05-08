@@ -900,16 +900,22 @@ namespace Fsxget
         #endregion
 
         #region Structs & Enums
-        enum EVENT_ID
+        public enum EVENT_ID
         {
             EVENT_MENU,
             EVENT_MENU_START,
             EVENT_MENU_STOP,
             EVENT_MENU_OPTIONS,
-            EVENT_MENU_CLEAR_USER_PATH
+            EVENT_MENU_CLEAR_USER_PATH,
+            EVENT_SET_NAV1,
+            EVENT_SET_NAV2,
+            EVENT_SET_ADF,
         };
-        
-        enum DEFINITIONS
+        public enum GROUP_ID
+        {
+            GROUP_USER,
+        }
+        public enum DEFINITIONS
         {
             StructBasicMovingSceneryObject,
         };
@@ -1098,6 +1104,10 @@ namespace Fsxget
                 simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Absolute Time", "seconds", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
                 simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "PLANE HEADING DEGREES TRUE", "degrees", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 
+                simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_NAV1, "NAV1_RADIO_SET");
+                simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_NAV2, "NAV2_RADIO_SET");
+                simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_ADF, "ADF_SET");
+                //                simconnect.SetNotificationGroupPriority(GROUP_ID.GROUP_USER, SimConnect.SIMCONNECT_GROUP_PRIORITY_HIGHEST);
                 // IMPORTANT: register it with the simconnect managed wrapper marshaller
                 // if you skip this step, you will only receive a uint in the .dwData field.
                 simconnect.RegisterDataDefineStruct<StructBasicMovingSceneryObject>(DEFINITIONS.StructBasicMovingSceneryObject);
@@ -1131,11 +1141,11 @@ namespace Fsxget
                 }
             }
         }
-        void simconnect_OnRecvOpen(SimConnect sender, SIMCONNECT_RECV_OPEN data)
+        private void simconnect_OnRecvOpen(SimConnect sender, SIMCONNECT_RECV_OPEN data)
         {
  
         }
-        void simconnect_OnRecvQuit(SimConnect sender, SIMCONNECT_RECV data)
+        private void simconnect_OnRecvQuit(SimConnect sender, SIMCONNECT_RECV data)
         {
             DeleteAllObjects();
             closeConnection();
@@ -1145,11 +1155,11 @@ namespace Fsxget
             else
                 frmMain.Close();
         }
-        void simconnect_OnRecvException(SimConnect sender, SIMCONNECT_RECV_EXCEPTION data)
+        private void simconnect_OnRecvException(SimConnect sender, SIMCONNECT_RECV_EXCEPTION data)
         {
             frmMain.NotifyError( "FSX Exception!" );
         }
-        void simconnect_OnRecvEvent(SimConnect sender, SIMCONNECT_RECV_EVENT data)
+        private void simconnect_OnRecvEvent(SimConnect sender, SIMCONNECT_RECV_EVENT data)
         {
             switch ((EVENT_ID)data.uEventID)
             {
@@ -1158,7 +1168,7 @@ namespace Fsxget
                     break;
             }
         }
-        void simconnect_OnRecvSimobjectDataBytype(SimConnect sender, SIMCONNECT_RECV_SIMOBJECT_DATA_BYTYPE data)
+        private void simconnect_OnRecvSimobjectDataBytype(SimConnect sender, SIMCONNECT_RECV_SIMOBJECT_DATA_BYTYPE data)
         {
             StructBasicMovingSceneryObject obj = (StructBasicMovingSceneryObject)data.dwData[0];
 
@@ -1213,7 +1223,6 @@ namespace Fsxget
                     break;
             }
         }
-
         private void HandleSimObjectRecieved(ref StructObjectContainer objs, ref SIMCONNECT_RECV_SIMOBJECT_DATA_BYTYPE data)
         {
             StructBasicMovingSceneryObject obj = (StructBasicMovingSceneryObject)data.dwData[0];
@@ -1309,6 +1318,33 @@ namespace Fsxget
             {
                 ht.Remove(key);
             }
+        }
+        public bool SetFrequency(String strType, double dFreq)
+        {
+            bool bRet = true;
+            try
+            {
+                strType = strType.ToLower();
+                if (strType == "nav1")
+                {
+                    
+                    simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_NAV1, UIntToBCD((uint)(dFreq*100 )), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
+                }
+                else if (strType == "nav2")
+                    simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_NAV2, UIntToBCD((uint)(dFreq * 100)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
+                else if (strType == "adf")
+                {
+                    // TODO: ADF settings are wrong
+                    simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_ADF, UIntToBCD((uint)(dFreq * 10)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
+                }
+                else
+                    bRet = false;
+            }
+            catch 
+            {
+                bRet = false;
+            }
+            return bRet;
         }
 
         public bool OnMessageReceive(ref System.Windows.Forms.Message m)
@@ -1866,6 +1902,16 @@ namespace Fsxget
 
             return (float)(iSign * (f1 + (f2 * 60.0 + f3) / 3600.0));
         }
-
+        static uint UIntToBCD(uint nData)
+        {
+            String str = nData.ToString();
+            nData = 0;
+            for (int i = 0; i < str.Length; i++)
+            {
+                nData *= 16;
+                nData += (uint)(str[i] - '0');
+            }
+            return nData;
+        }
     }
 }

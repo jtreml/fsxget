@@ -599,11 +599,13 @@ namespace Fsxget
             strKMLPart = strKMLPart.Replace("%MAGVAR%", navaid.MagVar.ToString() );
             strKMLPart = strKMLPart.Replace("%IDENT%", navaid.Ident);
             strKMLPart = strKMLPart.Replace("%MORSE%", navaid.MorseCode);
-            strKMLPart = strKMLPart.Replace("%FREQUENCY%", String.Format( "{0:F2}", navaid.Frequency));
-            strKMLPart = strKMLPart.Replace("%ALTITUDE%", XmlConvert.ToString( navaid.Altitude ) );
+            strKMLPart = strKMLPart.Replace("%FREQUENCY_UF%", String.Format( "{0:F2}", navaid.Frequency));
+            strKMLPart = strKMLPart.Replace("%FREQUENCY%", XmlConvert.ToString(navaid.Frequency));
+            strKMLPart = strKMLPart.Replace("%ALTITUDE%", XmlConvert.ToString(navaid.Altitude));
             strKMLPart = strKMLPart.Replace("%ALTITUDE_UF%", String.Format( "{0:F2}ft", navaid.Altitude * 3.28095));
             strKMLPart = strKMLPart.Replace("%LONGITUDE%", XmlConvert.ToString( navaid.Longitude ) );
             strKMLPart = strKMLPart.Replace("%LATITUDE%", XmlConvert.ToString( navaid.Latitude) );
+            strKMLPart = strKMLPart.Replace("%SERVER%", Program.Config.Server);
             return strKMLPart + "</Folder></Create>";
         }
 
