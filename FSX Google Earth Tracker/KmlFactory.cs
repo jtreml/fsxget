@@ -86,6 +86,7 @@ namespace Fsxget
             AI_GROUND_UNIT,
             VOR,
             VORDME,
+            VOR_OVERLAY,
             DME,
             NDB,
             AIRPORT,
@@ -110,6 +111,7 @@ namespace Fsxget
                 "fsxaig.png",
                 "fsxvor.png",
                 "fsxvordme.png",
+                "fsxvorov.png",
                 "fsxdme.png",
                 "fsxndb.png",
                 "fsxairport.png",
@@ -381,13 +383,37 @@ namespace Fsxget
                         obj.State = FsxConnection.SceneryObject.STATE.DATAREAD;
                         break;
                     case FsxConnection.SceneryObject.STATE.DELETED:
-                        strKML += "<Delete><Folder targetId=\"fp" + obj.ObjectID.ToString() + "\"/></Delete>";
+                        strKML += "<Delete><Placemark targetId=\"fp" + obj.ObjectID.ToString() + "\"/></Delete>";
                         break;
                 }
             }
             fsxCon.CleanupHashtable(ref fsxCon.htFlightPlans);
             strKML += "</Update>" + strUpdateKMLFooter;
             return strKML;
+        }
+        public String GenNavAdisUpdate()
+        {
+            String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
+            lock( fsxCon.objNavAids.lockObject )
+            {
+                foreach (DictionaryEntry entry in fsxCon.objNavAids.htObjects)
+                {
+                    FsxConnection.SceneryNavAid navaid = (FsxConnection.SceneryNavAid)entry.Value;
+                    switch (navaid.State)
+                    {
+                        case FsxConnection.SceneryObject.STATE.NEW:
+                            strKML += GenNavAidKml(ref navaid);
+                            navaid.State = FsxConnection.SceneryObject.STATE.DATAREAD;
+                            break;
+                        case FsxConnection.SceneryObject.STATE.DELETED:
+                            strKML += "<Delete><Placemark targetId=\"na" + navaid.ObjectID.ToString() + "\"/></Delete>";
+                            strKML += "<Delete><GroundOverlay targetId=\"na" + navaid.ObjectID.ToString() + "ov\"/></Delete>";
+                            break;
+                    }
+                }
+                fsxCon.CleanupHashtable(ref fsxCon.objNavAids.htObjects);
+            }
+            return strKML + "</Update>" + strUpdateKMLFooter;
         }
 
         private String GetAIObjectUpdate(Hashtable ht, String strFolderPrefix, String strPartFile, KML_ICON_TYPES icoObject, KML_ICON_TYPES icoPredictionPoint, String strPredictionColor)
@@ -516,48 +542,13 @@ namespace Fsxget
         {
             return (String)htKMLParts[strName];
         }
-        public String GenVorKML(double dLongitude, double dLatitude, double dMagVar)
-        {
-            String strKMLPart = "";
-            strKMLPart += "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Placemark><Style><LineStyle><width>3</width></LineStyle></Style><MultiGeometry>";
-            strKMLPart += "<LineString><coordinates>";
-
-            String strLines = "";
-            double dLatResult = 0;
-            double dLonResult = 0;
-            double dLatResult2 = 0;
-            double dLonResult2 = 0;
-            double dHeading = 0;
-            for (int i = 0; i <= 360; i += 5)
-            {
-                dHeading = i + dMagVar;
-                MovePoint(dLongitude, dLatitude, dHeading, 5000, ref dLonResult, ref dLatResult);
-                
-                strKMLPart += XmlConvert.ToString(dLonResult) + "," + XmlConvert.ToString(dLatResult) + ",0 ";
-                if (i % 10 == 0)
-                {
-                    bool b30 = i % 30 == 0;
-                    strLines += "<LineString>";
-                    strLines += "<coordinates>";
-                    MovePoint(dLongitude, dLatitude, dHeading, b30 ? 4000 : 4500, ref dLonResult2, ref dLatResult2);
-                    strLines += XmlConvert.ToString(dLonResult) + "," + XmlConvert.ToString(dLatResult) + ",0 ";
-                    strLines += XmlConvert.ToString(dLonResult2) + "," + XmlConvert.ToString(dLatResult2) + ",0 ";
-                    strLines += "</coordinates></LineString>";
-                }
-            }
-            strKMLPart += "</coordinates></LineString>" + strLines;
-
-            strKMLPart += "</MultiGeometry></Placemark></kml>";
-
-            return strKMLPart;
-        }
-        public String GenVorKML2(double dLongitude, double dLatitude, double dMagVar)
+        private String GenVorKML(uint unID, float dLongitude, float dLatitude, float dMagVar)
         {
             String strKMLPart = (String)htKMLParts["fsxvoroverlay"];
 
-            double dLatResult = 0;
-            double dLonResult = 0;
-            double dRadius = 5000;
+            float dLatResult = 0;
+            float dLonResult = 0;
+            float dRadius = 5000;
 
             MovePoint(dLongitude, dLatitude, 0, dRadius, ref dLonResult, ref dLatResult);
             strKMLPart = strKMLPart.Replace( "%NORTH%", XmlConvert.ToString(dLatResult));
@@ -568,87 +559,73 @@ namespace Fsxget
             MovePoint(dLongitude, dLatitude, 270, dRadius, ref dLonResult, ref dLatResult);
             strKMLPart = strKMLPart.Replace( "%WEST%", XmlConvert.ToString(dLonResult));
             strKMLPart = strKMLPart.Replace( "%MAGVAR%", XmlConvert.ToString(dMagVar));
-
+            strKMLPart = strKMLPart.Replace("%ICON%", GetIconLink(KML_ICON_TYPES.VOR_OVERLAY));
+            strKMLPart = strKMLPart.Replace("%ID%", "id=\"na" + unID.ToString() + "ov\"");
             return strKMLPart;
         }
-        public void CreateNavAidsKML(String strFileName, ref List<FsxConnection.StructNavAid> lstVOR, ref List<FsxConnection.StructNavAid> lstNDB)
+        private String GenNavAidKml( ref FsxConnection.SceneryNavAid navaid )
         {
-            StreamWriter s = new StreamWriter(strFileName, false, Encoding.UTF8);
-            s.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Folder><name>FSX</name><Folder><name>VOR</name>");
-            foreach (FsxConnection.StructNavAid navaid in lstVOR)
-            {
-                s.WriteLine(GenNavAidKml(navaid));
-            }
-            s.WriteLine("</Folder><Folder><name>NDB</name>");
-            foreach (FsxConnection.StructNavAid navaid in lstNDB)
-            {
-                s.WriteLine(GenNavAidKml(navaid));
-            }
-            s.WriteLine("</Folder></Folder></kml>");
-            s.Close();
-        }
-        private String GenNavAidKml( FsxConnection.StructNavAid navaid )
-        {
-            String strKMLPart = "";
-            switch (navaid.tIconType)
+            String strKMLPart = "<Create><Folder targetId=\"";
+            switch (navaid.IconType)
             {
                 case KML_ICON_TYPES.DME:
-                    strKMLPart = (String)htKMLParts["fsxvor"];
+                    strKMLPart += "fsxnavor\">";
+                    strKMLPart += (String)htKMLParts["fsxvor"];
                     strKMLPart = strKMLPart.Replace("%TYPE%", "DME");
-                    strKMLPart = strKMLPart.Replace("%ICON%", "fsxdme.png");
                     break;
                 case KML_ICON_TYPES.VOR:
-                    strKMLPart = (String)htKMLParts["fsxvor"];
+                    strKMLPart += "fsxnavor\">";
+                    strKMLPart += (String)htKMLParts["fsxvor"];
                     strKMLPart = strKMLPart.Replace("%TYPE%", "VOR");
-                    strKMLPart = strKMLPart.Replace("%ICON%", "fsxvor.png");
-                    strKMLPart += GenVorKML2(navaid.dLon, navaid.dLat, navaid.dMagVar);
+                    strKMLPart += GenVorKML(navaid.ObjectID, navaid.Longitude, navaid.Latitude, navaid.MagVar );
                     break;
                 case KML_ICON_TYPES.VORDME:
-                    strKMLPart = (String)htKMLParts["fsxvor"];
+                    strKMLPart += "fsxnavor\">";
+                    strKMLPart += (String)htKMLParts["fsxvor"];
                     strKMLPart = strKMLPart.Replace("%TYPE%", "VOR / DME");
-                    strKMLPart = strKMLPart.Replace("%ICON%", "fsxvordme.png");
-                    strKMLPart += GenVorKML2(navaid.dLon, navaid.dLat, navaid.dMagVar);
+                    strKMLPart += GenVorKML(navaid.ObjectID, navaid.Longitude, navaid.Latitude, navaid.MagVar);
                     break;
                 case KML_ICON_TYPES.NDB:
-                    strKMLPart = (String)htKMLParts["fsxndb"];
+                    strKMLPart += "fsxnandb\">";
+                    strKMLPart += (String)htKMLParts["fsxndb"];
                     strKMLPart = strKMLPart.Replace("%TYPE%", "NDB");
-                    strKMLPart = strKMLPart.Replace("%ICON%", "fsxndb.png");
                     break;
                 default:
                     return "";
             }
-            strKMLPart = strKMLPart.Replace("%NAME%", navaid.strName);
-            strKMLPart = strKMLPart.Replace("%MAGVAR%", navaid.dMagVar.ToString() );
-            strKMLPart = strKMLPart.Replace("%IDENT%", navaid.strIdent);
-            strKMLPart = strKMLPart.Replace("%MORSE%", FsxConnection.GetMorseCode(navaid.strIdent));
-            strKMLPart = strKMLPart.Replace("%FREQUENCY%", navaid.strFreq);
-            strKMLPart = strKMLPart.Replace("%ALTITUDE%", XmlConvert.ToString( navaid.dAlt ) );
-            strKMLPart = strKMLPart.Replace("%ALTITUDE_UF%", String.Format( "{0:F2}ft", navaid.dAlt * 3.28095));
-            strKMLPart = strKMLPart.Replace("%LONGITUDE%", XmlConvert.ToString( navaid.dLon ) );
-            strKMLPart = strKMLPart.Replace("%LATITUDE%", XmlConvert.ToString( navaid.dLat) );
-            strKMLPart = strKMLPart.Replace("%REGION%", navaid.strRegion );
-            return strKMLPart;
+            strKMLPart = strKMLPart.Replace("%ICON%", GetIconLink(navaid.IconType));
+            strKMLPart = strKMLPart.Replace( "%ID%", "id=\"na" + navaid.ObjectID.ToString() + "\"");
+            strKMLPart = strKMLPart.Replace("%NAME%", navaid.Name);
+            strKMLPart = strKMLPart.Replace("%MAGVAR%", navaid.MagVar.ToString() );
+            strKMLPart = strKMLPart.Replace("%IDENT%", navaid.Ident);
+            strKMLPart = strKMLPart.Replace("%MORSE%", navaid.MorseCode);
+            strKMLPart = strKMLPart.Replace("%FREQUENCY%", String.Format( "{0:F2}", navaid.Frequency));
+            strKMLPart = strKMLPart.Replace("%ALTITUDE%", XmlConvert.ToString( navaid.Altitude ) );
+            strKMLPart = strKMLPart.Replace("%ALTITUDE_UF%", String.Format( "{0:F2}ft", navaid.Altitude * 3.28095));
+            strKMLPart = strKMLPart.Replace("%LONGITUDE%", XmlConvert.ToString( navaid.Longitude ) );
+            strKMLPart = strKMLPart.Replace("%LATITUDE%", XmlConvert.ToString( navaid.Latitude) );
+            return strKMLPart + "</Folder></Create>";
         }
 
-        public static void MovePoint(double dLongitude, double dLatitude, double dHeading, double dDistMeter, ref double dLonResult, ref double dLatResult)
+        public static void MovePoint(float fLongitude, float fLatitude, float fHeading, float fDistMeter, ref float fLonResult, ref float fLatResult)
         {
             double dPI180 = Math.PI / 180;
             double d180PI = 180 / Math.PI;
-            dDistMeter = (Math.PI / 10800) * dDistMeter / 1000;
-            dHeading *= dPI180;
-            dLatitude *= dPI180;
-            dLongitude *= dPI180;
+            double dDistMeter = (Math.PI / 10800) * fDistMeter / 1000;
+            double dHeading = fHeading * dPI180;
+            double dLatitude = fLatitude * dPI180;
+            double dLongitude = fLongitude * dPI180;
             double dDistSin = Math.Sin(dDistMeter);
             double dDistCos = Math.Cos(dDistMeter);
             double dLatSin = Math.Sin(dLatitude);
             double dLatCos = Math.Cos(dLatitude);
 
-            dLatResult = Math.Asin(dLatSin * dDistCos + dLatCos * dDistSin * Math.Cos(dHeading));
+            double dLatResult = Math.Asin(dLatSin * dDistCos + dLatCos * dDistSin * Math.Cos(dHeading));
             double d = -1 * (Math.Atan2(Math.Sin(dHeading) * dDistSin * dLatCos, dDistCos - dLatSin * Math.Sin(dLatResult)));
-            dLonResult = (dLongitude - d + Math.PI) - (long)((dLongitude - d + Math.PI) / 2 / Math.PI) - Math.PI;
+            double dLonResult = (dLongitude - d + Math.PI) - (long)((dLongitude - d + Math.PI) / 2 / Math.PI) - Math.PI;
 
-            dLatResult *= d180PI;
-            dLonResult *= d180PI;
+            fLatResult = (float) (dLatResult*d180PI);
+            fLonResult = (float) (dLonResult*d180PI);
         }
     }
 }

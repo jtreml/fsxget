@@ -285,6 +285,13 @@ namespace Fsxget
                     szHeader = "application/vnd.google-earth.kml+xml";
                     buffer = System.Text.Encoding.UTF8.GetBytes(str);
                 }
+                else if (strRequest == "/fsxnau.kml")
+                {
+                    bContentSet = true;
+                    String str = kmlFactory.GenNavAdisUpdate();
+                    szHeader = "application/vnd.google-earth.kml+xml";
+                    buffer = System.Text.Encoding.UTF8.GetBytes(str);
+                }
                 else
                     bContentSet = false;
 

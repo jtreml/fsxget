@@ -1,8 +1,8 @@
-<GroundOverlay>
+<GroundOverlay %ID%>
    <color>ffffffff</color>
    <drawOrder>1</drawOrder>
    <Icon>
-      <href>fsxvorov.png</href>
+      <href>%ICON%</href>
    </Icon>
    <LatLonBox>
       <north>%NORTH%</north>

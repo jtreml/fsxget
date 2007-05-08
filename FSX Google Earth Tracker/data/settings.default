@@ -24,6 +24,7 @@
           <query-ai-boats Enabled="1" Interval="5000" Range="50000" Prediction="0" PredictionPoints="0" />
           <query-ai-ground-units Enabled="1" Interval="5000" Range="50000" Prediction="0" PredictionPoints="0" />
         </query-ai-objects>
+		<query-navaids Enabled="1" Interval="10" Range="100000"/>
       </fsx>
       <ge>
         <refresh-rates>
