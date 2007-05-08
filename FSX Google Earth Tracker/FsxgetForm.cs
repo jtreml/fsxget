@@ -26,6 +26,7 @@ namespace Fsxget
 
         public FsxConnection fsxCon;
         public KmlFactory kmlFactory;
+		private HttpServer httpServer;
         
 		bool bClose = false;
 		bool bConnected = false;
@@ -48,8 +49,11 @@ namespace Fsxget
 			InitializeComponent();
 
             Text = Program.Config.AssemblyTitle;
+
             fsxCon = new FsxConnection(this, false);
-            kmlFactory = new KmlFactory(ref fsxCon);
+			httpServer = new HttpServer(50);
+
+            kmlFactory = new KmlFactory(ref fsxCon, ref httpServer);
             kmlFactory.CreateStartupKML(Program.Config.UserDataPath + "/pub/fsxget.kml");
 
             enableTrackerToolStripMenuItem.Checked = Program.Config[Config.SETTING.ENABLE_ON_STARTUP]["Enabled"].BoolValue;
@@ -216,13 +220,7 @@ namespace Fsxget
 
                 String strRequest = request.Url.AbsolutePath.ToLower();
 
-                if (strRequest.StartsWith("/gfx"))
-                {
-                    buffer = kmlFactory.GetImage(strRequest);
-                    szHeader = "image/png";
-                    bContentSet = true;
-                }
-                else if (strRequest == "/fsxobjs.kml")
+				if (strRequest == "/fsxobjs.kml")
                 {
                     bContentSet = true;
                     String str = kmlFactory.GenFSXObjects();

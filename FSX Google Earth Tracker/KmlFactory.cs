@@ -12,26 +12,26 @@ namespace Fsxget
     {
         public class ObjectImage
         {
-            private String strTitle;
+            //private String strTitle;
             private String strPath;
             private byte[] bData;
 
             public ObjectImage(SettingsObject img)
             {
-                strTitle = img["Name"].StringValue;
+                //strTitle = img["Name"].StringValue;
                 strPath = img["Img"].StringValue;
                 LoadImgData(Program.Config.FilePathPub + strPath);
             }
             public ObjectImage(String strTitle, String strPath, Stream s)
             {
-                this.strTitle = strTitle;
+                //this.strTitle = strTitle;
                 this.strPath = strPath;
                 bData = new byte[s.Length];
                 s.Read(bData, 0, (int)s.Length);
             }
             public ObjectImage(String strLocalPath)
             {
-                this.strTitle = System.IO.Path.GetFileNameWithoutExtension(strLocalPath);
+                //this.strTitle = System.IO.Path.GetFileNameWithoutExtension(strLocalPath);
                 this.strPath = strLocalPath.Replace('\\', '/');
                 LoadImgData(Program.Config.AppPath + "\\pub" + strLocalPath);
             }
@@ -48,13 +48,14 @@ namespace Fsxget
                 }
             }
 
-            public String Title
-            {
-                get
-                {
-                    return strTitle;
-                }
-            }
+			//public String Title
+			//{
+			//    get
+			//    {
+			//        return strTitle;
+			//    }
+			//}
+
             public String Path
             {
                 get
@@ -72,28 +73,28 @@ namespace Fsxget
         };
 
         #region Structs and Enums
-        public enum KML_ICON_TYPES
-        {
-            USER_AIRCRAFT_POSITION = 0,
-            USER_PREDICTION_POINT,
-            AI_AIRCRAFT_PREDICTION_POINT,
-            AI_HELICOPTER_PREDICTION_POINT,
-            AI_BOAT_PREDICTION_POINT,
-            AI_GROUND_PREDICTION_POINT,
-            AI_AIRCRAFT,
-            AI_HELICOPTER,
-            AI_BOAT,
-            AI_GROUND_UNIT,
-            VOR,
-            VORDME,
-            VOR_OVERLAY,
-            DME,
-            NDB,
-            AIRPORT,
-            PLAN_USER,
-            PLAN_INTER,
-            NONE,
-        };
+		public enum KML_ICON_TYPES
+		{
+			USER_AIRCRAFT_POSITION = 0,
+			USER_PREDICTION_POINT,
+			AI_AIRCRAFT_PREDICTION_POINT,
+			AI_HELICOPTER_PREDICTION_POINT,
+			AI_BOAT_PREDICTION_POINT,
+			AI_GROUND_PREDICTION_POINT,
+			AI_AIRCRAFT,
+			AI_HELICOPTER,
+			AI_BOAT,
+			AI_GROUND_UNIT,
+			VOR,
+			VORDME,
+			VOR_OVERLAY,
+			DME,
+			NDB,
+			AIRPORT,
+			PLAN_USER,
+			PLAN_INTER,
+			NONE,
+		};
         #endregion
 
         #region Variables
@@ -121,49 +122,70 @@ namespace Fsxget
             };
         
         protected List<ObjectImage> lstImgs;
-        ObjectImage imgNoImage;
+        //ObjectImage imgNoImage;
+
         protected FsxConnection fsxCon;
+		protected HttpServer httpServer;
+
         protected String strUpdateKMLHeader;
         protected String strUpdateKMLFooter;
         protected Hashtable htKMLParts;
         protected Hashtable htFlightPlans;
+
+		// KML Documents
+		protected KmlFileStartUp kmlStartUp;
+
         #endregion
 
 //      public static int nFileNr = 1;
 
-        public KmlFactory(ref FsxConnection fsxCon)
+        public KmlFactory(ref FsxConnection fsxCon, ref HttpServer httpServer)
         {
             this.fsxCon = fsxCon;
+			this.httpServer = httpServer;
+
             htKMLParts = new Hashtable();
             lstImgs = new List<ObjectImage>();
 
+			// TODO: Hardcoded paths or parts of it should be avoided. Maybe we 
+			// should put the GE icons in the resource file
             String[] strFiles = Directory.GetFiles(Program.Config.AppPath + "\\pub\\gfx\\ge\\icons");
             int nIdx = Program.Config.AppPath.Length + 4;
             foreach (String strFile in strFiles)
             {
-                lstImgs.Add(new ObjectImage(strFile.Substring( nIdx )));
+                //lstImgs.Add(new ObjectImage(strFile.Substring( nIdx )));
+				httpServer.registerFile("/" + strFile.Replace('\\', '/'), new ServerFileDisc("image/png", Program.Config.AppPath + "\\pub" + strFile));
             }
 
             SettingsList lstImg = (SettingsList)Program.Config[Config.SETTING.AIR_IMG_LIST];
             foreach (SettingsObject img in lstImg.listSettings)
             {
-                lstImgs.Add(new ObjectImage(img));
+                //lstImgs.Add(new ObjectImage(img));
+				httpServer.registerFile(img["Name"].StringValue + ".png", new ServerFileDisc("image/png", Program.Config.FilePathPub + img["Img"].StringValue));
             }
 
             lstImg = (SettingsList)Program.Config[Config.SETTING.WATER_IMG_LIST];
             foreach (SettingsObject img in lstImg.listSettings)
             {
-                lstImgs.Add(new ObjectImage(img));
+                //lstImgs.Add(new ObjectImage(img));
+				httpServer.registerFile(img["Name"].StringValue + ".png", new ServerFileDisc("image/png", Program.Config.FilePathPub + img["Img"].StringValue));
             }
 
             lstImg = (SettingsList)Program.Config[Config.SETTING.GROUND_IMG_LIST];
             foreach (SettingsObject img in lstImg.listSettings)
             {
-                lstImgs.Add(new ObjectImage(img));
+                //lstImgs.Add(new ObjectImage(img));
+				httpServer.registerFile(img["Name"].StringValue + ".png", new ServerFileDisc("image/png", Program.Config.FilePathPub + img["Img"].StringValue));
             }
 
-            lstImgs.Add(new ObjectImage( "Logo", "/gfx/logo.png", Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.logo.png")));
-            imgNoImage = new ObjectImage("NoImage", "/gfx/noimage.png", Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.noimage.png"));
+			Stream s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.logo.png");
+			byte[] bTemp = new byte[s.Length];
+			s.Read(bTemp, 0, (int)s.Length);
+			httpServer.registerFile("/gfx/logo.png", new ServerFileCached("image/png", bTemp));
+            
+			//lstImgs.Add(new ObjectImage( "Logo", "/gfx/logo.png", Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.logo.png")));
+            
+			//imgNoImage = new ObjectImage("NoImage", "/gfx/noimage.png", Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.noimage.png"));
 
             String[] strPartFiles = Directory.GetFiles(Program.Config.AppPath + "\\data", "*.part");
             foreach (String strPartFile in strPartFiles)
@@ -184,15 +206,16 @@ namespace Fsxget
             File.WriteAllText(strFile, strKML, Encoding.UTF8);
         }
 
-        public byte[] GetImage(String strPath)
-        {
-            foreach (ObjectImage img in lstImgs)
-            {
-                if (img.Path == strPath)
-                    return img.ImgData;
-            }
-            return imgNoImage.ImgData;
-        }
+		//public byte[] GetImage(String strPath)
+		//{
+		//    foreach (ObjectImage img in lstImgs)
+		//    {
+		//        if (img.Path == strPath)
+		//            return img.ImgData;
+		//    }
+		//    return null;
+		//    //return imgNoImage.ImgData;
+		//}
 
         public String GenFSXObjects()
         {
@@ -200,6 +223,9 @@ namespace Fsxget
         }
         public String GenUserPositionUpdate()
         {
+			// TODO: Add a function getUserAircraft() to FsxCon class and do the locking in there. Locking
+			// should be the original class's responsability, not the one of a client class
+
             lock (fsxCon.lockUserAircraft)
             {
                 String strKMLPart = GetExpireString((uint)Program.Config[Config.SETTING.QUERY_USER_AIRCRAFT]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";

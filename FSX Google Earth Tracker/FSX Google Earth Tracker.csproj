@@ -77,6 +77,7 @@
     <Compile Include="HttpServer.cs" />
     <Compile Include="HttpServerExample.cs" />
     <Compile Include="KmlFactory.cs" />
+    <Compile Include="KmlFiles.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="FsxgetForm.resx">
