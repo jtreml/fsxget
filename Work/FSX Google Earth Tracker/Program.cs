@@ -6,13 +6,19 @@ namespace Fsxget
 {
 	static class Program
 	{
-        private static Config config = new Config();
+        private static Config config;
+
         /// <summary>
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
 		static void Main()
 		{
+			// Initialize the config object here because if initialized above with its 
+			// declaration, in case of an exception, Visual Studio is unable to show where 
+			// the exception occured.
+			config = new Config();
+
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			
