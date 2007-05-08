@@ -109,7 +109,6 @@
     <Compile Include="ServerFileDynamic.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="app.ico" />
     <Content Include="data\fsxauc.part" />
     <Content Include="data\fsxaum.part" />
