@@ -214,7 +214,7 @@ namespace Fsxget
 				String szHeader = "";
 				bool bContentSet = false;
 
-                String strRequest = request.Url.PathAndQuery.ToLower();
+                String strRequest = request.Url.AbsolutePath.ToLower();
 
                 if (strRequest.StartsWith("/gfx"))
                 {
@@ -291,6 +291,37 @@ namespace Fsxget
                     String str = kmlFactory.GenNavAdisUpdate();
                     szHeader = "application/vnd.google-earth.kml+xml";
                     buffer = System.Text.Encoding.UTF8.GetBytes(str);
+                }
+                else if (strRequest == "/setfreq.html")
+                {
+                    bContentSet = true;
+                    szHeader = "text/html";
+
+                    char[] cSep = new char[2];
+                    cSep[0] = '=';
+                    cSep[1] = '&';
+                    
+                    String strQuery = request.Url.Query;
+                    if (strQuery[0] == '?')
+                        strQuery = strQuery.Substring(1);
+                    String[] strParts = strQuery.Split(cSep);
+                    String strResult = "<html>Invalid parameter format<br>Frequency not changed</html>";
+
+                    if (strParts.Length == 4)
+                    {
+                        if (strParts[0] == "type" && strParts[2] == "freq")
+                        {
+                            try
+                            {
+                                if (fsxCon.SetFrequency(strParts[1], double.Parse(strParts[3], System.Globalization.NumberFormatInfo.InvariantInfo)))
+                                    strResult = "<html>Frequency changed initiated</html>";
+                            }
+                            catch
+                            {
+                            }
+                        }
+                    }
+                    buffer = System.Text.Encoding.UTF8.GetBytes(strResult);
                 }
                 else
                     bContentSet = false;
