@@ -1,4 +1,4 @@
-<Placemark>
+<Placemark %ID%>
 	<name>%IDENT%</name>
 	<description><![CDATA[<B>Name:</B> %NAME%<br><B>Ident: </B> %IDENT% (<B>%MORSE%</B>)<br><B>Type:</B> %TYPE%<br><B>Frequency:</B> %FREQUENCY%<br><B>Altitude:</B>  %ALTITUDE_UF%%<br><B>Magnetic Variation:</B>  %MAGVAR%]]></description>
 	<Style>

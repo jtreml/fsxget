@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Xml;
 using System.IO;
 using System.Threading;
+using System.Data.OleDb;
 
 namespace Fsxget
 {
@@ -57,37 +58,37 @@ namespace Fsxget
         }
         public class ObjectPosition
         {
-            private ObjectData<double> dLon;
-            private ObjectData<double> dLat;
-            private ObjectData<double> dAlt;
+            private ObjectData<float> fLon;
+            private ObjectData<float> fLat;
+            private ObjectData<float> fAlt ;
             private double dTime;
 
             public ObjectPosition()
             {
-                dLon = new ObjectData<double>();
-                dLat = new ObjectData<double>();
-                dAlt = new ObjectData<double>();
+                fLon = new ObjectData<float>();
+                fLat = new ObjectData<float>();
+                fAlt  = new ObjectData<float>();
             }
 
-            public ObjectData<double> Longitude
+            public ObjectData<float> Longitude
             {
                 get
                 {
-                    return dLon;
+                    return fLon;
                 }
             }
-            public ObjectData<double> Latitude
+            public ObjectData<float> Latitude
             {
                 get
                 {
-                    return dLat;
+                    return fLat;
                 }
             }
-            public ObjectData<double> Altitude
+            public ObjectData<float> Altitude
             {
                 get
                 {
-                    return dAlt;
+                    return fAlt ;
                 }
             }
             public double Time
@@ -112,7 +113,7 @@ namespace Fsxget
             {
                 get
                 {
-                    return XmlConvert.ToString(dLon.Value) + "," + XmlConvert.ToString(dLat.Value) + "," + XmlConvert.ToString(dAlt.Value);
+                    return XmlConvert.ToString(fLon.Value) + "," + XmlConvert.ToString(fLat.Value) + "," + XmlConvert.ToString(fAlt .Value);
                 }
             }
         }
@@ -127,9 +128,9 @@ namespace Fsxget
                 DATAREAD,
             }
 
-            protected STATE tState;
-            protected DATA_REQUESTS tType;
-            protected uint unID;
+            private STATE tState;
+            private DATA_REQUESTS tType;
+            private uint unID;
             public bool bDataRecieved;
 
             public SceneryObject(uint unID, DATA_REQUESTS tType)
@@ -171,7 +172,7 @@ namespace Fsxget
             #region Classes
             public class ObjectPath
             {
-                protected String strCoordinates;
+                private String strCoordinates;
                 STATE tState;
 
                 public ObjectPath()
@@ -188,7 +189,7 @@ namespace Fsxget
 
                 public void AddPosition( ref StructBasicMovingSceneryObject obj )
                 {
-                    strCoordinates += XmlConvert.ToString(obj.dLongitude) + "," + XmlConvert.ToString(obj.dLatitude) + "," + XmlConvert.ToString(obj.dAltitude) + " ";
+                    strCoordinates += XmlConvert.ToString((float)obj.dLongitude) + "," + XmlConvert.ToString((float)obj.dLatitude) + "," + XmlConvert.ToString((float)obj.dAltitude) + " ";
                     if (tState == STATE.DATAREAD)
                         tState = STATE.MODIFIED;
                 }
@@ -222,9 +223,9 @@ namespace Fsxget
             }
             public class PathPrediction
             {
-                protected bool bPredictionPoints;
+                private bool bPredictionPoints;
                 public ObjectPosition[] positions;
-                protected double dTimeElapsed;
+                private double dTimeElapsed;
                 STATE tState;
 
                 public PathPrediction(bool bWithPoints)
@@ -243,9 +244,9 @@ namespace Fsxget
                         {
                             CalcPositionByTime(ref obj, ref positions[i]);
                         }
-                        positions[0].Longitude.Value = obj.dLongitude;
-                        positions[0].Latitude.Value = obj.dLatitude;
-                        positions[0].Altitude.Value = obj.dAltitude;
+                        positions[0].Longitude.Value = (float)obj.dLongitude;
+                        positions[0].Latitude.Value = (float)obj.dLatitude;
+                        positions[0].Altitude.Value = (float)obj.dAltitude;
                         positions[0].Time = obj.dTime;
 
                         if (tState == STATE.DATAREAD)
@@ -262,9 +263,9 @@ namespace Fsxget
                 {
                     double dScale = tResultPos.Time / dTimeElapsed;
 
-                    tResultPos.Latitude.Value = objNew.dLatitude + dScale * (objNew.dLatitude - positions[0].Latitude.Value);
-                    tResultPos.Longitude.Value = objNew.dLongitude + dScale * (objNew.dLongitude - positions[0].Longitude.Value);
-                    tResultPos.Altitude.Value = objNew.dAltitude + dScale * (objNew.dAltitude - positions[0].Altitude.Value);
+                    tResultPos.Latitude.Value = (float) (objNew.dLatitude + dScale * (objNew.dLatitude - positions[0].Latitude.Value));
+                    tResultPos.Longitude.Value = (float) (objNew.dLongitude + dScale * (objNew.dLongitude - positions[0].Longitude.Value));
+                    tResultPos.Altitude.Value = (float) (objNew.dAltitude + dScale * (objNew.dAltitude - positions[0].Altitude.Value));
                 }
 
                 public bool HasPoints
@@ -323,15 +324,15 @@ namespace Fsxget
             #endregion
 
             #region Variables
-            protected ObjectData<String> strTitle;
-            protected ObjectData<String> strATCType;
-            protected ObjectData<String> strATCModel;
-            protected ObjectData<String> strATCID;
-            protected ObjectData<String> strATCAirline;
-            protected ObjectData<String> strATCFlightNumber;
-            protected ObjectPosition objPos;
-            protected ObjectData<double> dHeading;
-            protected double dTime;
+            private ObjectData<String> strTitle;
+            private ObjectData<String> strATCType;
+            private ObjectData<String> strATCModel;
+            private ObjectData<String> strATCID;
+            private ObjectData<String> strATCAirline;
+            private ObjectData<String> strATCFlightNumber;
+            private ObjectPosition objPos;
+            private ObjectData<float> fHeading;
+            private double dTime;
             public ObjectPath objPath;
             public PathPrediction pathPrediction;
             #endregion
@@ -347,24 +348,24 @@ namespace Fsxget
                 strATCFlightNumber = new ObjectData<String>();
                 objPos = new ObjectPosition();
                 objPath = new ObjectPath(ref obj);
-                dHeading = new ObjectData<double>();
+                fHeading = new ObjectData<float>();
                 strTitle.Value = obj.szTitle;
                 strATCType.Value = obj.szATCType;
                 strATCModel.Value = obj.szATCModel;
                 strATCID.Value = obj.szATCID;
                 strATCAirline.Value = obj.szATCAirline;
                 strATCFlightNumber.Value = obj.szATCFlightNumber;
-                objPos.Longitude.Value = obj.dLongitude;
-                objPos.Latitude.Value = obj.dLatitude;
-                objPos.Altitude.Value = obj.dAltitude;
-                dHeading.Value = obj.dHeading;
+                objPos.Longitude.Value = (float)obj.dLongitude;
+                objPos.Latitude.Value = (float)obj.dLatitude;
+                objPos.Altitude.Value = (float)obj.dAltitude;
+                fHeading.Value = (float)obj.dHeading;
                 dTime = obj.dTime;
                 ConfigChanged();
             }
 
             public void Update(ref StructBasicMovingSceneryObject obj)
             {
-                if (tState == STATE.DELETED)
+                if (State == STATE.DELETED)
                     return;
                 if (obj.dTime != dTime && pathPrediction != null)
                 {
@@ -375,23 +376,23 @@ namespace Fsxget
                     objPath.AddPosition(ref obj);
                 }
 
-                objPos.Longitude.Value = obj.dLongitude;
-                objPos.Latitude.Value = obj.dLatitude;
-                objPos.Altitude.Value = obj.dAltitude;
+                objPos.Longitude.Value = (float) obj.dLongitude;
+                objPos.Latitude.Value = (float) obj.dLatitude;
+                objPos.Altitude.Value = (float) obj.dAltitude;
                 strTitle.Value = obj.szTitle;
                 strATCType.Value = obj.szATCType;
                 strATCModel.Value = obj.szATCModel;
                 strATCID.Value = obj.szATCID;
                 strATCAirline.Value = obj.szATCAirline;
                 strATCFlightNumber.Value = obj.szATCFlightNumber;
-                dHeading.Value = obj.dHeading;
+                fHeading.Value = (float) obj.dHeading;
                 dTime = obj.dTime;
-                if (tState == STATE.DATAREAD || tState == STATE.UNCHANGED )
+                if (State == STATE.DATAREAD || State == STATE.UNCHANGED )
                 {
                     if (HasMoved || HasChanged)
-                        tState = STATE.MODIFIED;
+                        State = STATE.MODIFIED;
                     else
-                        tState = STATE.UNCHANGED;
+                        State = STATE.UNCHANGED;
                 }
                 bDataRecieved = true;
             }
@@ -401,7 +402,7 @@ namespace Fsxget
                 bool bPath = false;
                 bool bPrediction = false;
                 bool bPredictionPoints = false;
-                switch (tType)
+                switch (ObjectType)
                 {
                     case DATA_REQUESTS.REQUEST_USER_AIRCRAFT:
                         bPrediction = Program.Config[Config.SETTING.USER_PATH_PREDICTION]["Enabled"].BoolValue;
@@ -516,11 +517,11 @@ namespace Fsxget
                 }
             }
 
-            public ObjectData<double> Heading
+            public ObjectData<float> Heading
             {
                 get
                 {
-                    return dHeading;
+                    return fHeading;
                 }
             }
 
@@ -544,7 +545,7 @@ namespace Fsxget
             {
                 get
                 {
-                    return objPos.HasMoved || dHeading.IsModified;
+                    return objPos.HasMoved || fHeading.IsModified;
                 }
             }
             
@@ -571,17 +572,17 @@ namespace Fsxget
             public class Waypoint
             {
                 #region Variables
-                protected String strName;
-                protected double dLon;
-                protected double dLat;
+                private String strName;
+                private float fLon;
+                private float fLat;
                 KmlFactory.KML_ICON_TYPES tIconType;
                 #endregion
 
-                public Waypoint(String strName, double dLon, double dLat, KmlFactory.KML_ICON_TYPES tIconType)
+                public Waypoint(String strName, float fLon, float fLat, KmlFactory.KML_ICON_TYPES tIconType)
                 {
                     this.strName = strName;
-                    this.dLon = dLon;
-                    this.dLat = dLat;
+                    this.fLon = fLon;
+                    this.fLat = fLat;
                     this.tIconType = tIconType;
                 }
 
@@ -593,18 +594,18 @@ namespace Fsxget
                         return strName;
                     }
                 }
-                public double Longitude
+                public float Longitude
                 {
                     get
                     {
-                        return dLon;
+                        return fLon;
                     }
                 }
-                public double Latitude
+                public float Latitude
                 {
                     get
                     {
-                        return dLat;
+                        return fLat;
                     }
                 }
                 public KmlFactory.KML_ICON_TYPES IconType
@@ -617,8 +618,8 @@ namespace Fsxget
                 #endregion
             }
 
-            protected List<Waypoint> lstWaypoints;
-            protected String strName;
+            private List<Waypoint> lstWaypoints;
+            private String strName;
 
             public FlightPlan(uint unID, DATA_REQUESTS tType)
                 : base( unID, tType )
@@ -626,17 +627,17 @@ namespace Fsxget
                 lstWaypoints = new List<Waypoint>();
             }
 
-            public void AddWaypoint(String strName, double dLon, double dLat, KmlFactory.KML_ICON_TYPES tIconType)
+            public void AddWaypoint(String strName, float fLon, float fLat, KmlFactory.KML_ICON_TYPES tIconType)
             {
-                lstWaypoints.Add( new Waypoint( String.Format( "Waypoint {0}: {1} ", lstWaypoints.Count+1, strName ), dLon, dLat, tIconType ));
+                lstWaypoints.Add( new Waypoint( String.Format( "Waypoint {0}: {1} ", lstWaypoints.Count+1, strName ), fLon, fLat, tIconType ));
             }
             public void AddWaypoint(XmlNode xmln)
             {
                 String str;
                 KmlFactory.KML_ICON_TYPES tIconType = KmlFactory.KML_ICON_TYPES.NONE;
                 String strName = "";
-                double dLon = 0;
-                double dLat = 0;
+                float fLon = 0;
+                float fLat = 0;
 
                 if (xmln.Name != "ATCWaypoint")
                     throw new InvalidDataException("XmlNode must have the name ATCWaypoint");
@@ -682,8 +683,8 @@ namespace Fsxget
                         String[] strCoords = node.InnerText.Split( ',' );
                         if (strCoords.Length != 3)
                             throw new InvalidDataException("Invalid coordinateformat");
-                        dLat = FsxConnection.ConvertDegToDouble(strCoords[0]);
-                        dLon = FsxConnection.ConvertDegToDouble(strCoords[1]);
+                        fLat = FsxConnection.ConvertDegToFloat(strCoords[0]);
+                        fLon = FsxConnection.ConvertDegToFloat(strCoords[1]);
                     }
                 }
                 if (xmln["ICAO"]["ICAOIdent"] != null)
@@ -691,7 +692,7 @@ namespace Fsxget
                 else if (xmln.Attributes["id"] != null)
                     strName += xmln.Attributes["id"].Value;
 
-                AddWaypoint(strName, dLon, dLat, tIconType);
+                AddWaypoint(strName, fLon, fLat, tIconType);
             }
 
             public String Name
@@ -713,6 +714,129 @@ namespace Fsxget
                 }
             }
         }
+
+        public class SceneryNavAid : SceneryObject
+        {
+            private float fLon;
+            private float fLat;
+            private float fAlt;
+            private float fFreq;
+            private float fRange;
+            private float fMagVar;
+            private String strIdent;
+            private String strName;
+            private KmlFactory.KML_ICON_TYPES tIconType;
+
+            public SceneryNavAid(uint unID, int nType, String strIdent, String strName, float fLon, float fLat, float fAlt, float fFreq, float fRange, float fMagVar)
+                : base( unID, DATA_REQUESTS.NAVAIDS )
+            {
+                switch (nType)
+                {
+                    case 0:
+                        tIconType = KmlFactory.KML_ICON_TYPES.DME;
+                        break;
+                    case 1:
+                        tIconType = KmlFactory.KML_ICON_TYPES.VOR;
+                        break;
+                    case 2:
+                        tIconType = KmlFactory.KML_ICON_TYPES.VORDME;
+                        break;
+                    case 3:
+                        tIconType = KmlFactory.KML_ICON_TYPES.NDB;
+                        break;
+                    default:
+                        tIconType = KmlFactory.KML_ICON_TYPES.NONE;
+                        break;
+                }
+                this.strIdent = strIdent;
+                this.strName = strName;
+                this.fLon = fLon;
+                this.fLat = fLat;
+                this.fAlt = fAlt;
+                this.fFreq = fFreq;
+                this.fRange = fRange;
+                this.fMagVar = fMagVar;
+                this.State = STATE.NEW;
+            }
+
+            bool IsInRegion(float fNorth, float fEast, float fSouth, float fWest)
+            {
+                return fLon >= fWest && fLon <= fEast && fLat >= fNorth && fLat <= fSouth;
+            }
+
+            #region Accessors
+            public String Ident
+            {
+                get
+                {
+                    return strIdent;
+                }
+            }
+            public String Name
+            {
+                get
+                {
+                    return strName;
+                }
+            }
+            public String MorseCode
+            {
+                get
+                {
+                    return FsxConnection.GetMorseCode(strIdent);
+                }
+            }
+            public float Longitude
+            {
+                get
+                {
+                    return fLon;
+                }
+            }
+            public float Latitude
+            {
+                get
+                {
+                    return fLat;
+                }
+            }
+            public float Altitude
+            {
+                get
+                {
+                    return fAlt;
+                }
+            }
+            public float Range
+            {
+                get
+                {
+                    return fRange;
+                }
+            }
+            public float Frequency
+            {
+                get
+                {
+                    return fFreq;
+                }
+            }
+            public float MagVar
+            {
+                get
+                {
+                    return fMagVar;
+                }
+            }
+            public KmlFactory.KML_ICON_TYPES IconType
+            {
+                get
+                {
+                    return tIconType;
+                }
+            }
+            #endregion
+        }
         #endregion
 
         #region Variables
@@ -730,8 +854,10 @@ namespace Fsxget
         public StructObjectContainer objAIHelicopters;
         public StructObjectContainer objAIBoats;
         public StructObjectContainer objAIGroundUnits;
+        public StructObjectContainer objNavAids;
         public Hashtable htFlightPlans;
         private uint unFlightPlanNr;
+        private OleDbConnection dbCon;
         static String[] strMorseSigns = new String[]
         {
             "-----",
@@ -796,6 +922,7 @@ namespace Fsxget
             REQUEST_AI_BOAT,
             REQUEST_AI_GROUND,
             FLIGHTPLAN,
+            NAVAIDS
         };
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
@@ -874,7 +1001,13 @@ namespace Fsxget
             objAIGroundUnits.htObjects = new Hashtable();
             objAIGroundUnits.timer = new System.Timers.Timer();
             objAIGroundUnits.timer.Elapsed += new ElapsedEventHandler(OnTimerQueryAIGroundUnitsElapsed);
-            
+
+            objNavAids = new StructObjectContainer();
+            objNavAids.lockObject = new Object();
+            objNavAids.htObjects = new Hashtable();
+            objNavAids.timer = new System.Timers.Timer();
+            objNavAids.timer.Elapsed += new ElapsedEventHandler(OnTimerQueryNavAidsElapsed);
+
             timerQueryUserAircraft = new System.Timers.Timer();
             timerQueryUserAircraft.Elapsed += new ElapsedEventHandler(OnTimerQueryUserAircraftElapsed);
 
@@ -882,6 +1015,9 @@ namespace Fsxget
             lockSimConnect = new Object();
 
             htFlightPlans = new Hashtable();
+
+            dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
+            dbCon.Open();
         }
 
         #endregion
@@ -1078,7 +1214,7 @@ namespace Fsxget
             }
         }
 
-        protected void HandleSimObjectRecieved(ref StructObjectContainer objs, ref SIMCONNECT_RECV_SIMOBJECT_DATA_BYTYPE data)
+        private void HandleSimObjectRecieved(ref StructObjectContainer objs, ref SIMCONNECT_RECV_SIMOBJECT_DATA_BYTYPE data)
         {
             StructBasicMovingSceneryObject obj = (StructBasicMovingSceneryObject)data.dwData[0];
             if (data.dwoutof == 0)
@@ -1106,15 +1242,15 @@ namespace Fsxget
             }
         }
 
-        protected void MarkDeletedObjects(ref Hashtable ht)
+        private void MarkDeletedObjects(ref Hashtable ht)
         {
             foreach (DictionaryEntry entry in ht)
             {
-                if (!((SceneryMovingObject)entry.Value).bDataRecieved)
+                if (!((SceneryObject)entry.Value).bDataRecieved)
                 {
-                    ((SceneryMovingObject)entry.Value).State = SceneryMovingObject.STATE.DELETED;
+                    ((SceneryObject)entry.Value).State = SceneryMovingObject.STATE.DELETED;
                 }
-                ((SceneryMovingObject)entry.Value).bDataRecieved = false;
+                ((SceneryObject)entry.Value).bDataRecieved = false;
             }
         }
         public void DeleteAllObjects()
@@ -1147,6 +1283,13 @@ namespace Fsxget
             lock (objAIGroundUnits.lockObject)
             {
                 foreach (DictionaryEntry entry in objAIGroundUnits.htObjects)
+                {
+                    ((SceneryObject)(entry.Value)).State = SceneryObject.STATE.DELETED;
+                }
+            }
+            lock (objNavAids.lockObject)
+            {
+                foreach (DictionaryEntry entry in objNavAids.htObjects)
                 {
                     ((SceneryObject)(entry.Value)).State = SceneryObject.STATE.DELETED;
                 }
@@ -1209,6 +1352,10 @@ namespace Fsxget
 
             objAIGroundUnits.timer.Stop();
             objAIGroundUnits.timer.Interval = Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Interval"].IntValue;
+
+            objNavAids.timer.Stop();
+            objNavAids.timer.Interval = Program.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue * 1000;
+
             EnableTimers();
         }
         public void EnableTimers()
@@ -1223,6 +1370,7 @@ namespace Fsxget
             objAIHelicopters.timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Enabled"].BoolValue;
             objAIBoats.timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_BOATS]["Enabled"].BoolValue;
             objAIGroundUnits.timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Enabled"].BoolValue;
+            objNavAids.timer.Enabled = bEnable && Program.Config[Config.SETTING.QUERY_NAVAIDS]["Enabled"].BoolValue;
         }
 
         private void OnTimerConnectElapsed(object sender, ElapsedEventArgs e)
@@ -1300,6 +1448,46 @@ namespace Fsxget
                 }
             }
         }
+        private void OnTimerQueryNavAidsElapsed(object sender, ElapsedEventArgs e)
+        {
+            lock (objNavAids.lockObject)
+            {
+                if (objUserAircraft != null)
+                {
+                    float fNorth = 0;
+                    float fEast = 0;
+                    float fSouth = 0;
+                    float fWest = 0;
+                    float fTmp = 0;
+                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 0, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fNorth);
+                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 90, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fEast, ref fTmp);
+                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 180, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fSouth);
+                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 270, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fWest, ref fTmp);
+
+                    OleDbCommand cmd = new OleDbCommand("SELECT ID, Ident, Name, Type, Longitude, Latitude, Altitude, MagVar, Range, Freq FROM navaids WHERE " +
+                        "Latitude >= " + fSouth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
+                        "Latitude <= " + fNorth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
+                        "Longitude >= " + fWest.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
+                        "Longitude <= " + fEast.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ";", dbCon);
+
+                    OleDbDataReader rd = cmd.ExecuteReader();
+                    while (rd.Read())
+                    {
+                        uint unID = (uint)rd.GetInt32(0);
+                        if (objNavAids.htObjects.ContainsKey(unID))
+                        {
+                            ((SceneryObject)objNavAids.htObjects[unID]).bDataRecieved = true;
+                        }
+                        else
+                        {
+                            objNavAids.htObjects.Add(unID, new SceneryNavAid(unID, (int)rd.GetByte(3), rd.GetString(1), rd.GetString(2), rd.GetFloat(4), rd.GetFloat(5), rd.GetFloat(6), rd.GetFloat(9), rd.GetFloat(8), rd.GetFloat(7)));
+                        }
+                    }
+                    MarkDeletedObjects(ref objNavAids.htObjects);
+                    rd.Close();
+                }
+            }
+        }
         #endregion
 
         public void AddFlightPlan(String strFileName)
@@ -1338,21 +1526,7 @@ namespace Fsxget
             }
         }
 
-        public struct StructNavAid
-        {
-            public String strName;
-            public String strIdent;
-            public String strRegion;
-            public KmlFactory.KML_ICON_TYPES tIconType;
-            public double dLon;
-            public double dLat;
-            public String strFreq;
-            public double dMagVar;
-            public double dAlt;
-            public double dRange;
-        }
-
-        public void GetSceneryObjects(String strFileName)
+        public void GetSceneryObjects()
         {
             String strPath = Path.GetDirectoryName(Program.Config.FSXPath);
             String strBGL2XMLPath = @"C:\Programme\Microsoft Games\Microsoft Flight Simulator X SDK\Tools\BGL2XML_CMD\Bgl2Xml.exe";
@@ -1362,9 +1536,21 @@ namespace Fsxget
 
             int nVORs = 0;
             int nNDBs = 0;
-            
-            List<StructNavAid> lstVOR = new List<StructNavAid>();
-            List<StructNavAid> lstNDB = new List<StructNavAid>();
+
+            String strName = "";
+            String strIdent = "";
+            String strRegion = "";
+            float fLon = 0.0f;
+            float fLat = 0.0f;
+            float fFreq = 0.0f;
+            float fMagVar = 0.0f;
+            float fAlt = 0.0f;
+            float fRange = 0.0f;
+
+            OleDbConnection dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
+            dbCon.Open();
+            OleDbCommand cmd = new OleDbCommand("DELETE * FROM navaids", dbCon);
+            cmd.ExecuteNonQuery();
 
             foreach (String strBGLFile in strFiles)
             {
@@ -1396,14 +1582,13 @@ namespace Fsxget
                 {
                     XmlDocument xmld = new XmlDocument();
                     xmld.Load(strTmpFile);
-                    StructNavAid navaid;
+
                     XmlNodeList nodes = xmld.GetElementsByTagName("Vor");
 
                     foreach (XmlNode xmln in nodes)
                     {
                         bool bDme = false;
                         bool bDmeOnly = false;
-                        navaid = new StructNavAid();
                         foreach (XmlAttribute xmla in xmln.Attributes)
                         {
                             if (xmla.Name == "dme")
@@ -1411,87 +1596,109 @@ namespace Fsxget
                             else if (xmla.Name == "dmeOnly")
                                 bDmeOnly = xmla.Value.ToLower() == "true";
                             else if (xmla.Name == "lat")
-                                navaid.dLat = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "lon")
-                                navaid.dLon = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "alt")
                             {
-                                navaid.dAlt = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                fAlt  = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
                             }
                             else if (xmla.Name == "range")
-                                navaid.dRange = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                fRange = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "frequency")
-                                navaid.strFreq = xmla.Value;
+                                fFreq = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "magvar")
                             {
-                                navaid.dMagVar = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                fMagVar = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             }
                             else if (xmla.Name == "ident")
                             {
-                                navaid.strIdent = xmla.Value;
+                                strIdent = xmla.Value;
                             }
                             else if (xmla.Name == "name")
-                                navaid.strName = xmla.Value;
+                                strName = xmla.Value;
                             else if (xmla.Name == "region")
-                                navaid.strRegion = xmla.Value;
+                                strRegion = xmla.Value;
                         }
-
+                        int nType;
                         if (bDmeOnly)
                         {
-                            navaid.tIconType = KmlFactory.KML_ICON_TYPES.DME;
+                            nType = 0;      // Only DME
                         }
                         else
                         {
                             if (bDme)
                             {
-                                navaid.tIconType = KmlFactory.KML_ICON_TYPES.VORDME;
+                                nType = 2;  // VOR / DME
                             }
                             else
-                                navaid.tIconType = KmlFactory.KML_ICON_TYPES.VOR;
+                            {
+                                nType = 1;  // VOR
+                            }
                         }
                         nVORs++;
-                        lstVOR.Add(navaid);
+
+                        cmd.CommandText = "INSERT INTO navaids ( Ident, Name, Type, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
+                            strIdent + "', '" +
+                            strName.Replace("'", "''") + "', " +
+                            nType.ToString() + ", " +
+                            fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fRange.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
+                        cmd.ExecuteNonQuery();
                     }
                     nodes = xmld.GetElementsByTagName("Ndb");
                     foreach (XmlNode xmln in nodes)
                     {
-                        navaid = new StructNavAid();
                         foreach (XmlAttribute xmla in xmln.Attributes)
                         {
                             if (xmla.Name == "lat")
-                                navaid.dLat = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "lon")
-                                navaid.dLon = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "alt")
                             {
-                                navaid.dAlt = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                fAlt  = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
                             }
                             else if (xmla.Name == "range")
-                                navaid.dRange = double.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                fRange = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "frequency")
-                                navaid.strFreq = xmla.Value;
+                                fFreq = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "magvar")
-                                navaid.dMagVar = double.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                fMagVar = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
                             else if (xmla.Name == "ident")
                             {
-                                navaid.strIdent = xmla.Value;
+                                strIdent = xmla.Value;
                             }
                             else if (xmla.Name == "name")
-                                navaid.strName = xmla.Value;
+                                strName = xmla.Value;
                         }
-                        navaid.tIconType = KmlFactory.KML_ICON_TYPES.NDB;
                         nNDBs++;
-                        lstNDB.Add(navaid);
+
+                        cmd.CommandText = "INSERT INTO navaids ( Ident, Name, Type, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
+                            strIdent + "', '" +
+                            strName.Replace( "'", "''" ) + "', 3," +
+                            fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fRange.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
+                        cmd.ExecuteNonQuery();
                     }
 
                     xmld = null;
                 }
-                catch
+                catch(Exception e)
                 {
                 }
             }
 
-            frmMain.kmlFactory.CreateNavAidsKML(strFileName, ref lstVOR, ref lstNDB);
+            dbCon.Close();
+//            frmMain.kmlFactory.CreateNavAidsKML(strFileName, ref lstVOR, ref lstNDB);
 /*           
             strFiles = Directory.GetFiles(strPath, "APX*.bgl", SearchOption.AllDirectories);
             foreach (String strBGLFile in strFiles)
@@ -1626,7 +1833,7 @@ namespace Fsxget
             }
             return strRegion;
         }
-        static public double ConvertDegToDouble(String szDeg)
+        static public float ConvertDegToFloat(String szDeg)
         {
 
             String szTemp = szDeg;
@@ -1651,13 +1858,13 @@ namespace Fsxget
             }
 
 
-            double d1 = System.Double.Parse(szParts[0], System.Globalization.NumberFormatInfo.InvariantInfo);
-            int iSign = Math.Sign(d1);
-            d1 = Math.Abs(d1);
-            double d2 = System.Double.Parse(szParts[1], System.Globalization.NumberFormatInfo.InvariantInfo);
-            double d3 = System.Double.Parse(szParts[2], System.Globalization.NumberFormatInfo.InvariantInfo);
+            float f1 = float.Parse(szParts[0], System.Globalization.NumberFormatInfo.InvariantInfo);
+            int iSign = Math.Sign(f1);
+            f1 = Math.Abs(f1);
+            float f2 = float.Parse(szParts[1], System.Globalization.NumberFormatInfo.InvariantInfo);
+            float f3 = float.Parse(szParts[2], System.Globalization.NumberFormatInfo.InvariantInfo);
 
-            return iSign * (d1 + (d2 * 60.0 + d3) / 3600.0);
+            return (float)(iSign * (f1 + (f2 * 60.0 + f3) / 3600.0));
         }
 
     }

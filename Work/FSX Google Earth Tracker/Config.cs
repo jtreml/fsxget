@@ -525,6 +525,7 @@ namespace Fsxget
             QUERY_AI_HELICOPTERS,
             QUERY_AI_BOATS,
             QUERY_AI_GROUND_UNITS,
+            QUERY_NAVAIDS,
             REFRESH_USER_AIRCRAFT,
             REFRESH_AI_AIRCRAFTS,
             REFRESH_AI_HELICOPTERS,
@@ -578,6 +579,7 @@ namespace Fsxget
             settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects/query-ai-helicopters", null, "Enabled<bool>;Interval<int>;Range<int>;Prediction<bool>;PredictionPoints<bool>"));
             settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects/query-ai-boats", null, "Enabled<bool>;Interval<int>;Range<int>;Prediction<bool>;PredictionPoints<bool>"));
             settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-ai-objects/query-ai-ground-units", null, "Enabled<bool>;Interval<int>;Range<int>;Prediction<bool>;PredictionPoints<bool>"));
+            settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-navaids", null, "Enabled<bool>;Interval<int>;Range<int>"));
 
             settings.Add(new SettingsObject("fsxget/settings/options/ge/refresh-rates/user-aircraft", null, "Interval<int>" ));
             settings.Add(new SettingsObject("fsxget/settings/options/ge/refresh-rates/ai-aircrafts", null, "Interval<int>"));

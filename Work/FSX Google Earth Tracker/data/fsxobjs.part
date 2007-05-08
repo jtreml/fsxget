@@ -33,7 +33,8 @@
 				<name>Update</name>
 				<Link>
 					<href>%SERVER%/fsxpu.kml</href>
-					<refreshMode>onExpire</refreshMode>
+					<refreshMode>onInterval</refreshMode>
+					<refreshInterval>3</refreshInterval>
 				</Link>
 			</NetworkLink>
 		</Folder>
@@ -46,7 +47,8 @@
 				<name>Update</name>
 				<Link>
 					<href>%SERVER%/fsxpreu.kml</href>
-					<refreshMode>onExpire</refreshMode>
+					<refreshMode>onInterval</refreshMode>
+					<refreshInterval>3</refreshInterval>
 				</Link>
 			</NetworkLink>
 		</Folder>
@@ -65,7 +67,8 @@
 				<name>Update</name>
 				<Link>
 					<href>%SERVER%/fsxaipu.kml</href>
-					<refreshMode>onExpire</refreshMode>
+					<refreshMode>onInterval</refreshMode>
+					<refreshInterval>3</refreshInterval>
 				</Link>
 			</NetworkLink>
 		</Folder>
@@ -81,7 +84,8 @@
 				<name>Update</name>
 				<Link>
 					<href>%SERVER%/fsxaihu.kml</href>
-					<refreshMode>onExpire</refreshMode>
+					<refreshMode>onInterval</refreshMode>
+					<refreshInterval>3</refreshInterval>
 				</Link>
 			</NetworkLink>
 		</Folder>
@@ -94,7 +98,8 @@
 				<name>Update</name>
 				<Link>
 					<href>%SERVER%/fsxaibu.kml</href>
-					<refreshMode>onExpire</refreshMode>
+					<refreshMode>onInterval</refreshMode>
+					<refreshInterval>5</refreshInterval>
 				</Link>
 			</NetworkLink>
 		</Folder>
@@ -107,10 +112,28 @@
 				<name>Update</name>
 				<Link>
 					<href>%SERVER%/fsxaigu.kml</href>
-					<refreshMode>onExpire</refreshMode>
+					<refreshMode>onInterval</refreshMode>
+					<refreshInterval>5</refreshInterval>
 				</Link>
 			</NetworkLink>
 		</Folder>
+	</Folder>
+	<Folder>
+		<name>NAVAIDs</name>
+		<Folder id="fsxnavor">
+			<name>VOR</name>
+		</Folder>
+		<Folder id="fsxnandb">
+			<name>NDB</name>
+		</Folder>
+		<NetworkLink>
+			<name>Update</name>
+			<Link>
+				<href>%SERVER%/fsxnau.kml</href>
+				<refreshMode>onInterval</refreshMode>
+				<refreshInterval>10</refreshInterval>
+			</Link>
+		</NetworkLink>
 	</Folder>
 	<Folder id="fsxfp">
 		<name>Flight Plans</name>
