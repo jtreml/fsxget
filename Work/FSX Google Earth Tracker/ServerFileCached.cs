@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 
 namespace Fsxget
 {
@@ -21,7 +22,15 @@ namespace Fsxget
 		public ServerFileCached(String contentType, String path)
 			: base(contentType)
 		{
-			// TODO: Load file specified by path and read all bytes into "data"
+			try
+			{
+				data = File.ReadAllBytes(path);
+			}
+			catch
+			{
+				data = null;
+				throw new Exception("File load exception!");
+			}
 		}
 
 		public ServerFileCached(String contentType, byte[] data)
