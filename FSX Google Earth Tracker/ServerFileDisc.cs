@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 
 namespace Fsxget
 {
@@ -36,9 +37,14 @@ namespace Fsxget
 
 		public override byte[] getContent()
 		{
-			// TODO: Open file at the specified path and read and return all bytes
-
-			return null;
+			try
+			{
+				return File.ReadAllBytes(szPath);
+			}
+			catch
+			{
+				return null;
+			}
 		}
 	}
 }

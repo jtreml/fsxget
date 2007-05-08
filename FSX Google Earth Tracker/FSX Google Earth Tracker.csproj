@@ -109,11 +109,15 @@
     <Compile Include="ServerFileDynamic.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="app.ico" />
     <Content Include="data\fsxauc.part" />
     <Content Include="data\fsxaum.part" />
     <Content Include="data\fsxbuc.part" />
     <Content Include="data\fsxbum.part" />
+    <Content Include="data\fsxget.mdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="data\fsxguc.part" />
     <Content Include="data\fsxgum.part" />
     <None Include="Config.cd" />
@@ -127,6 +131,7 @@
     <Content Include="data\fsxview.part" />
     <Content Include="data\fsxvor.part" />
     <Content Include="data\fsxvoroverlay.part" />
+    <None Include="data\settings.default" />
     <None Include="fsxget.exe.manifest" />
     <EmbeddedResource Include="data\gfx\icons\tbconnected.ico" />
     <EmbeddedResource Include="data\gfx\icons\tbdisabled.ico" />

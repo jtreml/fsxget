@@ -1728,7 +1728,7 @@ namespace Fsxget
 
                     xmld = null;
                 }
-                catch(Exception e)
+                catch
                 {
                 }
             }

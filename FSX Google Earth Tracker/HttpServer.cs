@@ -16,8 +16,6 @@ namespace Fsxget
 	/// time.</remarks>
 	class HttpServer
 	{
-		// TODO: Add code to set prefixes somewhere
-
 		Hashtable documents;
 
 		protected HttpListener listener = new HttpListener();
@@ -55,8 +53,6 @@ namespace Fsxget
 
 			if (listener == null)
 				listener = new HttpListener();
-
-			//listener.Prefixes.Add(UrlBase);
 
 			isRunning = true;
 			listener.Start();
@@ -97,19 +93,41 @@ namespace Fsxget
 
 			if (file != null)
 			{
-				response.AddHeader("Content-type", file.contentType);
-
 				byte[] buffer = file.getContent();
-				response.ContentLength64 = buffer.Length;
 
-				System.IO.Stream output = response.OutputStream;
-				output.Write(buffer, 0, buffer.Length);
-				output.Close();
+				if (buffer != null)
+				{
+					response.ContentLength64 = buffer.Length;
+
+					response.AddHeader("Content-type", file.contentType);
+
+					System.IO.Stream output = response.OutputStream;
+					output.Write(buffer, 0, buffer.Length);
+					output.Close();
+				}
+				else
+				{
+					response.StatusCode = 500;
+					response.StatusDescription = "Internal Server Error";
+					response.Close();
+				}
 			}
 			else
 			{
-				// TODO: Http 404, File not found!
+				response.StatusCode = 404;
+				response.StatusDescription = "Not Found";
+				response.Close();
 			}
+		}
+
+		public void addPrefix(String prefix)
+		{
+			listener.Prefixes.Add(prefix);
+		}
+
+		public void removePrefix(String prefix)
+		{
+			listener.Prefixes.Remove(prefix);
 		}
 	}
 }
