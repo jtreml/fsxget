@@ -14,7 +14,7 @@ namespace Fsxget
 	/// the document's ServerFile.getContent() method to retrieve the data. Depending on the 
 	/// document type, this data may already be in memory or be retrieved from the disc just in 
 	/// time.</remarks>
-	class HttpServer
+	public class HttpServer
 	{
 		Hashtable documents;
 

@@ -11,7 +11,7 @@ namespace Fsxget
 	/// Defines everything related to content type management which is common to all 
 	/// ServerFile subclasses and defines the abstract method getContent() which requires all 
 	/// subclasses to inherit this method.</remarks>
-	abstract class ServerFile
+	public abstract class ServerFile
 	{
 		protected String szContenType;
 
