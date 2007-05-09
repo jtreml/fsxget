@@ -24,13 +24,13 @@ namespace Fsxget
 	{
 		#region Global Variables
 
-        public FsxConnection fsxCon;
-        public KmlFactory kmlFactory;
+		public FsxConnection fsxCon;
+		public KmlFactory kmlFactory;
 		private HttpServer httpServer;
-        
+
 		bool bClose = false;
 		bool bConnected = false;
-        bool bErrorOnLoad = false;
+		bool bErrorOnLoad = false;
 
 		Icon icEnabled, icDisabled, icConnected, icPaused;
 
@@ -48,25 +48,25 @@ namespace Fsxget
 
 			InitializeComponent();
 
-            Text = Program.Config.AssemblyTitle;
+			Text = Program.Config.AssemblyTitle;
 
-            fsxCon = new FsxConnection(this, false);
+			fsxCon = new FsxConnection(this, false);
 			httpServer = new HttpServer(50);
 
 			httpServer.addPrefix("http://+:" + Program.Config[Config.SETTING.GE_SERVER_PORT]["Value"].IntValue.ToString() + "/");
 
-            kmlFactory = new KmlFactory(ref fsxCon, ref httpServer);
-            kmlFactory.CreateStartupKML(Program.Config.UserDataPath + "/pub/fsxget.kml");
+			kmlFactory = new KmlFactory(ref fsxCon, ref httpServer);
+			kmlFactory.CreateStartupKML(Program.Config.UserDataPath + "/pub/fsxget.kml");
 
-            enableTrackerToolStripMenuItem.Checked = Program.Config[Config.SETTING.ENABLE_ON_STARTUP]["Enabled"].BoolValue;
-            if (enableTrackerToolStripMenuItem.Checked)
-            {
-                fsxCon.Connect();
-            }
-            
-//            fsxCon.GetSceneryObjects("c:\\fsxnavaids.kml");
+			enableTrackerToolStripMenuItem.Checked = Program.Config[Config.SETTING.ENABLE_ON_STARTUP]["Enabled"].BoolValue;
+			if (enableTrackerToolStripMenuItem.Checked)
+			{
+				fsxCon.Connect();
+			}
 
-//            fsxCon.AddFlightPlan(@"D:\Eigene Dateien\Flight Simulator X-Dateien\IFR Frankfurt Main to Stuttgart.PLN");
+			//            fsxCon.GetSceneryObjects("c:\\fsxnavaids.kml");
+
+			//            fsxCon.AddFlightPlan(@"D:\Eigene Dateien\Flight Simulator X-Dateien\IFR Frankfurt Main to Stuttgart.PLN");
 
 			timerIPAddressRefresh.Interval = 10000;
 
@@ -77,12 +77,12 @@ namespace Fsxget
 				return;
 			}
 
-            icEnabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbenabled.ico"));
-            icDisabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbdisabled.ico"));
-            icConnected = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbconnected.ico"));
-            icPaused = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbpaused.ico"));
+			icEnabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbenabled.ico"));
+			icDisabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbdisabled.ico"));
+			icConnected = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbconnected.ico"));
+			icPaused = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbpaused.ico"));
 
-            notifyIconMain.Icon = icEnabled;
+			notifyIconMain.Icon = icEnabled;
 			notifyIconMain.Text = this.Text;
 			notifyIconMain.Visible = true;
 
@@ -92,7 +92,7 @@ namespace Fsxget
 
 		private void Form1_Load(object sender, EventArgs e)
 		{
-            if (bErrorOnLoad)
+			if (bErrorOnLoad)
 				return;
 		}
 
@@ -141,7 +141,7 @@ namespace Fsxget
 
 		protected override void DefWndProc(ref Message m)
 		{
-            if (fsxCon == null || !fsxCon.OnMessageReceive(ref m) )
+			if (fsxCon == null || !fsxCon.OnMessageReceive(ref m))
 				base.DefWndProc(ref m);
 		}
 
@@ -150,10 +150,10 @@ namespace Fsxget
 
 		#region Helper Functions
 
-        public void NotifyError(String strError)
-        {
-            MessageBox.Show(strError, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
+		public void NotifyError(String strError)
+		{
+			MessageBox.Show(strError, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+		}
 
 		private void safeShowBalloonTip(int timeout, String tipTitle, String tipText, ToolTipIcon tipIcon)
 		{
@@ -169,27 +169,27 @@ namespace Fsxget
 
 		private bool IsLocalHostIP(IPAddress ipaRequest)
 		{
-            return true;
+			return true;
 		}
 
 		#endregion
 
 
-        public bool Connected
-        {
-            get
-            {
-                return bConnected;
-            }
-            set
-            {
-                bConnected = value;
-                if (bConnected)
-                    notifyIconMain.Icon = icConnected;
-                else
-                    notifyIconMain.Icon = icEnabled;
-            }
-        }
+		public bool Connected
+		{
+			get
+			{
+				return bConnected;
+			}
+			set
+			{
+				bConnected = value;
+				if (bConnected)
+					notifyIconMain.Icon = icConnected;
+				else
+					notifyIconMain.Icon = icEnabled;
+			}
+		}
 
 		#region User Interface Handlers
 
@@ -204,93 +204,93 @@ namespace Fsxget
 			safeShowMainDialog(0);
 		}
 
-        private void runMicrosoftFlightSimulatorXToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (Program.Config.CanRunFSX)
-            {
-                try
-                {
-                    System.Diagnostics.Process.Start(Program.Config.FSXPath);
-                }
-                catch
-                {
-                    MessageBox.Show("An error occured while trying to start Microsoft Flight Simulator X.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-            }
-        }
+		private void runMicrosoftFlightSimulatorXToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (Program.Config.CanRunFSX)
+			{
+				try
+				{
+					System.Diagnostics.Process.Start(Program.Config.FSXPath);
+				}
+				catch
+				{
+					MessageBox.Show("An error occured while trying to start Microsoft Flight Simulator X.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				}
+			}
+		}
 
-        private void runGoogleEarthToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (Program.Config.CanRunGE)
-            {
-                try
-                {
-                    lock (lockListenerControl)
-                    {
-                        System.Diagnostics.Process.Start(Program.Config.UserDataPath + "\\pub\\fsxget.kml");
-                    }
-                }
-                catch
-                {
-                    MessageBox.Show("An error occured while trying to start Google Earth.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-            }
-        }
+		private void runGoogleEarthToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (Program.Config.CanRunGE)
+			{
+				try
+				{
+					lock (lockListenerControl)
+					{
+						System.Diagnostics.Process.Start(Program.Config.UserDataPath + "\\pub\\fsxget.kml");
+					}
+				}
+				catch
+				{
+					MessageBox.Show("An error occured while trying to start Google Earth.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				}
+			}
+		}
 
-        private void createGoogleEarthKMLFileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (saveFileDialogKMLFile.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    kmlFactory.CreateStartupKML(saveFileDialogKMLFile.FileName);
-                }
-                catch
-                {
-                    MessageBox.Show("Could not save KML file!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
+		private void createGoogleEarthKMLFileToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (saveFileDialogKMLFile.ShowDialog() == DialogResult.OK)
+			{
+				try
+				{
+					kmlFactory.CreateStartupKML(saveFileDialogKMLFile.FileName);
+				}
+				catch
+				{
+					MessageBox.Show("Could not save KML file!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
+			}
+		}
 
-        private void clearUserAircraftPathToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (fsxCon.objUserAircraft.objPath != null)
-                fsxCon.objUserAircraft.objPath.Clear();
-        }
+		private void clearUserAircraftPathToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (fsxCon.objUserAircraft.objPath != null)
+				fsxCon.objUserAircraft.objPath.Clear();
+		}
 
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+		{
 
-        }
-        #endregion
+		}
+		#endregion
 
-        private void pauseToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (bConnected)
-            {
-                notifyIconMain.Icon = pauseToolStripMenuItem.Checked ? icPaused : icConnected;
-                fsxCon.EnableTimers(!pauseToolStripMenuItem.Checked);
-            }
-        }
+		private void pauseToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (bConnected)
+			{
+				notifyIconMain.Icon = pauseToolStripMenuItem.Checked ? icPaused : icConnected;
+				fsxCon.EnableTimers(!pauseToolStripMenuItem.Checked);
+			}
+		}
 
-        private void recreateGoogleEarthObjectsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            fsxCon.DeleteAllObjects();
-        }
+		private void recreateGoogleEarthObjectsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			fsxCon.DeleteAllObjects();
+		}
 
-        private void enableTrackerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (enableTrackerToolStripMenuItem.Checked)
-            {
-                notifyIconMain.Icon = icEnabled;
-                fsxCon.Connect();
-            }
-            else
-            {
-                fsxCon.Disconnect();
-                notifyIconMain.Icon = icDisabled;
-            }
-        }
+		private void enableTrackerToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (enableTrackerToolStripMenuItem.Checked)
+			{
+				notifyIconMain.Icon = icEnabled;
+				fsxCon.Connect();
+			}
+			else
+			{
+				fsxCon.Disconnect();
+				notifyIconMain.Icon = icDisabled;
+			}
+		}
 
 		private void timerIPAddressRefresh_Tick(object sender, EventArgs e)
 		{
@@ -315,5 +315,5 @@ namespace Fsxget
 
 			enableTrackerToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_Enable");
 		}
-    }
+	}
 }
