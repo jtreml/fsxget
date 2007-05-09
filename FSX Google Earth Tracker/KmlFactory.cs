@@ -5,73 +5,12 @@ using System.Text;
 using System.IO;
 using System.Reflection;
 using System.Xml;
+using System.Web;
 
 namespace Fsxget
 {
 	public class KmlFactory
 	{
-		public class ObjectImage
-		{
-			//private String strTitle;
-			private String strPath;
-			private byte[] bData;
-
-			public ObjectImage(SettingsObject img)
-			{
-				//strTitle = img["Name"].StringValue;
-				strPath = img["Img"].StringValue;
-				LoadImgData(Program.Config.FilePathPub + strPath);
-			}
-			public ObjectImage(String strTitle, String strPath, Stream s)
-			{
-				//this.strTitle = strTitle;
-				this.strPath = strPath;
-				bData = new byte[s.Length];
-				s.Read(bData, 0, (int)s.Length);
-			}
-			public ObjectImage(String strLocalPath)
-			{
-				//this.strTitle = System.IO.Path.GetFileNameWithoutExtension(strLocalPath);
-				this.strPath = strLocalPath.Replace('\\', '/');
-				LoadImgData(Program.Config.AppPath + "\\pub" + strLocalPath);
-			}
-
-			private void LoadImgData(String strPath)
-			{
-				try
-				{
-					bData = File.ReadAllBytes(strPath);
-				}
-				catch
-				{
-					bData = null;
-				}
-			}
-
-			//public String Title
-			//{
-			//    get
-			//    {
-			//        return strTitle;
-			//    }
-			//}
-
-			public String Path
-			{
-				get
-				{
-					return strPath;
-				}
-			}
-			public byte[] ImgData
-			{
-				get
-				{
-					return bData;
-				}
-			}
-		};
-
 		#region Structs and Enums
 		public enum KML_ICON_TYPES
 		{
@@ -121,9 +60,6 @@ namespace Fsxget
                 ""
             };
 
-		protected List<ObjectImage> lstImgs;
-		//ObjectImage imgNoImage;
-
 		protected FsxConnection fsxCon;
 		protected HttpServer httpServer;
 
@@ -132,12 +68,7 @@ namespace Fsxget
 		protected Hashtable htKMLParts;
 		protected Hashtable htFlightPlans;
 
-		// KML Documents
-		//protected KmlFileStartUp kmlStartUp;
-
 		#endregion
-
-		//      public static int nFileNr = 1;
 
 		public KmlFactory(ref FsxConnection fsxCon, ref HttpServer httpServer)
 		{
@@ -145,45 +76,35 @@ namespace Fsxget
 			this.httpServer = httpServer;
 
 			htKMLParts = new Hashtable();
-			lstImgs = new List<ObjectImage>();
 
 			// TODO: Hardcoded paths or parts of it should be avoided. Maybe we 
 			// should put the GE icons in the resource file
+
 			String[] strFiles = Directory.GetFiles(Program.Config.AppPath + "\\pub\\gfx\\ge\\icons");
 			int nIdx = Program.Config.AppPath.Length + 4;
 			foreach (String strFile in strFiles)
-			{
-				//lstImgs.Add(new ObjectImage(strFile.Substring( nIdx )));
 				httpServer.registerFile(strFile.Substring(nIdx).Replace('\\', '/'), new ServerFileDisc("image/png", Program.Config.AppPath + "\\pub" + strFile));
-			}
 
 			SettingsList lstImg = (SettingsList)Program.Config[Config.SETTING.AIR_IMG_LIST];
 			foreach (SettingsObject img in lstImg.listSettings)
-			{
-				//lstImgs.Add(new ObjectImage(img));
 				httpServer.registerFile("/gfx/" + img["Name"].StringValue + ".png", new ServerFileDisc("image/png", Program.Config.FilePathPub + img["Img"].StringValue));
-			}
 
 			lstImg = (SettingsList)Program.Config[Config.SETTING.WATER_IMG_LIST];
 			foreach (SettingsObject img in lstImg.listSettings)
-			{
-				//lstImgs.Add(new ObjectImage(img));
 				httpServer.registerFile("/gfx/" + img["Name"].StringValue + ".png", new ServerFileDisc("image/png", Program.Config.FilePathPub + img["Img"].StringValue));
-			}
 
 			lstImg = (SettingsList)Program.Config[Config.SETTING.GROUND_IMG_LIST];
 			foreach (SettingsObject img in lstImg.listSettings)
-			{
-				//lstImgs.Add(new ObjectImage(img));
 				httpServer.registerFile("/gfx/" + img["Name"].StringValue + ".png", new ServerFileDisc("image/png", Program.Config.FilePathPub + img["Img"].StringValue));
-			}
 
 			Stream s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.logo.png");
 			byte[] bTemp = new byte[s.Length];
 			s.Read(bTemp, 0, (int)s.Length);
 			httpServer.registerFile("/gfx/logo.png", new ServerFileCached("image/png", bTemp));
 
-			//lstImgs.Add(new ObjectImage( "Logo", "/gfx/logo.png", Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.logo.png")));
+			// TODO: The no image functionality is still missing due to migrating to the 
+			// new HTTP server class. We should consider to drop it anyway and instead, include 
+			// object images in the KML files only if they really exist.
 
 			//imgNoImage = new ObjectImage("NoImage", "/gfx/noimage.png", Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.noimage.png"));
 
@@ -210,7 +131,7 @@ namespace Fsxget
 			httpServer.registerFile("/fsxfpu.kml", new ServerFileDynamic(szContentTypeKml, GenFlightplanUpdate));
 			httpServer.registerFile("/fsxnau.kml", new ServerFileDynamic(szContentTypeKml, GenNavAdisUpdate));
 
-			// Register other documents with the server
+			// Register other documents with the HTTP server
 			httpServer.registerFile("/setfreq.html", new ServerFileDynamic("text/html", GenSetFreqHtml));
 		}
 
@@ -222,22 +143,11 @@ namespace Fsxget
 			File.WriteAllText(strFile, strKML, Encoding.UTF8);
 		}
 
-		//public byte[] GetImage(String strPath)
-		//{
-		//    foreach (ObjectImage img in lstImgs)
-		//    {
-		//        if (img.Path == strPath)
-		//            return img.ImgData;
-		//    }
-		//    return null;
-		//    //return imgNoImage.ImgData;
-		//}
-
 		public byte[] GenFSXObjects(String query)
 		{
-			//return ((String)htKMLParts["fsxobjs"]).Replace("%SERVER%", Program.Config.Server);
 			return encodeDefault(((String)htKMLParts["fsxobjs"]).Replace("%SERVER%", Program.Config.Server));
 		}
+
 		public byte[] GenUserPositionUpdate(String query)
 		{
 			lock (fsxCon.lockUserAircraft)
@@ -299,6 +209,7 @@ namespace Fsxget
 				return encodeDefault(strUpdateKMLHeader + strKMLPart + strUpdateKMLFooter);
 			}
 		}
+
 		public byte[] GenUserPath(String query)
 		{
 			lock (fsxCon.lockUserAircraft)
@@ -324,6 +235,7 @@ namespace Fsxget
 				return encodeDefault(strUpdateKMLHeader + strKMLPart + "</Update>" + strUpdateKMLFooter);
 			}
 		}
+
 		public byte[] GenUserPrediction(String query)
 		{
 			lock (fsxCon.lockUserAircraft)
@@ -354,6 +266,7 @@ namespace Fsxget
 				return encodeDefault(strUpdateKMLHeader + strKMLPart + "</Update>" + strUpdateKMLFooter);
 			}
 		}
+
 		public byte[] GenAIAircraftUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_AI_AIRCRAFTS]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
@@ -364,6 +277,7 @@ namespace Fsxget
 			strKML += "</Update>" + strUpdateKMLFooter;
 			return encodeDefault(strKML);
 		}
+
 		public byte[] GenAIHelicpoterUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
@@ -374,6 +288,7 @@ namespace Fsxget
 			strKML += "</Update>" + strUpdateKMLFooter;
 			return encodeDefault(strKML);
 		}
+
 		public byte[] GenAIBoatUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_AI_BOATS]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
@@ -385,6 +300,7 @@ namespace Fsxget
 			//            File.WriteAllText(String.Format("C:\\temp\\boatupd{0}.kml", nFileNr++), strKML, Encoding.UTF8);
 			return encodeDefault(strKML);
 		}
+
 		public byte[] GenAIGroundUnitUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
@@ -395,6 +311,7 @@ namespace Fsxget
 			strKML += "</Update>" + strUpdateKMLFooter;
 			return encodeDefault(strKML);
 		}
+
 		public byte[] GenFlightplanUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
@@ -432,6 +349,7 @@ namespace Fsxget
 			strKML += "</Update>" + strUpdateKMLFooter;
 			return encodeDefault(strKML);
 		}
+
 		public byte[] GenNavAdisUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
@@ -456,6 +374,8 @@ namespace Fsxget
 			}
 			return encodeDefault(strKML + "</Update>" + strUpdateKMLFooter);
 		}
+
+
 		public byte[] GenSetFreqHtml(String query)
 		{
 			char[] cSep = { '=', '&' };
@@ -491,11 +411,16 @@ namespace Fsxget
 					bError = true;
 			}
 
+			
+
 			if (bError)
-				return encodeDefault("<html><body>An error occured while trying to change the frequency! The Frequency has not been changed.</body></html>");
+				// TODO: Use HtmlEncode() to encode the retrieved resource string
+				return encodeDefault("<html><body>" + System.Web.HttpUtility.HtmlEncode(Program.getText("Kml_SetFreq_Error")) + "</body></html>");
 			else
-				return encodeDefault("<html><body>The frequency change has successfully been initiated.</body></html>");
+				// TODO: Use HtmlEncode() to encode the retrieved resource string
+				return encodeDefault("<html><body>" + System.Web.HttpUtility.HtmlEncode(Program.getText("Kml_SetFreq_Ok")) + "</body></html>");
 		}
+
 
 		private String GetAIObjectUpdate(Hashtable ht, String strFolderPrefix, String strPartFile, KML_ICON_TYPES icoObject, KML_ICON_TYPES icoPredictionPoint, String strPredictionColor)
 		{
@@ -572,6 +497,7 @@ namespace Fsxget
 			fsxCon.CleanupHashtable(ref ht);
 			return strKMLPart;
 		}
+
 		private String GetExpireString(uint uiSeconds)
 		{
 			DateTime date = DateTime.Now;
@@ -580,10 +506,12 @@ namespace Fsxget
 
 			return "<expires>" + date.ToString("yyyy-MM-ddTHH:mm:ssZ") + "</expires>";
 		}
+
 		private String GenPredictionPoints(ref FsxConnection.SceneryMovingObject obj)
 		{
 			return GenPredictionPoints(ref obj, KML_ICON_TYPES.NONE, null);
 		}
+
 		private String GenPredictionPoints(ref FsxConnection.SceneryMovingObject obj, KML_ICON_TYPES icon, String strFolder)
 		{
 			String strKMLPart = "";
@@ -615,6 +543,7 @@ namespace Fsxget
 			return strKMLPart;
 		}
 
+
 		public static String GetIconLink(KML_ICON_TYPES icon)
 		{
 			return Program.Config.Server + "/gfx/ge/icons/" + strIconNames[(int)icon];
@@ -624,6 +553,7 @@ namespace Fsxget
 		{
 			return (String)htKMLParts[strName];
 		}
+
 		private String GenVorKML(uint unID, float dLongitude, float dLatitude, float dMagVar)
 		{
 			String strKMLPart = (String)htKMLParts["fsxvoroverlay"];
@@ -645,6 +575,7 @@ namespace Fsxget
 			strKMLPart = strKMLPart.Replace("%ID%", "id=\"na" + unID.ToString() + "ov\"");
 			return strKMLPart;
 		}
+
 		private String GenNavAidKml(ref FsxConnection.SceneryNavAid navaid)
 		{
 			String strKMLPart = "<Create><Folder targetId=\"";
@@ -711,6 +642,7 @@ namespace Fsxget
 			fLatResult = (float)(dLatResult * d180PI);
 			fLonResult = (float)(dLonResult * d180PI);
 		}
+
 
 		protected byte[] encodeDefault(String data)
 		{
