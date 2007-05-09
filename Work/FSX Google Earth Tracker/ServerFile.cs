@@ -32,6 +32,6 @@ namespace Fsxget
 			}
 		}
 
-		public abstract byte[] getContent();
+		public abstract byte[] getContent(String query);
 	}
 }

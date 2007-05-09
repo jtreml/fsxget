@@ -34,6 +34,7 @@ namespace Fsxget
 		public void registerFile(String path, ServerFile file)
 		{
 			documents.Add(path, file);
+			Console.WriteLine(path);
 		}
 
 		public ServerFile getFile(String path)
@@ -88,12 +89,14 @@ namespace Fsxget
 			HttpListenerRequest request = context.Request;
 			HttpListenerResponse response = context.Response;
 
-			String szUrl = request.Url.PathAndQuery;
+			String szUrl = request.Url.LocalPath;
 			ServerFile file = (ServerFile)documents[szUrl];
 
 			if (file != null)
 			{
-				byte[] buffer = file.getContent();
+				String szQuery = request.Url.Query;
+
+				byte[] buffer = file.getContent(szQuery);
 
 				if (buffer != null)
 				{

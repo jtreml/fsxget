@@ -35,7 +35,7 @@ namespace Fsxget
 			}
 		}
 
-		public override byte[] getContent()
+		public override byte[] getContent(String query)
 		{
 			try
 			{
