@@ -36,7 +36,7 @@ namespace Fsxget
 		public void registerFile(String path, ServerFile file)
 		{
 			documents.Add(path, file);
-			Console.WriteLine(path);
+			//Console.WriteLine(path);
 		}
 
 		public ServerFile getFile(String path)
@@ -133,6 +133,11 @@ namespace Fsxget
 		public void removePrefix(String prefix)
 		{
 			listener.Prefixes.Remove(prefix);
+		}
+
+		public bool fileExists(String url)
+		{
+			return documents.Contains(url);
 		}
 	}
 }
