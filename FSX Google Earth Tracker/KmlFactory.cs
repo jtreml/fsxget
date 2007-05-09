@@ -83,7 +83,7 @@ namespace Fsxget
 			String[] strFiles = Directory.GetFiles(Program.Config.AppPath + "\\pub\\gfx\\ge\\icons");
 			int nIdx = Program.Config.AppPath.Length + 4;
 			foreach (String strFile in strFiles)
-				httpServer.registerFile(strFile.Substring(nIdx).Replace('\\', '/'), new ServerFileDisc("image/png", Program.Config.AppPath + "\\pub" + strFile));
+				httpServer.registerFile(strFile.Substring(nIdx).Replace('\\', '/'), new ServerFileDisc("image/png", strFile));
 
 			SettingsList lstImg = (SettingsList)Program.Config[Config.SETTING.AIR_IMG_LIST];
 			foreach (SettingsObject img in lstImg.listSettings)
