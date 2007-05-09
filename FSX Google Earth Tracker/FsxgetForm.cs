@@ -34,7 +34,7 @@ namespace Fsxget
 
 		Icon icEnabled, icDisabled, icConnected, icPaused;
 
-		HttpListener listener;
+		//HttpListener listener;
 		System.Object lockListenerControl = new System.Object();
 
 		#endregion
@@ -52,6 +52,8 @@ namespace Fsxget
 
             fsxCon = new FsxConnection(this, false);
 			httpServer = new HttpServer(50);
+
+			httpServer.addPrefix("http://+:" + Program.Config[Config.SETTING.GE_SERVER_PORT]["Value"].IntValue.ToString() + "/");
 
             kmlFactory = new KmlFactory(ref fsxCon, ref httpServer);
             kmlFactory.CreateStartupKML(Program.Config.UserDataPath + "/pub/fsxget.kml");
@@ -75,8 +77,8 @@ namespace Fsxget
 				return;
 			}
 
-			listener = new HttpListener();
-			listener.Prefixes.Add("http://+:" + Program.Config[Config.SETTING.GE_SERVER_PORT]["Value"].IntValue.ToString() + "/");
+			//listener = new HttpListener();
+			//listener.Prefixes.Add("http://+:" + Program.Config[Config.SETTING.GE_SERVER_PORT]["Value"].IntValue.ToString() + "/");
 
             icEnabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbenabled.ico"));
             icDisabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbdisabled.ico"));
@@ -109,8 +111,9 @@ namespace Fsxget
 
 				lock (lockListenerControl)
 				{
-					listener.Start();
-					listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);
+					httpServer.start();
+					//listener.Start();
+					//listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);
 					//bServerUp = true;
 				}
 			}
@@ -138,8 +141,9 @@ namespace Fsxget
 			{
 				//bServerUp = false;
 
-				listener.Stop();
-				listener.Abort();
+				httpServer.stop();
+				//listener.Stop();
+				//listener.Abort();
 
 				timerIPAddressRefresh.Stop();
 			}

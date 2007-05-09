@@ -133,7 +133,7 @@ namespace Fsxget
         protected Hashtable htFlightPlans;
 
 		// KML Documents
-		protected KmlFileStartUp kmlStartUp;
+		//protected KmlFileStartUp kmlStartUp;
 
         #endregion
 
@@ -154,28 +154,28 @@ namespace Fsxget
             foreach (String strFile in strFiles)
             {
                 //lstImgs.Add(new ObjectImage(strFile.Substring( nIdx )));
-				httpServer.registerFile("/" + strFile.Replace('\\', '/'), new ServerFileDisc("image/png", Program.Config.AppPath + "\\pub" + strFile));
+				httpServer.registerFile(strFile.Substring(nIdx).Replace('\\', '/'), new ServerFileDisc("image/png", Program.Config.AppPath + "\\pub" + strFile));
             }
 
             SettingsList lstImg = (SettingsList)Program.Config[Config.SETTING.AIR_IMG_LIST];
             foreach (SettingsObject img in lstImg.listSettings)
             {
                 //lstImgs.Add(new ObjectImage(img));
-				httpServer.registerFile(img["Name"].StringValue + ".png", new ServerFileDisc("image/png", Program.Config.FilePathPub + img["Img"].StringValue));
+				httpServer.registerFile("/gfx/" + img["Name"].StringValue + ".png", new ServerFileDisc("image/png", Program.Config.FilePathPub + img["Img"].StringValue));
             }
 
             lstImg = (SettingsList)Program.Config[Config.SETTING.WATER_IMG_LIST];
             foreach (SettingsObject img in lstImg.listSettings)
             {
                 //lstImgs.Add(new ObjectImage(img));
-				httpServer.registerFile(img["Name"].StringValue + ".png", new ServerFileDisc("image/png", Program.Config.FilePathPub + img["Img"].StringValue));
+				httpServer.registerFile("/gfx/" + img["Name"].StringValue + ".png", new ServerFileDisc("image/png", Program.Config.FilePathPub + img["Img"].StringValue));
             }
 
             lstImg = (SettingsList)Program.Config[Config.SETTING.GROUND_IMG_LIST];
             foreach (SettingsObject img in lstImg.listSettings)
             {
                 //lstImgs.Add(new ObjectImage(img));
-				httpServer.registerFile(img["Name"].StringValue + ".png", new ServerFileDisc("image/png", Program.Config.FilePathPub + img["Img"].StringValue));
+				httpServer.registerFile("/gfx/" + img["Name"].StringValue + ".png", new ServerFileDisc("image/png", Program.Config.FilePathPub + img["Img"].StringValue));
             }
 
 			Stream s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.logo.png");
@@ -560,10 +560,11 @@ namespace Fsxget
             return strKMLPart;
         }
 
-        public String GetIconLink(KML_ICON_TYPES icon)
+        public static String GetIconLink(KML_ICON_TYPES icon)
         {
             return Program.Config.Server + "/gfx/ge/icons/" + strIconNames[(int)icon];
         }
+
         public String GetTemplate(String strName)
         {
             return (String)htKMLParts[strName];

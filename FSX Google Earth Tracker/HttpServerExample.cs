@@ -29,7 +29,7 @@ namespace Fsxget
 			server.registerFile("/update.kml", new ServerFileDynamic("application/vnd.google-earth.kml+xml", myDelegate));
 		}
 
-		protected byte[] someUpdateFunction()
+		protected byte[] someUpdateFunction(String query)
 		{
 			String szTest = "Here goes a lot of update stuff ....";
 
