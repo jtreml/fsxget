@@ -16,6 +16,8 @@ namespace Fsxget
 	/// time.</remarks>
 	public class HttpServer
 	{
+		// TODO: The code for restricting the HTTP server to localhost, etc. is still missing
+
 		Hashtable documents;
 
 		protected HttpListener listener = new HttpListener();
