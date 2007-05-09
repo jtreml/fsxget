@@ -34,8 +34,8 @@ namespace Fsxget
 			this.contextMenuStripNotifyIcon = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.enableTrackerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.test2ToolStripMenuItem = new System.Windows.Forms.ToolStripSeparator();
-			this.runMicrosoftFlightSimulatorXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.runGoogleEarthToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.runMicrosoftFlightSimulatorXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
 			this.createGoogleEarthKMLFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
@@ -79,7 +79,7 @@ namespace Fsxget
             this.aboutToolStripMenuItem,
             this.exitToolStripMenuItem});
 			this.contextMenuStripNotifyIcon.Name = "contextMenuStrip1";
-			this.contextMenuStripNotifyIcon.Size = new System.Drawing.Size(247, 254);
+			this.contextMenuStripNotifyIcon.Size = new System.Drawing.Size(247, 276);
 			this.contextMenuStripNotifyIcon.Text = "Test";
 			// 
 			// enableTrackerToolStripMenuItem
@@ -97,19 +97,19 @@ namespace Fsxget
 			this.test2ToolStripMenuItem.Name = "test2ToolStripMenuItem";
 			this.test2ToolStripMenuItem.Size = new System.Drawing.Size(243, 6);
 			// 
-			// runMicrosoftFlightSimulatorXToolStripMenuItem
-			// 
-			this.runMicrosoftFlightSimulatorXToolStripMenuItem.Name = "runMicrosoftFlightSimulatorXToolStripMenuItem";
-			this.runMicrosoftFlightSimulatorXToolStripMenuItem.Size = new System.Drawing.Size(246, 22);
-			this.runMicrosoftFlightSimulatorXToolStripMenuItem.Text = "Run Microsoft Flight Simulator X";
-			this.runMicrosoftFlightSimulatorXToolStripMenuItem.Click += new System.EventHandler(this.runMicrosoftFlightSimulatorXToolStripMenuItem_Click);
-			// 
 			// runGoogleEarthToolStripMenuItem
 			// 
 			this.runGoogleEarthToolStripMenuItem.Name = "runGoogleEarthToolStripMenuItem";
 			this.runGoogleEarthToolStripMenuItem.Size = new System.Drawing.Size(246, 22);
 			this.runGoogleEarthToolStripMenuItem.Text = "Run Google Earth 4";
 			this.runGoogleEarthToolStripMenuItem.Click += new System.EventHandler(this.runGoogleEarthToolStripMenuItem_Click);
+			// 
+			// runMicrosoftFlightSimulatorXToolStripMenuItem
+			// 
+			this.runMicrosoftFlightSimulatorXToolStripMenuItem.Name = "runMicrosoftFlightSimulatorXToolStripMenuItem";
+			this.runMicrosoftFlightSimulatorXToolStripMenuItem.Size = new System.Drawing.Size(246, 22);
+			this.runMicrosoftFlightSimulatorXToolStripMenuItem.Text = "Run Microsoft Flight Simulator X";
+			this.runMicrosoftFlightSimulatorXToolStripMenuItem.Click += new System.EventHandler(this.runMicrosoftFlightSimulatorXToolStripMenuItem_Click);
 			// 
 			// toolStripMenuItem4
 			// 

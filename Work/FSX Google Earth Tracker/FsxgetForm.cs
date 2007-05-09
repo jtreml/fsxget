@@ -34,7 +34,6 @@ namespace Fsxget
 
 		Icon icEnabled, icDisabled, icConnected, icPaused;
 
-		//HttpListener listener;
 		System.Object lockListenerControl = new System.Object();
 
 		#endregion
@@ -44,7 +43,8 @@ namespace Fsxget
 
 		public FsxgetForm()
 		{
-			//As this method doesn't start any other threads we don't need to lock anything here (especially not the config file xml document)
+			//As this method doesn't start any other threads we don't need to lock 
+			// anything here (especially not the config file xml document)
 
 			InitializeComponent();
 
@@ -72,13 +72,10 @@ namespace Fsxget
 
 			if (!HttpListener.IsSupported)
 			{
-				MessageBox.Show("This program requires Windows XP SP2 or Server 2003 with the latest version of the .NET framework. Aborting!", Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+				MessageBox.Show(Program.getText("System_HTTPListenerNotSupported"), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				bErrorOnLoad = true;
 				return;
 			}
-
-			//listener = new HttpListener();
-			//listener.Prefixes.Add("http://+:" + Program.Config[Config.SETTING.GE_SERVER_PORT]["Value"].IntValue.ToString() + "/");
 
             icEnabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbenabled.ico"));
             icDisabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbdisabled.ico"));
@@ -89,11 +86,12 @@ namespace Fsxget
 			notifyIconMain.Text = this.Text;
 			notifyIconMain.Visible = true;
 
+			// Set GUI caption
+			updateCaptions();
 		}
 
 		private void Form1_Load(object sender, EventArgs e)
 		{
-
             if (bErrorOnLoad)
 				return;
 		}
@@ -112,9 +110,6 @@ namespace Fsxget
 				lock (lockListenerControl)
 				{
 					httpServer.start();
-					//listener.Start();
-					//listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);
-					//bServerUp = true;
 				}
 			}
 		}
@@ -135,16 +130,10 @@ namespace Fsxget
 			if (bErrorOnLoad)
 				return;
 
-
 			// Stop server
 			lock (lockListenerControl)
 			{
-				//bServerUp = false;
-
 				httpServer.stop();
-				//listener.Stop();
-				//listener.Abort();
-
 				timerIPAddressRefresh.Stop();
 			}
 		}
@@ -185,167 +174,6 @@ namespace Fsxget
 
 		#endregion
 
-		//#region Server
-		//public void ListenerCallback(IAsyncResult result)
-		//{
-		//    lock (lockListenerControl)
-		//    {
-		//        HttpListener listener = (HttpListener)result.AsyncState;
-
-		//        if (!listener.IsListening)
-		//            return;
-
-		//        HttpListenerContext context = listener.EndGetContext(result);
-
-		//        HttpListenerRequest request = context.Request;
-		//        HttpListenerResponse response = context.Response;
-
-
-		//        // This code using the objects IsLocal property doesn't work for some reason ...
-
-		//        //if (gconffixCurrent.uiServerAccessLevel == 0 && !request.IsLocal)
-		//        //{
-		//        //    response.Abort();
-		//        //    return;
-		//        //}
-
-		//        // ... so I'm using my own code.
-
-		//        if (!IsLocalHostIP(request.RemoteEndPoint.Address))
-		//        {
-		//            response.Abort();
-		//            return;
-		//        }
-
-
-		//        byte[] buffer = System.Text.Encoding.UTF8.GetBytes("");
-		//        String szHeader = "";
-		//        bool bContentSet = false;
-
-		//        String strRequest = request.Url.AbsolutePath.ToLower();
-
-		//        if (strRequest == "/fsxobjs.kml")
-		//        {
-		//            bContentSet = true;
-		//            String str = kmlFactory.GenFSXObjects();
-		//            szHeader = "application/vnd.google-earth.kml+xml";
-		//            buffer = System.Text.Encoding.UTF8.GetBytes(str);
-		//        }
-		//        else if (strRequest == "/fsxuu.kml")
-		//        {
-		//            bContentSet = true;
-		//            String str = kmlFactory.GenUserPositionUpdate();
-		//            szHeader = "application/vnd.google-earth.kml+xml";
-		//            buffer = System.Text.Encoding.UTF8.GetBytes(str);
-		//        }
-		//        else if (strRequest == "/fsxaipu.kml")
-		//        {
-		//            bContentSet = true;
-		//            String str = kmlFactory.GenAIAircraftUpdate();
-		//            szHeader = "application/vnd.google-earth.kml+xml";
-		//            buffer = System.Text.Encoding.UTF8.GetBytes(str);
-		//        }
-		//        else if (strRequest == "/fsxaihu.kml")
-		//        {
-		//            bContentSet = true;
-		//            String str = kmlFactory.GenAIHelicpoterUpdate();
-		//            szHeader = "application/vnd.google-earth.kml+xml";
-		//            buffer = System.Text.Encoding.UTF8.GetBytes(str);
-		//        }
-		//        else if (strRequest == "/fsxaibu.kml")
-		//        {
-		//            bContentSet = true;
-		//            String str = kmlFactory.GenAIBoatUpdate();
-		//            szHeader = "application/vnd.google-earth.kml+xml";
-		//            buffer = System.Text.Encoding.UTF8.GetBytes(str);
-		//        }
-		//        else if (strRequest == "/fsxaigu.kml")
-		//        {
-		//            bContentSet = true;
-		//            String str = kmlFactory.GenAIGroundUnitUpdate();
-		//            szHeader = "application/vnd.google-earth.kml+xml";
-		//            buffer = System.Text.Encoding.UTF8.GetBytes(str);
-		//        }
-		//        else if (strRequest == "/fsxpu.kml")
-		//        {
-		//            bContentSet = true;
-		//            String str = kmlFactory.GenUserPath();
-		//            szHeader = "application/vnd.google-earth.kml+xml";
-		//            buffer = System.Text.Encoding.UTF8.GetBytes(str);
-		//        }
-		//        else if (strRequest == "/fsxpreu.kml")
-		//        {
-		//            bContentSet = true;
-		//            String str = kmlFactory.GenUserPrediction();
-		//            szHeader = "application/vnd.google-earth.kml+xml";
-		//            buffer = System.Text.Encoding.UTF8.GetBytes(str);
-		//        }
-		//        else if (strRequest == "/fsxfpu.kml")
-		//        {
-		//            bContentSet = true;
-		//            String str = kmlFactory.GenFlightplanUpdate();
-		//            szHeader = "application/vnd.google-earth.kml+xml";
-		//            buffer = System.Text.Encoding.UTF8.GetBytes(str);
-		//        }
-		//        else if (strRequest == "/fsxnau.kml")
-		//        {
-		//            bContentSet = true;
-		//            String str = kmlFactory.GenNavAdisUpdate();
-		//            szHeader = "application/vnd.google-earth.kml+xml";
-		//            buffer = System.Text.Encoding.UTF8.GetBytes(str);
-		//        }
-		//        else if (strRequest == "/setfreq.html")
-		//        {
-		//            bContentSet = true;
-		//            szHeader = "text/html";
-
-		//            char[] cSep = new char[2];
-		//            cSep[0] = '=';
-		//            cSep[1] = '&';
-                    
-		//            String strQuery = request.Url.Query;
-		//            if (strQuery[0] == '?')
-		//                strQuery = strQuery.Substring(1);
-		//            String[] strParts = strQuery.Split(cSep);
-		//            String strResult = "<html>Invalid parameter format<br>Frequency not changed</html>";
-
-		//            if (strParts.Length == 4)
-		//            {
-		//                if (strParts[0] == "type" && strParts[2] == "freq")
-		//                {
-		//                    try
-		//                    {
-		//                        if (fsxCon.SetFrequency(strParts[1], double.Parse(strParts[3], System.Globalization.NumberFormatInfo.InvariantInfo)))
-		//                            strResult = "<html>Frequency changed initiated</html>";
-		//                    }
-		//                    catch
-		//                    {
-		//                    }
-		//                }
-		//            }
-		//            buffer = System.Text.Encoding.UTF8.GetBytes(strResult);
-		//        }
-		//        else
-		//            bContentSet = false;
-
-		//        if (bContentSet)
-		//        {
-		//            response.AddHeader("Content-type", szHeader);
-		//            response.ContentLength64 = buffer.Length;
-		//            System.IO.Stream output = response.OutputStream;
-		//            output.Write(buffer, 0, buffer.Length);
-		//            output.Close();
-		//        }
-		//        else
-		//        {
-		//            response.StatusCode = 404;
-		//            response.Close();
-		//        }
-
-		//        listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);
-		//    }
-		//}
-		//#endregion
 
         public bool Connected
         {
@@ -469,5 +297,23 @@ namespace Fsxget
 
 		}
 
+		public void updateCaptions()
+		{
+			exitToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_Exit");
+			aboutToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_About");
+
+			optionsToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_Options");
+
+			clearUserAircraftPathToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_ClearPath");
+			recreateGoogleEarthObjectsToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_RecreateObjects");
+			pauseToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_Pause");
+
+			createGoogleEarthKMLFileToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_CreateKmlFile");
+
+			runMicrosoftFlightSimulatorXToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_RunFSX");
+			runGoogleEarthToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_RunGE");
+
+			enableTrackerToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_Enable");
+		}
     }
 }

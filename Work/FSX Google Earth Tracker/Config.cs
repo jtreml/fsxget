@@ -530,6 +530,7 @@ namespace Fsxget
 			SHOW_BALLOON_TIPS,
 			LOAD_KML_FILE,
 			UPDATE_CHECK,
+			LANGUAGE,
 			QUERY_USER_AIRCRAFT,
 			QUERY_USER_PATH,
 			USER_PATH_PREDICTION,
@@ -552,7 +553,6 @@ namespace Fsxget
 			WATER_IMG_LIST,
 			GROUND_IMG_LIST,
 			GE_IMG_LIST
-
 		};
 
 		private String strXMLFile;
@@ -582,6 +582,7 @@ namespace Fsxget
 			settings.Add(new SettingsObject("fsxget/settings/options/general/show-balloon-tips", null, "Enabled<bool>"));
 			settings.Add(new SettingsObject("fsxget/settings/options/general/load-kml-file", null, "Enabled<bool>"));
 			settings.Add(new SettingsObject("fsxget/settings/options/general/update-check", null, "Enabled<bool>"));
+			settings.Add(new SettingsObject("fsxget/settings/options/general/language", null, "Value<String>"));
 
 			settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-user-aircraft", null, "Enabled<bool>;Interval<int>"));
 			settings.Add(new SettingsObject("fsxget/settings/options/fsx/query-user-path", null, "Enabled<bool>;Interval<int>"));
@@ -855,6 +856,13 @@ namespace Fsxget
 			get
 			{
 				return strPathFSX;
+			}
+		}
+		public String Language
+		{
+			get
+			{
+				return this[SETTING.LANGUAGE]["Value"].StringValue;
 			}
 		}
 		#endregion

@@ -76,8 +76,18 @@
     <Compile Include="FsxConnection.cs" />
     <Compile Include="HttpServer.cs" />
     <Compile Include="HttpServerExample.cs" />
+    <Compile Include="lang\Deutsch.Designer.cs">
+      <DependentUpon>Deutsch.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="lang\English.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>English.resx</DependentUpon>
+    </Compile>
     <Compile Include="KmlFactory.cs" />
-    <Compile Include="KmlFiles.cs" />
+    <None Include="KmlFiles.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="FsxgetForm.resx">
@@ -137,6 +147,16 @@
     <EmbeddedResource Include="data\gfx\icons\tbdisabled.ico" />
     <EmbeddedResource Include="data\gfx\icons\tbenabled.ico" />
     <EmbeddedResource Include="data\gfx\icons\tbpaused.ico" />
+    <EmbeddedResource Include="lang\Deutsch.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Deutsch.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="lang\English.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>English.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="pub\gfx\logo.png" />
     <Content Include="data\fsxobjs.part" />
     <Content Include="data\gfx\logo.png" />
