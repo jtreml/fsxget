@@ -75,7 +75,7 @@
     </Compile>
     <Compile Include="FsxConnection.cs" />
     <Compile Include="HttpServer.cs" />
-    <Compile Include="HttpServerExample.cs" />
+    <None Include="HttpServerExample.cs" />
     <Compile Include="lang\Deutsch.Designer.cs">
       <DependentUpon>Deutsch.resx</DependentUpon>
       <AutoGen>True</AutoGen>

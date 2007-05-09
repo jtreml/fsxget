@@ -414,10 +414,8 @@ namespace Fsxget
 			
 
 			if (bError)
-				// TODO: Use HtmlEncode() to encode the retrieved resource string
 				return encodeDefault("<html><body>" + System.Web.HttpUtility.HtmlEncode(Program.getText("Kml_SetFreq_Error")) + "</body></html>");
 			else
-				// TODO: Use HtmlEncode() to encode the retrieved resource string
 				return encodeDefault("<html><body>" + System.Web.HttpUtility.HtmlEncode(Program.getText("Kml_SetFreq_Ok")) + "</body></html>");
 		}
 
