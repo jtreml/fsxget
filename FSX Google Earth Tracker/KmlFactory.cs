@@ -106,7 +106,10 @@ namespace Fsxget
 			// new HTTP server class. We should consider to drop it anyway and instead, include 
 			// object images in the KML files only if they really exist.
 
-			//imgNoImage = new ObjectImage("NoImage", "/gfx/noimage.png", Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.noimage.png"));
+			s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.noimage.png");
+			bTemp = new byte[s.Length];
+			s.Read(bTemp, 0, (int)s.Length);
+			httpServer.registerFile("/gfx/noimage.png", new ServerFileCached("image/png", bTemp));
 
 			String[] strPartFiles = Directory.GetFiles(Program.Config.AppPath + "\\data", "*.part");
 			foreach (String strPartFile in strPartFiles)
@@ -135,6 +138,7 @@ namespace Fsxget
 			httpServer.registerFile("/setfreq.html", new ServerFileDynamic("text/html", GenSetFreqHtml));
 		}
 
+
 		public void CreateStartupKML(String strFile)
 		{
 			String strKML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><NetworkLink>";
@@ -161,7 +165,7 @@ namespace Fsxget
 							strKMLPart += "<Create><Folder targetId=\"uacpos\">";
 							strKMLPart += (String)htKMLParts["fsxuc"];
 							strKMLPart = strKMLPart.Replace("%ID%", "id=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "\"");
-							strKMLPart = strKMLPart.Replace("%ICON%", Program.Config.Server + "/gfx/ge/icons/fsxu.png");
+							strKMLPart = strKMLPart.Replace("%ICON%", GetIconLink(KML_ICON_TYPES.USER_AIRCRAFT_POSITION));
 							strKMLPart += "</Folder></Create></Update>";
 							strKMLPart += (String)htKMLParts["fsxview"];
 							fsxCon.objUserAircraft.ReplaceObjectInfos(ref strKMLPart);
@@ -177,7 +181,7 @@ namespace Fsxget
 								strKMLPart += (String)htKMLParts["fsxum"];
 							}
 							strKMLPart = strKMLPart.Replace("%ID%", "targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "\"");
-							strKMLPart = strKMLPart.Replace("%ICON%", Program.Config.Server + "/gfx/ge/icons/fsxu.png");
+							strKMLPart = strKMLPart.Replace("%ICON%", GetIconLink(KML_ICON_TYPES.USER_AIRCRAFT_POSITION));
 							strKMLPart += "</Change></Update>";
 							strKMLPart += (String)htKMLParts["fsxview"];
 							fsxCon.objUserAircraft.ReplaceObjectInfos(ref strKMLPart);
@@ -542,9 +546,12 @@ namespace Fsxget
 		}
 
 
-		public static String GetIconLink(KML_ICON_TYPES icon)
+		public String GetIconLink(KML_ICON_TYPES icon)
 		{
-			return Program.Config.Server + "/gfx/ge/icons/" + strIconNames[(int)icon];
+			if(httpServer.fileExists("/gfx/ge/icons/" + strIconNames[(int)icon]))
+				return Program.Config.Server + "/gfx/ge/icons/" + strIconNames[(int)icon];
+			else
+				return Program.Config.Server + "/gfx/noimage.png";
 		}
 
 		public String GetTemplate(String strName)
