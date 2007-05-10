@@ -12,15 +12,11 @@ using System.Data.OleDb;
 
 namespace Fsxget
 {
-	/*      http://www.fsdeveloper.com/
-			http://www.scruffyduckscenery.co.uk/
-			http://www.scenery.org/design_utilities_e.htm
-	*/
-	public class FsxConnection
+    public class FsxConnection
 	{
 
 		#region Classes
-		public class ObjectData<T>
+        public class ObjectData<T>
 		{
 			private bool bModified;
 			private T tValue;
@@ -31,7 +27,7 @@ namespace Fsxget
 				bModified = false;
 			}
 
-			public T Value
+            public T Value
 			{
 				get
 				{
@@ -56,7 +52,8 @@ namespace Fsxget
 				}
 			}
 		}
-		public class ObjectPosition
+		
+        public class ObjectPosition
 		{
 			private ObjectData<float> fLon;
 			private ObjectData<float> fLat;
@@ -172,26 +169,35 @@ namespace Fsxget
 			#region Classes
 			public class ObjectPath
 			{
-				private String strCoordinates;
+                private ObjectPosition lastPos;
+                private String strCoordinates;
 				STATE tState;
 
 				public ObjectPath()
 				{
-					strCoordinates = "";
+                    lastPos = new ObjectPosition();
+                    strCoordinates = "";
 					tState = STATE.NEW;
 				}
 
 				public ObjectPath(ref StructBasicMovingSceneryObject obj)
 				{
-					tState = STATE.NEW;
+                    lastPos = new ObjectPosition();
+                    tState = STATE.NEW;
 					AddPosition(ref obj);
 				}
 
 				public void AddPosition(ref StructBasicMovingSceneryObject obj)
 				{
-					strCoordinates += XmlConvert.ToString((float)obj.dLongitude) + "," + XmlConvert.ToString((float)obj.dLatitude) + "," + XmlConvert.ToString((float)obj.dAltitude) + " ";
-					if (tState == STATE.DATAREAD)
-						tState = STATE.MODIFIED;
+                    lastPos.Longitude.Value = (float)obj.dLongitude;
+                    lastPos.Latitude.Value = (float)obj.dLatitude;
+                    lastPos.Altitude.Value = (float)obj.dAltitude;
+                    if (lastPos.HasMoved)
+                    {
+                        strCoordinates += XmlConvert.ToString(lastPos.Longitude.Value) + "," + XmlConvert.ToString(lastPos.Latitude.Value) + "," + XmlConvert.ToString(lastPos.Altitude.Value) + " ";
+                        if (tState == STATE.DATAREAD)
+                            tState = STATE.MODIFIED;
+                    }
 				}
 
 				public void Clear()
@@ -225,7 +231,7 @@ namespace Fsxget
 			{
 				private bool bPredictionPoints;
 				public ObjectPosition[] positions;
-				private double dTimeElapsed;
+                private double dTimeElapsed;
 				STATE tState;
 
 				public PathPrediction(bool bWithPoints)
@@ -371,7 +377,7 @@ namespace Fsxget
 				{
 					pathPrediction.Update(ref obj);
 				}
-				if (objPath != null && (obj.dLongitude != objPos.Longitude.Value || obj.dLatitude != objPos.Latitude.Value || obj.dAltitude != objPos.Altitude.Value))
+				if (objPath != null)
 				{
 					objPath.AddPosition(ref obj);
 				}
@@ -714,7 +720,6 @@ namespace Fsxget
 				}
 			}
 		}
-
 		public class SceneryNavAid : SceneryObject
 		{
 			private float fLon;
@@ -858,7 +863,9 @@ namespace Fsxget
 		public Hashtable htFlightPlans;
 		private uint unFlightPlanNr;
 		private OleDbConnection dbCon;
-		static String[] strMorseSigns = new String[]
+
+        #region Morsecodes (0-9 A-Z)
+        static String[] strMorseSigns = new String[]
         {
             "-----",
             ".----",
@@ -897,10 +904,11 @@ namespace Fsxget
             "-.-- ",
             "--.. ",
         };
-		#endregion
+        #endregion
+        #endregion
 
-		#region Structs & Enums
-		public enum EVENT_ID
+        #region Structs & Enums
+        public enum EVENT_ID
 		{
 			EVENT_MENU,
 			EVENT_MENU_START,
@@ -1065,21 +1073,8 @@ namespace Fsxget
 			else
 				return false;
 		}
-		public void closeConnection()
-		{
-			lock (lockSimConnect)
-			{
-				if (simconnect != null)
-				{
-					EnableTimers(false);
-					DeleteAllObjects();
-					frmMain.Connected = false;
-					simconnect.Dispose();
-					simconnect = null;
-				}
-			}
-		}
-		private bool initDataRequest()
+
+        private bool initDataRequest()
 		{
 			try
 			{
@@ -1250,7 +1245,6 @@ namespace Fsxget
 				}
 			}
 		}
-
 		private void MarkDeletedObjects(ref Hashtable ht)
 		{
 			foreach (DictionaryEntry entry in ht)
@@ -1262,7 +1256,22 @@ namespace Fsxget
 				((SceneryObject)entry.Value).bDataRecieved = false;
 			}
 		}
-		public void DeleteAllObjects()
+
+        public void closeConnection()
+        {
+            lock (lockSimConnect)
+            {
+                if (simconnect != null)
+                {
+                    EnableTimers(false);
+                    DeleteAllObjects();
+                    frmMain.Connected = false;
+                    simconnect.Dispose();
+                    simconnect = null;
+                }
+            }
+        }
+        public void DeleteAllObjects()
 		{
 			lock (lockUserAircraft)
 			{
@@ -1345,7 +1354,41 @@ namespace Fsxget
 			}
 			return bRet;
 		}
+        public void AddFlightPlan(String strFileName)
+        {
+            try
+            {
+                XmlDocument xmld = new XmlDocument();
+                xmld.Load(strFileName);
 
+                FlightPlan flightPlan = new FlightPlan(unFlightPlanNr, DATA_REQUESTS.FLIGHTPLAN);
+
+                XmlElement xmle = xmld["SimBase.Document"]["FlightPlan.FlightPlan"];
+                if (xmle == null)
+                    throw new InvalidDataException("This is not a FSX flightplan");
+
+                xmle = xmle["Title"];
+                if (xmle != null)
+                    flightPlan.Name = xmle.InnerText;
+                else
+                    flightPlan.Name = "Flightplan";
+
+                xmle = xmle.ParentNode["FPType"];
+                if (xmle != null)
+                    flightPlan.Name += " (" + xmle.InnerText + ")";
+
+                XmlNodeList xmlnWP = xmld.GetElementsByTagName("ATCWaypoint");
+                foreach (XmlNode xmln in xmlnWP)
+                {
+                    flightPlan.AddWaypoint(xmln);
+                }
+                htFlightPlans.Add(unFlightPlanNr++, flightPlan);
+            }
+            catch
+            {
+                frmMain.NotifyError("Can not load the flight plan");
+            }
+        }
 		public bool OnMessageReceive(ref System.Windows.Forms.Message m)
 		{
 			if (m.Msg == WM_USER_SIMCONNECT)
@@ -1525,257 +1568,8 @@ namespace Fsxget
 		}
 		#endregion
 
-		public void AddFlightPlan(String strFileName)
-		{
-			try
-			{
-				XmlDocument xmld = new XmlDocument();
-				xmld.Load(strFileName);
-
-				FlightPlan flightPlan = new FlightPlan(unFlightPlanNr, DATA_REQUESTS.FLIGHTPLAN);
-
-				XmlElement xmle = xmld["SimBase.Document"]["FlightPlan.FlightPlan"];
-				if (xmle == null)
-					throw new InvalidDataException("This is not a FSX flightplan");
-
-				xmle = xmle["Title"];
-				if (xmle != null)
-					flightPlan.Name = xmle.InnerText;
-				else
-					flightPlan.Name = "Flightplan";
-
-				xmle = xmle.ParentNode["FPType"];
-				if (xmle != null)
-					flightPlan.Name += " (" + xmle.InnerText + ")";
-
-				XmlNodeList xmlnWP = xmld.GetElementsByTagName("ATCWaypoint");
-				foreach (XmlNode xmln in xmlnWP)
-				{
-					flightPlan.AddWaypoint(xmln);
-				}
-				htFlightPlans.Add(unFlightPlanNr++, flightPlan);
-			}
-			catch
-			{
-				frmMain.NotifyError("Can not load the flight plan");
-			}
-		}
-
-		public void GetSceneryObjects()
-		{
-			String strPath = Path.GetDirectoryName(Program.Config.FSXPath);
-			String strBGL2XMLPath = @"C:\Programme\Microsoft Games\Microsoft Flight Simulator X SDK\Tools\BGL2XML_CMD\Bgl2Xml.exe";
-			strPath += "\\Scenery";
-			String strTmpFile = Path.GetTempFileName();
-			String[] strFiles = Directory.GetFiles(strPath, "NVX*.bgl", SearchOption.AllDirectories);
-
-			int nVORs = 0;
-			int nNDBs = 0;
-
-			String strName = "";
-			String strIdent = "";
-			String strRegion = "";
-			float fLon = 0.0f;
-			float fLat = 0.0f;
-			float fFreq = 0.0f;
-			float fMagVar = 0.0f;
-			float fAlt = 0.0f;
-			float fRange = 0.0f;
-
-			OleDbConnection dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
-			dbCon.Open();
-			OleDbCommand cmd = new OleDbCommand("DELETE * FROM navaids", dbCon);
-			cmd.ExecuteNonQuery();
-
-			foreach (String strBGLFile in strFiles)
-			{
-				System.Diagnostics.Trace.WriteLine(strBGLFile);
-				try
-				{
-					System.Diagnostics.ProcessStartInfo ps = new System.Diagnostics.ProcessStartInfo(strBGL2XMLPath, "\"" + strBGLFile + "\" \"" + strTmpFile + "\"");
-					ps.CreateNoWindow = true;
-					ps.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-					System.Diagnostics.Process p = System.Diagnostics.Process.Start(ps);
-					int nSecs = 0;
-					while (!p.HasExited && nSecs < 10)
-					{
-						nSecs++;
-						Thread.Sleep(1000);
-					}
-					if (!p.HasExited)
-					{
-						System.Diagnostics.Trace.WriteLine("Killed");
-						p.Kill();
-						continue;
-					}
-				}
-				catch
-				{
-				}
-
-				try
-				{
-					XmlDocument xmld = new XmlDocument();
-					xmld.Load(strTmpFile);
-
-					XmlNodeList nodes = xmld.GetElementsByTagName("Vor");
-
-					foreach (XmlNode xmln in nodes)
-					{
-						bool bDme = false;
-						bool bDmeOnly = false;
-						foreach (XmlAttribute xmla in xmln.Attributes)
-						{
-							if (xmla.Name == "dme")
-								bDme = xmla.Value.ToLower() == "true";
-							else if (xmla.Name == "dmeOnly")
-								bDmeOnly = xmla.Value.ToLower() == "true";
-							else if (xmla.Name == "lat")
-								fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-							else if (xmla.Name == "lon")
-								fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-							else if (xmla.Name == "alt")
-							{
-								fAlt = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
-							}
-							else if (xmla.Name == "range")
-								fRange = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
-							else if (xmla.Name == "frequency")
-								fFreq = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-							else if (xmla.Name == "magvar")
-							{
-								fMagVar = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-							}
-							else if (xmla.Name == "ident")
-							{
-								strIdent = xmla.Value;
-							}
-							else if (xmla.Name == "name")
-								strName = xmla.Value;
-							else if (xmla.Name == "region")
-								strRegion = xmla.Value;
-						}
-						int nType;
-						if (bDmeOnly)
-						{
-							nType = 0;      // Only DME
-						}
-						else
-						{
-							if (bDme)
-							{
-								nType = 2;  // VOR / DME
-							}
-							else
-							{
-								nType = 1;  // VOR
-							}
-						}
-						nVORs++;
-
-						cmd.CommandText = "INSERT INTO navaids ( Ident, Name, Type, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
-							strIdent + "', '" +
-							strName.Replace("'", "''") + "', " +
-							nType.ToString() + ", " +
-							fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-							fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-							fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-							fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-							fRange.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-							fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
-						cmd.ExecuteNonQuery();
-					}
-					nodes = xmld.GetElementsByTagName("Ndb");
-					foreach (XmlNode xmln in nodes)
-					{
-						foreach (XmlAttribute xmla in xmln.Attributes)
-						{
-							if (xmla.Name == "lat")
-								fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-							else if (xmla.Name == "lon")
-								fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-							else if (xmla.Name == "alt")
-							{
-								fAlt = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
-							}
-							else if (xmla.Name == "range")
-								fRange = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
-							else if (xmla.Name == "frequency")
-								fFreq = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-							else if (xmla.Name == "magvar")
-								fMagVar = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-							else if (xmla.Name == "ident")
-							{
-								strIdent = xmla.Value;
-							}
-							else if (xmla.Name == "name")
-								strName = xmla.Value;
-						}
-						nNDBs++;
-
-						cmd.CommandText = "INSERT INTO navaids ( Ident, Name, Type, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
-							strIdent + "', '" +
-							strName.Replace("'", "''") + "', 3," +
-							fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-							fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-							fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-							fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-							fRange.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-							fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
-						cmd.ExecuteNonQuery();
-					}
-
-					xmld = null;
-				}
-				catch
-				{
-				}
-			}
-
-			dbCon.Close();
-			//            frmMain.kmlFactory.CreateNavAidsKML(strFileName, ref lstVOR, ref lstNDB);
-			/*           
-						strFiles = Directory.GetFiles(strPath, "APX*.bgl", SearchOption.AllDirectories);
-						foreach (String strBGLFile in strFiles)
-						{
-							System.Diagnostics.Trace.WriteLine(strBGLFile);
-							try
-							{
-								System.Diagnostics.ProcessStartInfo ps = new System.Diagnostics.ProcessStartInfo(strBGL2XMLPath, "\"" + strBGLFile + "\" \"" + strTmpFile + "\"");
-								ps.CreateNoWindow = true;
-								ps.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-								System.Diagnostics.Process p = System.Diagnostics.Process.Start(ps);
-								int nSecs = 0;
-								while (!p.HasExited && nSecs < 10)
-								{
-									nSecs++;
-									Thread.Sleep(1000);
-								}
-								if (!p.HasExited)
-								{
-									System.Diagnostics.Trace.WriteLine("Killed");
-									p.Kill();
-									continue;
-								}
-							}
-							catch
-							{
-							}
-
-							try
-							{
-								XmlDocument xmld = new XmlDocument();
-								xmld.Load(strTmpFile);
-								XmlNodeList nodes = xmld.GetElementsByTagName("Airport");
-							}
-							catch
-							{
-							}
-						}
-			 */
-			File.Delete(strTmpFile);
-		}
-		static public String GetMorseCode(String str)
+        #region Static Helperfunctions
+        static public String GetMorseCode(String str)
 		{
 			str = str.ToUpper();
 			String strMorseCode = "";
@@ -1790,7 +1584,6 @@ namespace Fsxget
 			}
 			return strMorseCode;
 		}
-
 		static public String GetRegionName(String strICAORegionCode)
 		{
 			String strRegion = "Unbekannt";
@@ -1911,6 +1704,221 @@ namespace Fsxget
 				nData += (uint)(str[i] - '0');
 			}
 			return nData;
-		}
-	}
+        }
+        static public void GetSceneryObjects()
+        {
+            String strPath = Path.GetDirectoryName(Program.Config.FSXPath);
+            String strBGL2XMLPath = @"C:\Programme\Microsoft Games\Microsoft Flight Simulator X SDK\Tools\BGL2XML_CMD\Bgl2Xml.exe";
+            strPath += "\\Scenery";
+            String strTmpFile = Path.GetTempFileName();
+            String[] strFiles = Directory.GetFiles(strPath, "NVX*.bgl", SearchOption.AllDirectories);
+
+            int nVORs = 0;
+            int nNDBs = 0;
+
+            String strName = "";
+            String strIdent = "";
+            String strRegion = "";
+            float fLon = 0.0f;
+            float fLat = 0.0f;
+            float fFreq = 0.0f;
+            float fMagVar = 0.0f;
+            float fAlt = 0.0f;
+            float fRange = 0.0f;
+
+            OleDbConnection dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
+            dbCon.Open();
+            OleDbCommand cmd = new OleDbCommand("DELETE * FROM navaids", dbCon);
+            cmd.ExecuteNonQuery();
+
+            foreach (String strBGLFile in strFiles)
+            {
+                System.Diagnostics.Trace.WriteLine(strBGLFile);
+                try
+                {
+                    System.Diagnostics.ProcessStartInfo ps = new System.Diagnostics.ProcessStartInfo(strBGL2XMLPath, "\"" + strBGLFile + "\" \"" + strTmpFile + "\"");
+                    ps.CreateNoWindow = true;
+                    ps.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                    System.Diagnostics.Process p = System.Diagnostics.Process.Start(ps);
+                    int nSecs = 0;
+                    while (!p.HasExited && nSecs < 10)
+                    {
+                        nSecs++;
+                        Thread.Sleep(1000);
+                    }
+                    if (!p.HasExited)
+                    {
+                        System.Diagnostics.Trace.WriteLine("Killed");
+                        p.Kill();
+                        continue;
+                    }
+                }
+                catch
+                {
+                }
+
+                try
+                {
+                    XmlDocument xmld = new XmlDocument();
+                    xmld.Load(strTmpFile);
+
+                    XmlNodeList nodes = xmld.GetElementsByTagName("Vor");
+
+                    foreach (XmlNode xmln in nodes)
+                    {
+                        bool bDme = false;
+                        bool bDmeOnly = false;
+                        foreach (XmlAttribute xmla in xmln.Attributes)
+                        {
+                            if (xmla.Name == "dme")
+                                bDme = xmla.Value.ToLower() == "true";
+                            else if (xmla.Name == "dmeOnly")
+                                bDmeOnly = xmla.Value.ToLower() == "true";
+                            else if (xmla.Name == "lat")
+                                fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "lon")
+                                fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "alt")
+                            {
+                                fAlt = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                            }
+                            else if (xmla.Name == "range")
+                                fRange = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "frequency")
+                                fFreq = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "magvar")
+                            {
+                                fMagVar = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            }
+                            else if (xmla.Name == "ident")
+                            {
+                                strIdent = xmla.Value;
+                            }
+                            else if (xmla.Name == "name")
+                                strName = xmla.Value;
+                            else if (xmla.Name == "region")
+                                strRegion = xmla.Value;
+                        }
+                        int nType;
+                        if (bDmeOnly)
+                        {
+                            nType = 0;      // Only DME
+                        }
+                        else
+                        {
+                            if (bDme)
+                            {
+                                nType = 2;  // VOR / DME
+                            }
+                            else
+                            {
+                                nType = 1;  // VOR
+                            }
+                        }
+                        nVORs++;
+
+                        cmd.CommandText = "INSERT INTO navaids ( Ident, Name, Type, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
+                            strIdent + "', '" +
+                            strName.Replace("'", "''") + "', " +
+                            nType.ToString() + ", " +
+                            fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fRange.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
+                        cmd.ExecuteNonQuery();
+                    }
+                    nodes = xmld.GetElementsByTagName("Ndb");
+                    foreach (XmlNode xmln in nodes)
+                    {
+                        foreach (XmlAttribute xmla in xmln.Attributes)
+                        {
+                            if (xmla.Name == "lat")
+                                fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "lon")
+                                fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "alt")
+                            {
+                                fAlt = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                            }
+                            else if (xmla.Name == "range")
+                                fRange = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "frequency")
+                                fFreq = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "magvar")
+                                fMagVar = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "ident")
+                            {
+                                strIdent = xmla.Value;
+                            }
+                            else if (xmla.Name == "name")
+                                strName = xmla.Value;
+                        }
+                        nNDBs++;
+
+                        cmd.CommandText = "INSERT INTO navaids ( Ident, Name, Type, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
+                            strIdent + "', '" +
+                            strName.Replace("'", "''") + "', 3," +
+                            fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fRange.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    xmld = null;
+                }
+                catch
+                {
+                }
+            }
+
+            dbCon.Close();
+            //            frmMain.kmlFactory.CreateNavAidsKML(strFileName, ref lstVOR, ref lstNDB);
+            /*           
+                        strFiles = Directory.GetFiles(strPath, "APX*.bgl", SearchOption.AllDirectories);
+                        foreach (String strBGLFile in strFiles)
+                        {
+                            System.Diagnostics.Trace.WriteLine(strBGLFile);
+                            try
+                            {
+                                System.Diagnostics.ProcessStartInfo ps = new System.Diagnostics.ProcessStartInfo(strBGL2XMLPath, "\"" + strBGLFile + "\" \"" + strTmpFile + "\"");
+                                ps.CreateNoWindow = true;
+                                ps.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                                System.Diagnostics.Process p = System.Diagnostics.Process.Start(ps);
+                                int nSecs = 0;
+                                while (!p.HasExited && nSecs < 10)
+                                {
+                                    nSecs++;
+                                    Thread.Sleep(1000);
+                                }
+                                if (!p.HasExited)
+                                {
+                                    System.Diagnostics.Trace.WriteLine("Killed");
+                                    p.Kill();
+                                    continue;
+                                }
+                            }
+                            catch
+                            {
+                            }
+
+                            try
+                            {
+                                XmlDocument xmld = new XmlDocument();
+                                xmld.Load(strTmpFile);
+                                XmlNodeList nodes = xmld.GetElementsByTagName("Airport");
+                            }
+                            catch
+                            {
+                            }
+                        }
+             */
+            File.Delete(strTmpFile);
+        }
+        #endregion
+    }
 }
