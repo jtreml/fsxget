@@ -6,6 +6,8 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 using System.Web;
+using System.Data.OleDb;
+using System.Drawing;
 
 namespace Fsxget
 {
@@ -379,7 +381,6 @@ namespace Fsxget
 			return encodeDefault(strKML + "</Update>" + strUpdateKMLFooter);
 		}
 
-
 		public byte[] GenSetFreqHtml(String query)
 		{
 			char[] cSep = { '=', '&' };
@@ -423,6 +424,53 @@ namespace Fsxget
 				return encodeDefault("<html><body>" + System.Web.HttpUtility.HtmlEncode(Program.getText("Kml_SetFreq_Ok")) + "</body></html>");
 		}
 
+        public void GenTaxiSignsKML()
+        {
+            String strKML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Document><name>LEMD</name>";
+            OleDbConnection dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
+            dbCon.Open();
+            OleDbCommand cmd = new OleDbCommand("SELECT Longitude, Latitude, Label, Heading FROM TaxiwaySigns WHERE AirportID=5742", dbCon);
+            OleDbDataReader rd = cmd.ExecuteReader();
+            int nFile = 1;
+            while (rd.Read())
+            {
+                String strFile = String.Format("C:\\taxisign{0}.png", nFile++);
+                Bitmap bmp = FsxConnection.RenderTaxiwaySign(rd.GetString(2));
+                bmp.Save(strFile, System.Drawing.Imaging.ImageFormat.Png);
+                int nBreite = bmp.Width / 16;
+                int nHoehe = bmp.Height / 16;
+                float fLon = rd.GetFloat(0);
+                float fLat = rd.GetFloat(1);
+                float fLonE = 0;
+                float fLatN = 0;
+                float fLonW = 0;
+                float fLatS = 0;
+                float fTmp = 0;
+                KmlFactory.MovePoint(fLon, fLat, 90, nBreite / 2, ref fLonE, ref fTmp);
+                KmlFactory.MovePoint(fLon, fLat, 180, nHoehe / 2, ref fTmp, ref fLatS);
+                KmlFactory.MovePoint(fLon, fLat, 270, nBreite / 2, ref fLonW, ref fTmp);
+                KmlFactory.MovePoint(fLon, fLat, 0, nHoehe / 2, ref fTmp, ref fLatN);
+                fTmp = rd.GetFloat(3);
+                fTmp -= 90;
+                if (fTmp > 180)
+                {
+                    fTmp = (360 - fTmp) * -1;
+                }
+                fTmp *= -1;
+                //                strKML += "<Placemark><name>" + XmlConvert.ToString( rd.GetFloat(3) ) + " - " + XmlConvert.ToString( fTmp ) + "</name><Point><coordinates>" + XmlConvert.ToString(fLon) + "," + XmlConvert.ToString(fLat) + "</coordinates></Point></Placemark>";
+                strKML += "<GroundOverlay><Icon><href>" + strFile.Substring(3) + "</href></Icon><LatLonBox>";
+                strKML += "<north>" + XmlConvert.ToString(fLatN) + "</north>";
+                strKML += "<south>" + XmlConvert.ToString(fLatS) + "</south>";
+                strKML += "<east>" + XmlConvert.ToString(fLonE) + "</east>";
+                strKML += "<west>" + XmlConvert.ToString(fLonW) + "</west>";
+                strKML += "<rotation>" + XmlConvert.ToString(fTmp) + "</rotation>";
+                strKML += "</LatLonBox></GroundOverlay>";
+            }
+            rd.Close();
+            dbCon.Close();
+            strKML += "</Document></kml>";
+            File.WriteAllText("C:\\test.kml", strKML, Encoding.UTF8);
+        }
 
 		private String GetAIObjectUpdate(Hashtable ht, String strFolderPrefix, String strPartFile, KML_ICON_TYPES icoObject, KML_ICON_TYPES icoPredictionPoint, String strPredictionColor)
 		{
