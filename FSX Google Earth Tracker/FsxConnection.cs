@@ -9,6 +9,8 @@ using System.Xml;
 using System.IO;
 using System.Threading;
 using System.Data.OleDb;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Fsxget
 {
@@ -1542,7 +1544,7 @@ namespace Fsxget
 					KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 180, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fSouth);
 					KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 270, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fWest, ref fTmp);
 
-					OleDbCommand cmd = new OleDbCommand("SELECT ID, Ident, Name, Type, Longitude, Latitude, Altitude, MagVar, Range, Freq FROM navaids WHERE " +
+					OleDbCommand cmd = new OleDbCommand("SELECT ID, Ident, Name, TypeID, Longitude, Latitude, Altitude, MagVar, Range, Freq FROM navaids WHERE " +
 						"Latitude >= " + fSouth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
 						"Latitude <= " + fNorth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
 						"Longitude >= " + fWest.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
@@ -1558,7 +1560,7 @@ namespace Fsxget
 						}
 						else
 						{
-							objNavAids.htObjects.Add(unID, new SceneryNavAid(unID, (int)rd.GetByte(3), rd.GetString(1), rd.GetString(2), rd.GetFloat(4), rd.GetFloat(5), rd.GetFloat(6), rd.GetFloat(9), rd.GetFloat(8), rd.GetFloat(7)));
+							objNavAids.htObjects.Add(unID, new SceneryNavAid(unID, (int)rd.GetInt32(3), rd.GetString(1), rd.GetString(2), rd.GetFloat(4), rd.GetFloat(5), rd.GetFloat(6), rd.GetFloat(9), rd.GetFloat(8), rd.GetFloat(7)));
 						}
 					}
 					MarkDeletedObjects(ref objNavAids.htObjects);
@@ -1694,7 +1696,33 @@ namespace Fsxget
 
 			return (float)(iSign * (f1 + (f2 * 60.0 + f3) / 3600.0));
 		}
-		static uint UIntToBCD(uint nData)
+        static public float ConvertDegToFloat2(String szDeg)
+        {
+
+            String szTemp = szDeg;
+
+            szTemp = szTemp.Replace("N", "+");
+            szTemp = szTemp.Replace("S", "-");
+            szTemp = szTemp.Replace("E", "+");
+            szTemp = szTemp.Replace("W", "-");
+
+            char[] szSeperator = { ' ' };
+            String[] szParts = szTemp.Split(szSeperator);
+
+            if (szParts.GetLength(0) != 2)
+            {
+                throw new System.Exception("Wrong coordinate format!");
+            }
+
+
+            float f1 = float.Parse(szParts[0], System.Globalization.NumberFormatInfo.InvariantInfo);
+            int iSign = Math.Sign(f1);
+            f1 = Math.Abs(f1);
+            float f2 = float.Parse(szParts[1], System.Globalization.NumberFormatInfo.InvariantInfo);
+
+            return (float)(iSign * (f1 + f2/60));
+        }
+        static uint UIntToBCD(uint nData)
 		{
 			String str = nData.ToString();
 			nData = 0;
@@ -1705,16 +1733,338 @@ namespace Fsxget
 			}
 			return nData;
         }
+
+        static public Bitmap RenderTaxiwaySign(String strSign)
+        {
+            List<String> strSegments = new List<String>();
+            String strTypeChars = "ldmiru";
+            String strAllowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            String strSpecialChars = "_ ->^'<v`/\\[]x#=.|";
+            int nPos = 0;
+            int nPosEnd = 0;
+            while ((nPos = strSign.IndexOfAny(strTypeChars.ToCharArray(), nPos)) > -1)
+            {
+                nPosEnd = strSign.IndexOfAny(strTypeChars.ToCharArray(), nPos + 1);
+                if (nPosEnd == -1)
+                    nPosEnd = strSign.Length;
+                strSegments.Add(strSign.Substring(nPos, nPosEnd - nPos));
+                nPos = nPosEnd;
+            }
+
+            Font fnt = new Font("Arial", 20, FontStyle.Bold, GraphicsUnit.Pixel);
+            Pen pen = null;
+            Brush brush = null;
+            Color colFG = Color.White;
+            Color colBG = Color.White;
+
+            int nHeight = 40;
+            int nXBorderStart = 0;
+            int nXOff = 4;
+            int nYOff = 8;
+            int nYMid = nHeight / 2;
+            int nArrowWidth = 16;
+            int nArrowWidth2 = nArrowWidth / 2;
+            int nArrowSpace = 4;
+
+            int nWidth = strSign.Length * TextRenderer.MeasureText("W", fnt).Width;
+
+            Bitmap bmpTmp = new Bitmap(nWidth, nHeight);
+            Graphics g = Graphics.FromImage(bmpTmp);
+            foreach (String strSeg in strSegments)
+            {
+                switch (strSeg[0])
+                {
+                    case 'l':
+                        colBG = Color.Black;
+                        colFG = Color.Yellow;
+                        break;
+                    case 'd':
+                        colBG = Color.Yellow;
+                        colFG = Color.Black;
+                        break;
+                    case 'm':
+                    case 'r':
+                        colBG = Color.Red;
+                        colFG = Color.White;
+                        break;
+                    case 'i':
+                    case 'u':
+                        colBG = Color.White;
+                        colFG = Color.Black;
+                        break;
+                }
+                brush = new SolidBrush(colBG);
+                pen = new Pen(colFG, 3);
+                g.FillRectangle(brush, nXOff, 4, nWidth - nXOff, nHeight);
+                for (int i = 1; i < strSeg.Length; i++)
+                {
+                    if (strAllowedChars.IndexOf(strSeg[i]) > -1)
+                    {
+                        String str = "";
+                        do
+                        {
+                            str += strSeg[i++];
+                        } while (i < str.Length && strAllowedChars.IndexOf(strSeg[i]) > -1);
+                        i--;
+                        TextRenderer.DrawText(g, str, fnt, new Point(nXOff, nYOff), colFG, colBG);
+                        nXOff += TextRenderer.MeasureText(str, fnt).Width;
+                    }
+                    else if (strSpecialChars.IndexOf(strSeg[i]) > -1)
+                    {
+                        switch (strSeg[i])
+                        {
+                            case ' ':
+                            case '_':
+                                nXOff += TextRenderer.MeasureText(" ", fnt).Width;
+                                break;
+                            case '-':
+                                nXOff += nArrowSpace;
+                                g.DrawLine(pen, nXOff, nYMid, nXOff + nArrowWidth, nYMid);
+                                nXOff += nArrowSpace + nArrowWidth;
+                                break;
+                            case '>':
+                                nXOff += nArrowSpace;
+                                g.DrawLine(pen, nXOff, nYMid, nXOff + nArrowWidth, nYMid);
+                                g.DrawLine(pen, nXOff + nArrowWidth2 - 1, nYMid - nArrowWidth2, nXOff + nArrowWidth, nYMid + 1);
+                                g.DrawLine(pen, nXOff + nArrowWidth2 - 1, nYMid + nArrowWidth2, nXOff + nArrowWidth, nYMid - 1);
+                                nXOff += nArrowSpace + nArrowWidth;
+                                break;
+                            case '^':
+                                nXOff += nArrowSpace;
+                                g.DrawLine(pen, nXOff + nArrowWidth2, nYMid - nArrowWidth2, nXOff + nArrowWidth2, nYMid + nArrowWidth2);
+                                g.DrawLine(pen, nXOff, nYMid, nXOff + nArrowWidth2 + 1, nYMid - nArrowWidth2 - 1);
+                                g.DrawLine(pen, nXOff + nArrowWidth, nYMid, nXOff + nArrowWidth2, nYMid - nArrowWidth2);
+                                nXOff += nArrowSpace + nArrowWidth;
+                                break;
+                            case '\'':
+                                nXOff += nArrowSpace;
+                                g.DrawLine(pen, nXOff + nArrowWidth2, nYMid - nArrowWidth2, nXOff + nArrowWidth + 2, nYMid - nArrowWidth2);
+                                g.DrawLine(pen, nXOff + nArrowWidth, nYMid - nArrowWidth2, nXOff + nArrowWidth, nYMid);
+                                g.DrawLine(pen, nXOff, nYMid + nArrowWidth2, nXOff + nArrowWidth, nYMid - nArrowWidth2);
+                                nXOff += nArrowSpace + nArrowWidth;
+                                break;
+                            case '<':
+                                nXOff += nArrowSpace;
+                                g.DrawLine(pen, nXOff, nYMid, nXOff + nArrowSpace + nArrowWidth, nYMid);
+                                g.DrawLine(pen, nXOff + nArrowWidth2 + 1, nYMid - nArrowWidth2, nXOff, nYMid + 1);
+                                g.DrawLine(pen, nXOff + nArrowWidth2 + 1, nYMid + nArrowWidth2, nXOff, nYMid - 1);
+                                nXOff += nArrowSpace + nArrowWidth;
+                                break;
+                            case 'v':
+                                nXOff += nArrowSpace;
+                                g.DrawLine(pen, nXOff + nArrowWidth2, nYMid - nArrowWidth2, nXOff + nArrowWidth2, nYMid + nArrowWidth2);
+                                g.DrawLine(pen, nXOff, nYMid, nXOff + nArrowWidth2 + 1, nYMid + nArrowWidth2 + 1);
+                                g.DrawLine(pen, nXOff + nArrowWidth, nYMid, nXOff + nArrowWidth2, nYMid + nArrowWidth2);
+                                nXOff += nArrowSpace + nArrowWidth;
+                                break;
+                            case '`':
+                                nXOff += nArrowSpace;
+                                g.DrawLine(pen, nXOff, nYMid - nArrowWidth2, nXOff, nYMid);
+                                g.DrawLine(pen, nXOff - 1, nYMid - nArrowWidth2, nXOff + nArrowWidth2, nYMid - nArrowWidth2);
+                                g.DrawLine(pen, nXOff, nYMid - nArrowWidth2, nXOff + nArrowWidth, nYMid + nArrowWidth2);
+                                nXOff += nArrowSpace + nArrowWidth;
+                                break;
+                            case '/':
+                                nXOff += nArrowSpace;
+                                g.DrawLine(pen, nXOff, nYMid + nArrowWidth2 + 2, nXOff, nYMid);
+                                g.DrawLine(pen, nXOff, nYMid + nArrowWidth2, nXOff + nArrowWidth2, nYMid + nArrowWidth2);
+                                g.DrawLine(pen, nXOff, nYMid + nArrowWidth2, nXOff + nArrowWidth, nYMid - nArrowWidth2);
+                                nXOff += nArrowSpace + nArrowWidth;
+                                break;
+                            case '\\':
+                                nXOff += nArrowSpace;
+                                g.DrawLine(pen, nXOff + nArrowWidth2, nYMid + nArrowWidth2, nXOff + nArrowWidth, nYMid + nArrowWidth2);
+                                g.DrawLine(pen, nXOff + nArrowWidth, nYMid, nXOff + nArrowWidth, nYMid + nArrowWidth2 + 2);
+                                g.DrawLine(pen, nXOff, nYMid - nArrowWidth2, nXOff + nArrowWidth, nYMid + nArrowWidth2);
+                                nXOff += nArrowSpace + nArrowWidth;
+                                break;
+                            case '[':
+                                nXOff += nArrowSpace;
+                                nXBorderStart = nXOff;
+                                nXOff += nArrowSpace;
+                                break;
+                            case ']':
+                                nXOff += nArrowSpace;
+                                g.DrawRectangle(new Pen(colFG, 2), nXBorderStart, nArrowSpace + 4, nXOff - nXBorderStart, nHeight - 2 * nArrowSpace - 8);
+                                nXOff += nArrowSpace;
+                                break;
+                            case 'x':
+                                break;
+                            case '=':
+                                break;
+                            case '#':
+                                break;
+                            case '.':
+                                nXOff += nArrowSpace;
+                                g.FillEllipse(new SolidBrush(colFG), new Rectangle(nXOff + nArrowWidth2 - 1, nYMid - 1, 3, 3));
+                                nXOff += nArrowSpace + nArrowWidth;
+                                break;
+                            case '|':
+                                nXOff += nArrowSpace;
+                                g.DrawLine(new Pen(colFG, 2), nXOff, nYMid - nArrowWidth2, nXOff, nYMid + nArrowWidth2);
+                                nXOff += nArrowSpace;
+                                break;
+                        }
+                    }
+                    else
+                        throw new InvalidDataException("Invalid Taxiwaysign-Description");
+                }
+            }
+            nXOff += 4;
+
+            brush = new SolidBrush(Color.LightGray);
+            g.FillRectangle(brush, 0, 0, nXOff, 4);
+            g.FillRectangle(brush, 0, 0, 4, nHeight);
+            g.FillRectangle(brush, nXOff - 4, 0, 4, nHeight);
+            g.FillRectangle(brush, 0, nHeight - 4, nXOff, 4);
+
+            Bitmap bmp = new Bitmap(nXOff, nHeight);
+            g = Graphics.FromImage(bmp);
+            g.DrawImage(bmpTmp, 0, 0);
+
+            bmpTmp = new Bitmap(nXOff, nHeight * 2);
+
+            Point[] ptDest = new Point[] {
+                new Point( nXOff, nHeight ),
+                new Point( 0, nHeight ),
+                new Point( nXOff, 0 ),
+            };
+
+            g = Graphics.FromImage(bmpTmp);
+
+            g.DrawImage(bmp, 0, nHeight);
+            g.DrawImage(bmp, ptDest);
+
+            return bmpTmp;
+        }
+        #endregion
+
+        #region Database-Creation
+        static String[] strComTypes = new String[] {
+            "APPROACH",
+            "ASOS",
+            "ATIS",
+            "AWOS",
+            "CENTER",
+            "CLEARANCE",
+            "CLEARANCE_PRE_TAXI",
+            "CTAF",
+            "DEPARTURE",
+            "FSS",
+            "GROUND",
+            "MULTICOM",
+            "REMOTE_CLEARANCE_DELIVERY",
+            "TOWER",
+            "UNICOM"
+        };
+
+        static String[] strSurfaces = new String[] {
+            "ASPHALT",
+            "BITUMINOUS",
+            "BRICK",
+            "CLAY",
+            "CEMENT",
+            "CONCRETE",
+            "CORAL",
+            "DIRT",
+            "GRASS",
+            "GRAVEL",
+            "ICE",
+            "MACADAM",
+            "OIL_TREATED",
+            "PLANKS",
+            "SAND",
+            "SHALE",
+            "SNOW",
+            "STEEL_MATS",
+            "TARMAC",
+            "UNKNWON",
+            "WATER",
+        };
+
+        static String[] strTaxiPointTypes = new String[] {
+            "NORMAL",
+            "HOLD_SHORT",
+            "ILS_HOLD_SHORT",
+            "HOLD_SHORT_NO_DRAW",
+            "ILS_HOLD_SHORT_NO_DRAW",
+        };
+
+        static String[] strTaxiwayParkingNames = new String[] {
+            "PARKING",
+            "DOCK",
+            "GATE",
+            "GATE_A",
+            "GATE_B",
+            "GATE_C",
+            "GATE_D",
+            "GATE_E",
+            "GATE_F",
+            "GATE_G",
+            "GATE_H",
+            "GATE_I",
+            "GATE_J",
+            "GATE_K",
+            "GATE_L",
+            "GATE_M",
+            "GATE_N",
+            "GATE_O",
+            "GATE_P",
+            "GATE_Q",
+            "GATE_R",
+            "GATE_S",
+            "GATE_T",
+            "GATE_U",
+            "GATE_V",
+            "GATE_W",
+            "GATE_X",
+            "GATE_Y",
+            "GATE_Z",
+            "NONE",
+            "N_PARKING",
+            "NE_PARKING",
+            "NW_PARKING",
+            "SE_PARKING",
+            "S_PARKING",
+            "SW_PARKING",
+            "W_PARKING",
+            "E_PARKING",
+        };
+
+        static String[] strTaxiwayParkingTypes = new String[] {
+            "NONE",
+            "DOCK_GA",
+            "FUEL",
+            "GATE_HEAVY",
+            "GATE_MEDIUM",
+            "GATE_SMALL",
+            "RAMP_CARGO",
+            "RAMP_GA",
+            "RAMP_GA_LARGE",
+            "RAMP_GA_MEDIUM",
+            "RAMP_GA_SMALL",
+            "RAMP_MIL_CARGO",
+            "RAMP_MIL_COMBAT",
+            "VEHICLE",
+        };
+
+        static String[] strTaxiwayPathTypes = new String[]  {
+            "RUNWAY",
+            "PARKING",
+            "TAXI",
+            "PATH",
+            "CLOSED",
+            "VEHICLE",
+        };
+
+            
         static public void GetSceneryObjects()
         {
             String strPath = Path.GetDirectoryName(Program.Config.FSXPath);
             String strBGL2XMLPath = @"C:\Programme\Microsoft Games\Microsoft Flight Simulator X SDK\Tools\BGL2XML_CMD\Bgl2Xml.exe";
             strPath += "\\Scenery";
             String strTmpFile = Path.GetTempFileName();
-            String[] strFiles = Directory.GetFiles(strPath, "NVX*.bgl", SearchOption.AllDirectories);
-
-            int nVORs = 0;
-            int nNDBs = 0;
+            String[] strFiles = Directory.GetFiles(strPath, "*.bgl", SearchOption.AllDirectories);
 
             String strName = "";
             String strIdent = "";
@@ -1726,13 +2076,20 @@ namespace Fsxget
             float fAlt = 0.0f;
             float fRange = 0.0f;
 
+            int nFileNr = 1;
+
             OleDbConnection dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
             dbCon.Open();
             OleDbCommand cmd = new OleDbCommand("DELETE * FROM navaids", dbCon);
-            cmd.ExecuteNonQuery();
+//            cmd.ExecuteNonQuery();
 
             foreach (String strBGLFile in strFiles)
             {
+                String strHead = Path.GetFileName(strBGLFile).Substring(0, 3).ToUpper();
+                if(!( strHead == "NVX" || strHead == "APX"))
+                {
+                    continue;
+                }
                 System.Diagnostics.Trace.WriteLine(strBGLFile);
                 try
                 {
@@ -1741,7 +2098,7 @@ namespace Fsxget
                     ps.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
                     System.Diagnostics.Process p = System.Diagnostics.Process.Start(ps);
                     int nSecs = 0;
-                    while (!p.HasExited && nSecs < 10)
+                    while (!p.HasExited && nSecs < 600)
                     {
                         nSecs++;
                         Thread.Sleep(1000);
@@ -1757,13 +2114,13 @@ namespace Fsxget
                 {
                 }
 
-                try
+//                try
                 {
                     XmlDocument xmld = new XmlDocument();
                     xmld.Load(strTmpFile);
 
-                    XmlNodeList nodes = xmld.GetElementsByTagName("Vor");
-
+                    XmlNodeList nodes;
+                    nodes = xmld.GetElementsByTagName("Vor");
                     foreach (XmlNode xmln in nodes)
                     {
                         bool bDme = false;
@@ -1802,22 +2159,20 @@ namespace Fsxget
                         int nType;
                         if (bDmeOnly)
                         {
-                            nType = 0;      // Only DME
+                            nType = 1;      // Only DME
                         }
                         else
                         {
                             if (bDme)
                             {
-                                nType = 2;  // VOR / DME
+                                nType = 3;  // VOR / DME
                             }
                             else
                             {
-                                nType = 1;  // VOR
+                                nType = 2;  // VOR
                             }
                         }
-                        nVORs++;
-
-                        cmd.CommandText = "INSERT INTO navaids ( Ident, Name, Type, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
+                        cmd.CommandText = "INSERT INTO navaids ( Ident, Name, TypeID, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
                             strIdent + "', '" +
                             strName.Replace("'", "''") + "', " +
                             nType.ToString() + ", " +
@@ -1855,11 +2210,9 @@ namespace Fsxget
                             else if (xmla.Name == "name")
                                 strName = xmla.Value;
                         }
-                        nNDBs++;
-
-                        cmd.CommandText = "INSERT INTO navaids ( Ident, Name, Type, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
+                        cmd.CommandText = "INSERT INTO navaids ( Ident, Name, TypeID, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
                             strIdent + "', '" +
-                            strName.Replace("'", "''") + "', 3," +
+                            strName.Replace("'", "''") + "', 4," +
                             fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
                             fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
                             fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
@@ -1868,55 +2221,460 @@ namespace Fsxget
                             fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
                         cmd.ExecuteNonQuery();
                     }
+                    
+                    nodes = xmld.GetElementsByTagName("Airport");
+                    foreach (XmlNode xmln in nodes)
+                    {
+                        int nBoundNr = 0;
+                        foreach (XmlAttribute xmla in xmln.Attributes)
+                        {
+                            if (xmla.Name == "lat")
+                                fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "lon")
+                                fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "alt")
+                                fAlt = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "magvar")
+                                fMagVar = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "ident")
+                            {
+                                strIdent = xmla.Value;
+                            }
+                            else if (xmla.Name == "name")
+                                strName = xmla.Value;
+                        }
+
+                        cmd.CommandText = "INSERT INTO airports ( Ident, Name, Longitude, Latitude, Altitude, MagVar ) VALUES ( '" +
+                            strIdent + "', '" +
+                            strName.Replace("'", "''") + "'," +
+                            fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
+                        cmd.ExecuteNonQuery();
+                        cmd.CommandText = "SELECT @@IDENTITY";
+                        int nAPID = (int)cmd.ExecuteScalar();
+
+                        for (XmlNode xmlnChild = xmln.FirstChild; xmlnChild != null; xmlnChild = xmlnChild.NextSibling)
+                        {
+                            int nType = 0;
+                            float fHeading = 0;
+                            float fLength = 0;
+                            float fWidth = 0;
+                            int nNumber = 0;
+                            char cPrimDesignator = 'N';
+                            char cSekDesignator = 'N';
+                            float fPatAlt = 0;
+                            bool bPrimPatternRight = false;
+                            bool bSekPatternRight = false;
+                            int nIdx = 0;
+                            int nName = 0;
+
+                            if (xmlnChild.Name == "Com")
+                            {
+                                foreach (XmlAttribute xmla in xmlnChild.Attributes)
+                                {
+                                    if (xmla.Name == "frequency")
+                                        fFreq = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "type")
+                                    {
+                                        foreach (String strType in strComTypes)
+                                        {
+                                            nType++;
+                                            if (strType == xmla.Value)
+                                                break;
+                                        }
+                                        if (nType > strComTypes.Length)
+                                            throw new Exception("Invalid ComType");
+                                    }
+                                    else if (xmla.Name == "name")
+                                        strName = xmla.Value;
+                                }
+                                cmd.CommandText = "INSERT INTO AirportComs (AirportID, Name, Freq, TypeID) VALUES (" +
+                                    nAPID.ToString() + "," +
+                                    "'" + strName.Replace( "'", "''" ) + "'," +
+                                    fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    nType.ToString() + ");";
+                                cmd.ExecuteNonQuery();
+                            }
+                            else if (xmlnChild.Name == "Runway")
+                            {
+                                foreach (XmlAttribute xmla in xmlnChild.Attributes)
+                                {
+                                    if (xmla.Name == "lat")
+                                        fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "lon")
+                                        fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "alt")
+                                        fAlt = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "surface")
+                                    {
+                                        foreach (String strSurface in strSurfaces)
+                                        {
+                                            nType++;
+                                            if (strSurface == xmla.Value)
+                                                break;
+                                        }
+                                        if (nType > strSurfaces.Length)
+                                            throw new Exception("Invalid SurfaceType");
+                                        if (nType > 13)
+                                            nType--;
+                                    }
+                                    else if (xmla.Name == "heading")
+                                        fHeading = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "length")
+                                        fLength = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "width")
+                                    {
+                                        fWidth = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    }
+                                    else if (xmla.Name == "number")
+                                    {
+                                        if (xmla.Value == "EAST")
+                                            nNumber = 1090;
+                                        else if (xmla.Value == "NORTH")
+                                            nNumber = 1000;
+                                        else if (xmla.Value == "NORTHEAST")
+                                            nNumber = 1045;
+                                        else if (xmla.Value == "NORTHWEST")
+                                            nNumber = 1315;
+                                        else if (xmla.Value == "SOUTH")
+                                            nNumber = 1180;
+                                        else if (xmla.Value == "SOUTHEAST")
+                                            nNumber = 1135;
+                                        else if (xmla.Value == "SOUTHWEST")
+                                            nNumber = 1225;
+                                        else if (xmla.Value == "WEST")
+                                            nNumber = 1270;
+                                        else
+                                            nNumber = int.Parse(xmla.Value);
+                                    }
+                                    else if (xmla.Name == "designator")
+                                    {
+                                        cPrimDesignator = xmla.Value[0];
+                                        if (cPrimDesignator == 'L')
+                                            cSekDesignator = 'R';
+                                        else if (cPrimDesignator == 'R')
+                                            cSekDesignator = 'L';
+                                        else
+                                            cSekDesignator = xmla.Value[0];
+                                    }
+                                    else if (xmla.Name == "primaryDesignator")
+                                        cPrimDesignator = xmla.Value[0];
+                                    else if (xmla.Name == "secondaryDesignator")
+                                        cSekDesignator = xmla.Value[0];
+                                    else if (xmla.Name == "patternAltitude")
+                                        fPatAlt = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "primaryPattern")
+                                        bPrimPatternRight = xmla.Value == "RIGHT";
+                                    else if (xmla.Name == "secondaryPattern")
+                                        bSekPatternRight = xmla.Value == "RIGHT";
+                                }
+                                cmd.CommandText = "INSERT INTO Runways (AirportID, Longitude, Latitude, Altitude, Heading, Length, Width, [Number], SurfaceID, PrimaryDesignator, SecondaryDesignator, PatternAltitude, PrimaryPatternRight, SecondaryPatternRight) VALUES (" +
+                                    nAPID.ToString() + "," +
+                                    fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    fHeading.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    fLength.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    fWidth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    nNumber.ToString() + "," +
+                                    nType.ToString() + "," +
+                                    "'" + cPrimDesignator + "'," +
+                                    "'" + cSekDesignator + "'," +
+                                    fPatAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," + 
+                                    (bPrimPatternRight ? "1" : "0") + "," +
+                                    (bSekPatternRight ? "1" : "0") + ");";
+                                cmd.ExecuteNonQuery();
+                                cmd.CommandText = "SELECT @@IDENTITY";
+                                int nRunwayID = (int)cmd.ExecuteScalar();
+
+                                for (XmlNode xmlnRWChild = xmlnChild.FirstChild; xmlnRWChild != null; xmlnRWChild = xmlnRWChild.NextSibling)
+                                {
+                                    bool bEndSec = false;
+                                    bool bBackCourse = false;
+                                    if (xmlnRWChild.Name == "Ils")
+                                    {
+                                        foreach (XmlAttribute xmla in xmlnRWChild.Attributes)
+                                        {
+                                            if (xmla.Name == "lat")
+                                                fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                            else if (xmla.Name == "lon")
+                                                fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                            else if (xmla.Name == "alt")
+                                                fAlt = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                            else if (xmla.Name == "heading")
+                                                fHeading = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                            else if (xmla.Name == "frequency")
+                                                fFreq = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                            else if (xmla.Name == "frequency")
+                                                fFreq = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                            else if (xmla.Name == "end")
+                                                bEndSec = xmla.Value == "SECONDARY";
+                                            else if (xmla.Name == "range")
+                                                fRange = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                            else if (xmla.Name == "magvar")
+                                                fMagVar = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                            else if (xmla.Name == "ident")
+                                                strIdent = xmla.Value;
+                                            else if (xmla.Name == "width")
+                                                fWidth = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                            else if (xmla.Name == "name")
+                                                strName = xmla.Value;
+                                            else if (xmla.Name == "backCourse")
+                                                bBackCourse = xmla.Value == "TRUE";
+                                        }
+                                        cmd.CommandText = "INSERT INTO RunwayILS (RunwayID, Name, Longitude, Latitude, Altitude, Freq, EndSecondary, Range, MagVar, Ident, Width, Heading, BackCourse) VALUES (" +
+                                            nRunwayID.ToString() + "," +
+                                            "'" + strName.Replace("'", "''") + "'," +
+                                            fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                            fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                            fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                            fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                            (bEndSec ? "1" : "0") + "," +
+                                            fRange.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                            fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                            "'" + strIdent + "'," +
+                                            fWidth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                            fHeading.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                            (bBackCourse ? "1" : "0") + ");";
+                                        cmd.ExecuteNonQuery();    
+                                    }
+                                }
+                            }
+                            else if (xmlnChild.Name == "TaxiwayPoint")
+                            {
+                                bool bReverse = false;
+                                foreach (XmlAttribute xmla in xmlnChild.Attributes)
+                                {
+                                    if (xmla.Name == "index")
+                                        nIdx = int.Parse(xmla.Value);
+                                    else if (xmla.Name == "type")
+                                    {
+                                        foreach (String strType in strTaxiPointTypes)
+                                        {
+                                            nType++;
+                                            if (strType == xmla.Value)
+                                                break;
+                                        }
+                                        if (nType > strTaxiPointTypes.Length)
+                                            throw new Exception("Invalid TaxiwayPointType");
+                                    }
+                                    else if (xmla.Name == "orientation")
+                                        bReverse = xmla.Value == "REVERSE";
+                                    else if (xmla.Name == "lat")
+                                        fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "lon")
+                                        fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                }
+                                cmd.CommandText = "INSERT INTO TaxiwayPoints (AirportID, [Index], TypeID, Longitude, Latitude, [Reverse]) VALUES (" +
+                                    nAPID.ToString() + "," +
+                                    nIdx.ToString() + "," +
+                                    nType.ToString() + "," +
+                                    fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    (bReverse ? "1" : "0") + ");";
+                                cmd.ExecuteNonQuery();
+                            }
+                            else if (xmlnChild.Name == "TaxiwayParking")
+                            {
+                                foreach (XmlAttribute xmla in xmlnChild.Attributes)
+                                {
+                                    if (xmla.Name == "index")
+                                        nIdx = int.Parse(xmla.Value);
+                                    else if (xmla.Name == "lat")
+                                        fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "lon")
+                                        fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "heading")
+                                        fHeading = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "radius")
+                                        fRange = float.Parse(xmla.Value.Substring( 0, xmla.Value.Length-1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "type")
+                                    {
+                                        foreach (String strType in strTaxiwayParkingTypes)
+                                        {
+                                            nType++;
+                                            if (strType == xmla.Value)
+                                                break;
+                                        }
+                                        if (nType > strTaxiwayParkingTypes.Length)
+                                            throw new Exception("Invalid TaxiwayParkingType");
+                                    }
+                                    else if (xmla.Name == "name")
+                                    {
+                                        foreach (String str in strTaxiwayParkingNames)
+                                        {
+                                            nName++;
+                                            if (str == xmla.Value)
+                                                break;
+                                        }
+                                        if (nName > strTaxiwayParkingNames.Length)
+                                            throw new Exception("Invalid TaxiwayParkingName");
+                                    }
+                                    else if (xmla.Name == "number")
+                                        nNumber = int.Parse(xmla.Value);
+                                }
+                                cmd.CommandText = "INSERT INTO TaxiwayParking (AirportID, [Index], Longitude, Latitude, Heading, Radius, TypeID, NameID, [Number]) VALUES (" +
+                                    nAPID.ToString() + "," +
+                                    nIdx.ToString() + "," +
+                                    fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    fHeading.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    fRange.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    nType.ToString() + "," +
+                                    nName.ToString() + "," +
+                                    nNumber.ToString() + ");";
+                                cmd.ExecuteNonQuery();
+                            }
+                            else if (xmlnChild.Name == "TaxiwayPath")
+                            {
+                                int nSurface = 0;
+                                int nIdxEnd = 0;
+                                foreach (XmlAttribute xmla in xmlnChild.Attributes)
+                                {
+                                    if (xmla.Name == "type")
+                                    {
+                                        foreach (String str in strTaxiwayPathTypes)
+                                        {
+                                            nType++;
+                                            if (str == xmla.Value)
+                                                break;
+                                        }
+                                        if (nType > strTaxiwayPathTypes.Length)
+                                            throw new Exception("Invalid TaxiwayPathType");
+                                    }
+                                    else if (xmla.Name == "start")
+                                        nIdx = int.Parse(xmla.Value);
+                                    else if (xmla.Name == "end")
+                                        nIdxEnd = int.Parse(xmla.Value);
+                                    else if (xmla.Name == "width")
+                                        fWidth = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "surface")
+                                    {
+                                        foreach (String str in strSurfaces)
+                                        {
+                                            nSurface++;
+                                            if (str == xmla.Value)
+                                                break;
+                                        }
+                                        if (nSurface > strSurfaces.Length)
+                                            throw new Exception("Invalid SurfaceType");
+                                        if (nSurface > 13)
+                                            nSurface--;
+                                    }
+                                    else if (xmla.Name == "number")
+                                    {
+                                        if (xmla.Value == "EAST")
+                                            nNumber = 1090;
+                                        else if (xmla.Value == "NORTH")
+                                            nNumber = 1000;
+                                        else if (xmla.Value == "NORTHEAST")
+                                            nNumber = 1045;
+                                        else if (xmla.Value == "NORTHWEST")
+                                            nNumber = 1315;
+                                        else if (xmla.Value == "SOUTH")
+                                            nNumber = 1180;
+                                        else if (xmla.Value == "SOUTHEAST")
+                                            nNumber = 1135;
+                                        else if (xmla.Value == "SOUTHWEST")
+                                            nNumber = 1225;
+                                        else if (xmla.Value == "WEST")
+                                            nNumber = 1270;
+                                        else
+                                            nNumber = int.Parse(xmla.Value);
+                                    }
+                                    else if (xmla.Name == "designator")
+                                        cPrimDesignator = xmla.Value[0];
+                                    else if (xmla.Name == "name")
+                                        nName = int.Parse(xmla.Value);
+                                }
+                                cmd.CommandText = "INSERT INTO TaxiwayPaths (AirportID, StartPointIndex, EndPointIndex, NameIndex, TypeID, Width, SurfaceID, [Number], Designator) VALUES (" +
+                                    nAPID.ToString() + "," +
+                                    nIdx.ToString() + "," +
+                                    nIdxEnd.ToString() + "," +
+                                    nName.ToString() + "," +
+                                    nType.ToString() + "," +
+                                    fWidth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    nSurface.ToString() + "," +
+                                    nNumber.ToString() + "," +
+                                    "'" + cPrimDesignator + "');";
+                                cmd.ExecuteNonQuery();
+                            }
+                            else if (xmlnChild.Name == "TaxiName")
+                            {
+                                foreach (XmlAttribute xmla in xmlnChild.Attributes)
+                                {
+                                    if (xmla.Name == "index")
+                                        nIdx = int.Parse(xmla.Value);
+                                    else if (xmla.Name == "name")
+                                        strName = xmla.Value;
+                                }
+                                cmd.CommandText = "INSERT INTO TaxiNames (AirportID, [Index], Name) VALUES (" +
+                                    nAPID.ToString() + "," +
+                                    nIdx.ToString() + "," +
+                                    "'" + strName.Replace("'", "''") + "');";
+                                cmd.ExecuteNonQuery();
+                            }
+                            else if (xmlnChild.Name == "TaxiwaySign")
+                            {
+                                foreach (XmlAttribute xmla in xmlnChild.Attributes)
+                                {
+                                    if (xmla.Name == "lat")
+                                        fLat = FsxConnection.ConvertDegToFloat2(xmla.Value);//float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "lon")
+                                        fLon = FsxConnection.ConvertDegToFloat2(xmla.Value); //float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "heading")
+                                        fHeading = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                    else if (xmla.Name == "label")
+                                        strName = xmla.Value;
+                                    else if (xmla.Name == "size")
+                                        nIdx = xmla.Value[4] - '0';
+                                    else if (xmla.Name == "justification")
+                                        bPrimPatternRight = xmla.Value == "RIGHT";
+                                }
+                                cmd.CommandText = "INSERT INTO TaxiwaySigns (AirportID, Longitude, Latitude, Heading, Label, JustifyRight, [Size]) VALUES (" +
+                                    nAPID.ToString() + "," +
+                                    fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    fHeading.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                    "'" + strName.Replace("'", "''") + "'," +
+                                    (bPrimPatternRight ? "1" : "0") + "," +
+                                    nIdx.ToString() + ");";
+                                cmd.ExecuteNonQuery();
+                            }
+                            else if (xmlnChild.Name == "BoundaryFence")
+                            {
+                                nIdx = 0;
+                                cmd.CommandText = "INSERT INTO AirportBoundary (AirportID, [Number]) VALUES (" +
+                                    nAPID.ToString() + "," +
+                                    nBoundNr.ToString() + ");";
+                                cmd.ExecuteNonQuery();
+                                cmd.CommandText = "SELECT @@IDENTITY";
+                                int nBoundID = (int)cmd.ExecuteScalar();
+                                for (XmlNode xmlnVertex = xmlnChild.FirstChild; xmlnVertex != null; xmlnVertex = xmlnVertex.NextSibling)
+                                {
+                                    cmd.CommandText = "INSERT INTO AirportBoundaryVertex (BoundaryID, SortNr, Longitude, Latitude) VALUES (" +
+                                        nBoundID.ToString() + "," +
+                                        nIdx.ToString() + "," +
+                                        xmlnVertex.Attributes["lon"].Value + "," +
+                                        xmlnVertex.Attributes["lat"].Value + ");";
+                                    cmd.ExecuteNonQuery();
+                                    nIdx++;
+                                }
+                                nBoundNr++;
+                            }
+                        }
+                    }
 
                     xmld = null;
                 }
-                catch
+//                catch( Exception e )
                 {
+//                    System.Diagnostics.Trace.WriteLine(e.Message);
                 }
             }
-
             dbCon.Close();
-            //            frmMain.kmlFactory.CreateNavAidsKML(strFileName, ref lstVOR, ref lstNDB);
-            /*           
-                        strFiles = Directory.GetFiles(strPath, "APX*.bgl", SearchOption.AllDirectories);
-                        foreach (String strBGLFile in strFiles)
-                        {
-                            System.Diagnostics.Trace.WriteLine(strBGLFile);
-                            try
-                            {
-                                System.Diagnostics.ProcessStartInfo ps = new System.Diagnostics.ProcessStartInfo(strBGL2XMLPath, "\"" + strBGLFile + "\" \"" + strTmpFile + "\"");
-                                ps.CreateNoWindow = true;
-                                ps.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                                System.Diagnostics.Process p = System.Diagnostics.Process.Start(ps);
-                                int nSecs = 0;
-                                while (!p.HasExited && nSecs < 10)
-                                {
-                                    nSecs++;
-                                    Thread.Sleep(1000);
-                                }
-                                if (!p.HasExited)
-                                {
-                                    System.Diagnostics.Trace.WriteLine("Killed");
-                                    p.Kill();
-                                    continue;
-                                }
-                            }
-                            catch
-                            {
-                            }
-
-                            try
-                            {
-                                XmlDocument xmld = new XmlDocument();
-                                xmld.Load(strTmpFile);
-                                XmlNodeList nodes = xmld.GetElementsByTagName("Airport");
-                            }
-                            catch
-                            {
-                            }
-                        }
-             */
             File.Delete(strTmpFile);
         }
         #endregion

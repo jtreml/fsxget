@@ -126,7 +126,6 @@
     <Content Include="data\fsxbuc.part" />
     <Content Include="data\fsxbum.part" />
     <Content Include="data\fsxget.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="data\fsxguc.part" />
     <Content Include="data\fsxgum.part" />
