@@ -87,7 +87,7 @@
       <DependentUpon>English.resx</DependentUpon>
     </Compile>
     <Compile Include="KmlFactory.cs" />
-    <None Include="KmlFiles.cs" />
+    <None Include="KmlFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="FsxgetForm.resx">
@@ -140,6 +140,8 @@
     <Content Include="data\fsxview.part" />
     <Content Include="data\fsxvor.part" />
     <Content Include="data\fsxvoroverlay.part" />
+    <Content Include="data\fsxapu.part" />
+    <Content Include="data\fsxtaxisignoverlay.part" />
     <None Include="data\settings.default" />
     <None Include="fsxget.exe.manifest" />
     <EmbeddedResource Include="data\gfx\icons\tbconnected.ico" />

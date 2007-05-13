@@ -1,0 +1,23 @@
+<Folder %ID%>
+	<name>%IDENT%</name>
+	<Placemark>
+		<name>%IDENT%</name>
+		<description><![CDATA[<B>Name:</B> %NAME%<br><B>Ident: </B> %IDENT% <br><B>Altitude:</B>  %ALTITUDE_UF%<br><B>Magnetic Variation:</B>  %MAGVAR%]]></description>
+		<Style>
+			<IconStyle>
+				<Icon>
+					<href>%ICON%</href>
+				</Icon>
+			</IconStyle>
+			<LabelStyle><scale>0.6</scale></LabelStyle>
+		</Style>
+		<Point>
+			<altitudeMode>absolute</altitudeMode>
+			<coordinates>%LONGITUDE%,%LATITUDE%</coordinates>
+		</Point>
+	</Placemark>
+	<Folder>
+		<name>Taxiway Signs</name>
+		%TAXIWAYSIGNS%
+	</Folder>
+</Folder>
