@@ -8,13 +8,27 @@
 				<Icon>
 					<href>%ICON%</href>
 				</Icon>
+				<heading>0</heading>
 			</IconStyle>
-			<LabelStyle><scale>0.6</scale></LabelStyle>
+			<LabelStyle><scale>0.8</scale></LabelStyle>
 		</Style>
 		<Point>
 			<altitudeMode>absolute</altitudeMode>
 			<coordinates>%LONGITUDE%,%LATITUDE%</coordinates>
 		</Point>
+	</Placemark>
+	<Placemark>
+		<name>Boundary Fences</name>
+		<Style>
+			<LineStyle>
+				<color>ffffffff</color>
+				<colorMode>normal</colorMode>
+				<width>1</width>            				
+			</LineStyle>
+		</Style>
+		<MultiGeometry>
+			%BOUNDARIES%
+		</MultiGeometry>
 	</Placemark>
 	<Folder>
 		<name>Taxiway Signs</name>

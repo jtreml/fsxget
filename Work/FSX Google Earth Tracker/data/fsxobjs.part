@@ -118,6 +118,17 @@
 			</NetworkLink>
 		</Folder>
 	</Folder>
+	<Folder id="fsxap">
+		<name>Airports</name>
+		<NetworkLink>
+		<name>Update</name>
+			<Link>
+				<href>%SERVER%/fsxapu.kml</href>
+				<refreshMode>onInterval</refreshMode>
+				<refreshInterval>10</refreshInterval>
+			</Link>
+		</NetworkLink>
+	</Folder>
 	<Folder>
 		<name>NAVAIDs</name>
 		<Folder id="fsxnavor">
@@ -141,17 +152,6 @@
 		<name>Update</name>
 			<Link>
 				<href>%SERVER%/fsxfpu.kml</href>
-				<refreshMode>onInterval</refreshMode>
-				<refreshInterval>10</refreshInterval>
-			</Link>
-		</NetworkLink>
-	</Folder>
-	<Folder id="fsxap">
-		<name>Airports</name>
-		<NetworkLink>
-		<name>Update</name>
-			<Link>
-				<href>%SERVER%/fsxapu.kml</href>
 				<refreshMode>onInterval</refreshMode>
 				<refreshInterval>10</refreshInterval>
 			</Link>

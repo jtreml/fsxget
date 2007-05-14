@@ -142,6 +142,7 @@ namespace Fsxget
 			httpServer.registerFile("/fsxfpu.kml", new ServerFileDynamic(szContentTypeKml, GenFlightplanUpdate));
 			httpServer.registerFile("/fsxnau.kml", new ServerFileDynamic(szContentTypeKml, GenNavAdisUpdate));
             httpServer.registerFile("/fsxapu.kml", new ServerFileDynamic(szContentTypeKml, GenAirportUpdate));
+            httpServer.registerFile("/fsxsapi", new ServerFileDynamic("image/png", GetAirportIcon));
 
 			// Register other documents with the HTTP server
 			httpServer.registerFile("/setfreq.html", new ServerFileDynamic("text/html", GenSetFreqHtml));
@@ -167,58 +168,58 @@ namespace Fsxget
 
 		public byte[] GenUserPositionUpdate(String query)
 		{
-			lock (fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.REQUEST_USER_AIRCRAFT].lockObject)
+			lock (fsxCon.lockUserAircraft)
 			{
 				String strKMLPart = GetExpireString((uint)Program.Config[Config.SETTING.QUERY_USER_AIRCRAFT]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
-				if (fsxCon.UserAircraft != null)
+				if (fsxCon.objUserAircraft != null)
 				{
-					switch (fsxCon.UserAircraft.State)
+					switch (fsxCon.objUserAircraft.State)
 					{
 						case FsxConnection.SceneryMovingObject.STATE.NEW:
 							strKMLPart += "<Create><Folder targetId=\"uacpos\">";
 							strKMLPart += (String)htKMLParts["fsxuc"];
-							strKMLPart = strKMLPart.Replace("%ID%", "id=\"" + fsxCon.UserAircraft.ObjectID.ToString() + "\"");
+							strKMLPart = strKMLPart.Replace("%ID%", "id=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "\"");
 							strKMLPart = strKMLPart.Replace("%ICON%", GetIconLink(KML_ICON_TYPES.USER_AIRCRAFT_POSITION));
 							strKMLPart += "</Folder></Create></Update>";
 							strKMLPart += (String)htKMLParts["fsxview"];
-							fsxCon.UserAircraft.ReplaceObjectInfos(ref strKMLPart);
+							fsxCon.objUserAircraft.ReplaceObjectInfos(ref strKMLPart);
 							break;
 						case FsxConnection.SceneryMovingObject.STATE.MODIFIED:
 							strKMLPart += "<Change>";
-							if (fsxCon.UserAircraft.HasChanged)
+							if (fsxCon.objUserAircraft.HasChanged)
 							{
 								strKMLPart += (String)htKMLParts["fsxuc"];
 							}
-							else if (fsxCon.UserAircraft.HasMoved)
+							else if (fsxCon.objUserAircraft.HasMoved)
 							{
 								strKMLPart += (String)htKMLParts["fsxum"];
 							}
-							strKMLPart = strKMLPart.Replace("%ID%", "targetId=\"" + fsxCon.UserAircraft.ObjectID.ToString() + "\"");
+							strKMLPart = strKMLPart.Replace("%ID%", "targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "\"");
 							strKMLPart = strKMLPart.Replace("%ICON%", GetIconLink(KML_ICON_TYPES.USER_AIRCRAFT_POSITION));
 							strKMLPart += "</Change></Update>";
 							strKMLPart += (String)htKMLParts["fsxview"];
-							fsxCon.UserAircraft.ReplaceObjectInfos(ref strKMLPart);
+							fsxCon.objUserAircraft.ReplaceObjectInfos(ref strKMLPart);
 							break;
 						case FsxConnection.SceneryObject.STATE.DELETED:
-							strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.UserAircraft.ObjectID.ToString() + "\"/></Delete>";
-							strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.UserAircraft.ObjectID.ToString() + "p\"/></Delete>";
-							strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.UserAircraft.ObjectID.ToString() + "pp\"/></Delete>";
-							if (fsxCon.UserAircraft.pathPrediction.HasPoints)
+							strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "\"/></Delete>";
+							strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "p\"/></Delete>";
+							strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "pp\"/></Delete>";
+							if (fsxCon.objUserAircraft.pathPrediction.HasPoints)
 							{
-								for (int i = 1; i < fsxCon.UserAircraft.pathPrediction.Positions.Length; i++)
+								for (int i = 1; i < fsxCon.objUserAircraft.pathPrediction.Positions.Length; i++)
 								{
-									strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.UserAircraft.ObjectID.ToString() + "pp" + i.ToString() + "\"/></Delete>";
+									strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "pp" + i.ToString() + "\"/></Delete>";
 								}
 							}
 							strKMLPart += "</Update>";
-                            fsxCon.CleanupHashtable(ref fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.REQUEST_USER_AIRCRAFT].htObjects);
+                            fsxCon.objUserAircraft = null;
 							break;
 						default:
 							strKMLPart += "</Update>";
 							break;
 					}
-					if (fsxCon.UserAircraft != null)
-						fsxCon.UserAircraft.State = FsxConnection.SceneryObject.STATE.DATAREAD;
+					if (fsxCon.objUserAircraft != null)
+						fsxCon.objUserAircraft.State = FsxConnection.SceneryObject.STATE.DATAREAD;
 				}
 				else
 					strKMLPart += "</Update>";
@@ -229,25 +230,25 @@ namespace Fsxget
 
 		public byte[] GenUserPath(String query)
 		{
-			lock (fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.REQUEST_USER_AIRCRAFT].lockObject)
+			lock (fsxCon.lockUserAircraft)
 			{
 				String strKMLPart = GetExpireString((uint)Program.Config[Config.SETTING.QUERY_USER_PATH]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
-				if (fsxCon.UserAircraft != null)
+				if (fsxCon.objUserAircraft != null)
 				{
-					switch (fsxCon.UserAircraft.objPath.State)
+					switch (fsxCon.objUserAircraft.objPath.State)
 					{
 						case FsxConnection.SceneryObject.STATE.NEW:
-							strKMLPart += "<Create><Folder targetId=\"uacpath\"><Placemark id=\"" + fsxCon.UserAircraft.ObjectID.ToString() + "p\">";
+							strKMLPart += "<Create><Folder targetId=\"uacpath\"><Placemark id=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "p\">";
 							strKMLPart += "<name>User Aircraft Path</name><description>Path of the user aircraft since tracking started.</description>";
 							strKMLPart += "<visibility>1</visibility><open>0</open><Style><LineStyle><color>9fffffff</color><width>2</width></LineStyle>";
 							strKMLPart += "</Style><LineString><altitudeMode>absolute</altitudeMode><coordinates>";
-							strKMLPart += fsxCon.UserAircraft.objPath.Coordinates + "</coordinates></LineString></Placemark></Folder></Create>";
+							strKMLPart += fsxCon.objUserAircraft.objPath.Coordinates + "</coordinates></LineString></Placemark></Folder></Create>";
 							break;
 						case FsxConnection.SceneryObject.STATE.MODIFIED:
-							strKMLPart += "<Change><Placemark targetId=\"" + fsxCon.UserAircraft.ObjectID.ToString() + "p\"><LineString><coordinates>" + fsxCon.UserAircraft.objPath.Coordinates + "</coordinates></LineString></Placemark></Change>";
+							strKMLPart += "<Change><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "p\"><LineString><coordinates>" + fsxCon.objUserAircraft.objPath.Coordinates + "</coordinates></LineString></Placemark></Change>";
 							break;
 					}
-					fsxCon.UserAircraft.objPath.State = FsxConnection.SceneryObject.STATE.DATAREAD;
+					fsxCon.objUserAircraft.objPath.State = FsxConnection.SceneryObject.STATE.DATAREAD;
 				}
 				return encodeDefault(strUpdateKMLHeader + strKMLPart + "</Update>" + strUpdateKMLFooter);
 			}
@@ -255,30 +256,30 @@ namespace Fsxget
 
 		public byte[] GenUserPrediction(String query)
 		{
-            lock (fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.REQUEST_USER_AIRCRAFT].lockObject)
+            lock (fsxCon.lockUserAircraft)
 			{
 				String strKMLPart = GetExpireString((uint)Program.Config[Config.SETTING.USER_PATH_PREDICTION]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
-				if (fsxCon.UserAircraft != null)
+				if (fsxCon.objUserAircraft != null)
 				{
-					switch (fsxCon.UserAircraft.pathPrediction.State)
+					switch (fsxCon.objUserAircraft.pathPrediction.State)
 					{
 						case FsxConnection.SceneryObject.STATE.NEW:
-							strKMLPart += "<Create><Folder targetId=\"uacpre\"><Placemark id=\"" + fsxCon.UserAircraft.ObjectID.ToString() + "pp\">";
+							strKMLPart += "<Create><Folder targetId=\"uacpre\"><Placemark id=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "pp\">";
 							strKMLPart += "<name>User Aircraft Path Prediction</name><description>Path prediction of the user aircraft.</description>";
 							strKMLPart += "<visibility>1</visibility><open>0</open><Style><LineStyle><color>9f00ffff</color><width>2</width>";
 							strKMLPart += "</LineStyle></Style><LineString><altitudeMode>absolute</altitudeMode><coordinates>";
-							strKMLPart += fsxCon.UserAircraft.pathPrediction.Positions[0].Coordinate + " " + fsxCon.UserAircraft.pathPrediction.Positions[fsxCon.UserAircraft.pathPrediction.Positions.Length - 1].Coordinate;
+							strKMLPart += fsxCon.objUserAircraft.pathPrediction.Positions[0].Coordinate + " " + fsxCon.objUserAircraft.pathPrediction.Positions[fsxCon.objUserAircraft.pathPrediction.Positions.Length - 1].Coordinate;
 							strKMLPart += "</coordinates></LineString></Placemark></Folder></Create>";
-							strKMLPart += GenPredictionPoints(fsxCon.UserAircraft, KML_ICON_TYPES.USER_PREDICTION_POINT, "uacprepts");
+							strKMLPart += GenPredictionPoints(fsxCon.objUserAircraft, KML_ICON_TYPES.USER_PREDICTION_POINT, "uacprepts");
 							break;
 						case FsxConnection.SceneryObject.STATE.MODIFIED:
-							strKMLPart += "<Change><Placemark targetId=\"" + fsxCon.UserAircraft.ObjectID.ToString() + "pp\"><LineString><coordinates>";
-							strKMLPart += fsxCon.UserAircraft.pathPrediction.Positions[0].Coordinate + " " + fsxCon.UserAircraft.pathPrediction.Positions[fsxCon.UserAircraft.pathPrediction.Positions.Length - 1].Coordinate;
+							strKMLPart += "<Change><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "pp\"><LineString><coordinates>";
+							strKMLPart += fsxCon.objUserAircraft.pathPrediction.Positions[0].Coordinate + " " + fsxCon.objUserAircraft.pathPrediction.Positions[fsxCon.objUserAircraft.pathPrediction.Positions.Length - 1].Coordinate;
 							strKMLPart += "</coordinates></LineString></Placemark></Change>";
-							strKMLPart += GenPredictionPoints(fsxCon.UserAircraft);
+							strKMLPart += GenPredictionPoints(fsxCon.objUserAircraft);
 							break;
 					}
-					fsxCon.UserAircraft.pathPrediction.State = FsxConnection.SceneryObject.STATE.DATAREAD;
+					fsxCon.objUserAircraft.pathPrediction.State = FsxConnection.SceneryObject.STATE.DATAREAD;
 				}
 				return encodeDefault(strUpdateKMLHeader + strKMLPart + "</Update>" + strUpdateKMLFooter);
 			}
@@ -287,9 +288,9 @@ namespace Fsxget
 		public byte[] GenAIAircraftUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_AI_AIRCRAFTS]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
-			lock (fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.REQUEST_AI_PLANE].lockObject)
+			lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_PLANE].lockObject)
 			{
-				strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.REQUEST_AI_PLANE].htObjects, "aia", "fsxau", KML_ICON_TYPES.AI_AIRCRAFT, KML_ICON_TYPES.AI_AIRCRAFT_PREDICTION_POINT, "9fd20091");
+				strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_PLANE].htObjects, "aia", "fsxau", KML_ICON_TYPES.AI_AIRCRAFT, KML_ICON_TYPES.AI_AIRCRAFT_PREDICTION_POINT, "9fd20091");
 			}
 			strKML += "</Update>" + strUpdateKMLFooter;
 			return encodeDefault(strKML);
@@ -298,9 +299,9 @@ namespace Fsxget
 		public byte[] GenAIHelicpoterUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
-			lock (fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.REQUEST_AI_HELICOPTER].lockObject)
+			lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_HELICOPTER].lockObject)
 			{
-                strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.REQUEST_AI_HELICOPTER].htObjects, "aih", "fsxhu", KML_ICON_TYPES.AI_HELICOPTER, KML_ICON_TYPES.AI_HELICOPTER_PREDICTION_POINT, "9fd20091");
+                strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_HELICOPTER].htObjects, "aih", "fsxhu", KML_ICON_TYPES.AI_HELICOPTER, KML_ICON_TYPES.AI_HELICOPTER_PREDICTION_POINT, "9fd20091");
 			}
 			strKML += "</Update>" + strUpdateKMLFooter;
 			return encodeDefault(strKML);
@@ -309,9 +310,9 @@ namespace Fsxget
 		public byte[] GenAIBoatUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_AI_BOATS]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
-            lock (fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.REQUEST_AI_BOAT].lockObject)
+            lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_BOAT].lockObject)
 			{
-                strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.REQUEST_AI_BOAT].htObjects, "aib", "fsxbu", KML_ICON_TYPES.AI_BOAT, KML_ICON_TYPES.AI_BOAT_PREDICTION_POINT, "9fd20091");
+                strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_BOAT].htObjects, "aib", "fsxbu", KML_ICON_TYPES.AI_BOAT, KML_ICON_TYPES.AI_BOAT_PREDICTION_POINT, "9fd20091");
 			}
 			strKML += "</Update>" + strUpdateKMLFooter;
 			//            File.WriteAllText(String.Format("C:\\temp\\boatupd{0}.kml", nFileNr++), strKML, Encoding.UTF8);
@@ -321,9 +322,9 @@ namespace Fsxget
 		public byte[] GenAIGroundUnitUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
-            lock (fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.REQUEST_AI_GROUND].lockObject)
+            lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_GROUND].lockObject)
 			{
-                strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.REQUEST_AI_GROUND].htObjects, "aig", "fsxgu", KML_ICON_TYPES.AI_GROUND_UNIT, KML_ICON_TYPES.AI_GROUND_PREDICTION_POINT, "9fd20091");
+                strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_GROUND].htObjects, "aig", "fsxgu", KML_ICON_TYPES.AI_GROUND_UNIT, KML_ICON_TYPES.AI_GROUND_PREDICTION_POINT, "9fd20091");
 			}
 			strKML += "</Update>" + strUpdateKMLFooter;
 			return encodeDefault(strKML);
@@ -370,9 +371,9 @@ namespace Fsxget
 		public byte[] GenNavAdisUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
-            lock (fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.NAVAIDS].lockObject)
+            lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.NAVAIDS].lockObject)
 			{
-				foreach (DictionaryEntry entry in fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.NAVAIDS].htObjects)
+				foreach (DictionaryEntry entry in fsxCon.objects[(int)FsxConnection.OBJCONTAINER.NAVAIDS].htObjects)
 				{
 					FsxConnection.SceneryDBObject navaid = (FsxConnection.SceneryDBObject)entry.Value;
 					switch (navaid.State)
@@ -387,7 +388,7 @@ namespace Fsxget
 							break;
 					}
 				}
-				fsxCon.CleanupHashtable(ref fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.NAVAIDS].htObjects);
+				fsxCon.CleanupHashtable(ref fsxCon.objects[(int)FsxConnection.OBJCONTAINER.NAVAIDS].htObjects);
 			}
 			return encodeDefault(strKML + "</Update>" + strUpdateKMLFooter);
 		}
@@ -438,9 +439,9 @@ namespace Fsxget
         public byte[] GenAirportUpdate(String query)
         {
             String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
-            lock (fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.AIRPORTS].lockObject)
+            lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].lockObject)
             {
-                foreach (DictionaryEntry entry in fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.AIRPORTS].htObjects)
+                foreach (DictionaryEntry entry in fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].htObjects)
                 {
                     FsxConnection.SceneryDBObject airport = (FsxConnection.SceneryDBObject)entry.Value;
                     switch (airport.State)
@@ -455,7 +456,7 @@ namespace Fsxget
                             break;
                     }
                 }
-                fsxCon.CleanupHashtable(ref fsxCon.objects[(int)FsxConnection.DATA_REQUESTS.AIRPORTS].htObjects);
+                fsxCon.CleanupHashtable(ref fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].htObjects);
             }
             return encodeDefault(strKML + "</Update>" + strUpdateKMLFooter);
         }
@@ -724,13 +725,13 @@ namespace Fsxget
         private String GenAirportKml(ref FsxConnection.SceneryDBObject airport)
         {
 			String strKMLPart = "<Create><Folder targetId=\"fsxap\">";
-            OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, Longitude, Latitude, Altitude, MagVar FROM airports WHERE ID=" + airport.ObjectID.ToString(), dbCon);
+            OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, Longitude, Latitude, Altitude, MagVar FROM airports WHERE ID=" + airport.ObjectID.ToString() + " ORDER BY Ident", dbCon);
             OleDbDataReader rd = cmd.ExecuteReader();
             if (rd.Read())
             {
                 strKMLPart += htKMLParts["fsxapu"];
                 strKMLPart = strKMLPart.Replace("%IDENT%", rd.GetString(0));
-                strKMLPart = strKMLPart.Replace("%ICON%", GetIconLink(KML_ICON_TYPES.AIRPORT));
+                strKMLPart = strKMLPart.Replace("%ICON%", Program.Config.Server + "/fsxsapi?" + airport.ObjectID.ToString());
                 strKMLPart = strKMLPart.Replace("%NAME%", rd.GetString(1));
                 strKMLPart = strKMLPart.Replace("%LONGITUDE%", XmlConvert.ToString(rd.GetFloat(2)));
                 strKMLPart = strKMLPart.Replace("%LATITUDE%", XmlConvert.ToString(rd.GetFloat(3)));
@@ -738,7 +739,36 @@ namespace Fsxget
                 strKMLPart = strKMLPart.Replace("%MAGVAR%", XmlConvert.ToString(rd.GetFloat(5)));
             }
             rd.Close();
+            cmd.CommandText = "SELECT [Number], Longitude, Latitude FROM AirportBoundary INNER JOIN AirportBoundaryVertex ON AirportBoundary.ID=AirportBoundaryVertex.BoundaryID WHERE AirportID=" + airport.ObjectID.ToString() + " ORDER BY [Number],SortNr";
+            rd = cmd.ExecuteReader();
+            String strBoundary = "";
+            int nNumber = -1;
+            while (rd.Read())
+            {
+                if (rd.GetInt32(0) != nNumber)
+                {
+                    if (nNumber > -1)
+                        strBoundary += "</coordinates></LineString>";
+                    nNumber = rd.GetInt32(0);
+                    strBoundary += "<LineString><tessellate>1</tessellate><coordinates>";
+                }
+                strBoundary += XmlConvert.ToString(rd.GetFloat(1)) + "," + XmlConvert.ToString(rd.GetFloat(2)) + " ";
+            }
+            rd.Close();
+            if( strBoundary.Length > 0 )
+                strBoundary += "</coordinates></LineString>";
+            strKMLPart = strKMLPart.Replace("%BOUNDARIES%", strBoundary);
             return strKMLPart + "</Folder></Create>";
+        }
+
+        public byte[] GetAirportIcon(String query)
+        {
+            Bitmap bmp = FsxConnection.RenderSimpleAirportIcon(int.Parse(query.Substring(1)), dbCon);
+            byte[] bBuffer = new byte[4096];
+            MemoryStream ms = new MemoryStream(bBuffer);
+            bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+            ms.Close();
+            return bBuffer;
         }
 
         public static void MovePoint(float fLongitude, float fLatitude, float fHeading, float fDistMeter, ref float fLonResult, ref float fLatResult)
