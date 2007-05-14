@@ -173,6 +173,7 @@
     <Content Include="pub\gfx\ge\icons\fsxaippp.png" />
     <EmbeddedResource Include="pub\gfx\ge\icons\fsxapd.png" />
     <EmbeddedResource Include="pub\gfx\ge\icons\fsxapl.png" />
+    <EmbeddedResource Include="pub\gfx\ge\icons\fsxapw.png" />
     <Content Include="pub\gfx\ge\icons\fsxdme.png" />
     <Content Include="pub\gfx\ge\icons\fsxndb.png" />
     <Content Include="pub\gfx\ge\icons\fsxpm.png" />
