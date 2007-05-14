@@ -69,19 +69,19 @@ namespace Fsxget
 		protected String strUpdateKMLFooter;
 		protected Hashtable htKMLParts;
 		protected Hashtable htFlightPlans;
-        protected OleDbConnection dbCon;
-        protected static double dPI180 = Math.PI / 180;
-        protected static double d180PI = 180 / Math.PI;
+		protected OleDbConnection dbCon;
+		protected static double dPI180 = Math.PI / 180;
+		protected static double d180PI = 180 / Math.PI;
 
-        #endregion
+		#endregion
 
 		public KmlFactory(ref FsxConnection fsxCon, ref HttpServer httpServer)
 		{
 			this.fsxCon = fsxCon;
 			this.httpServer = httpServer;
 
-            dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
-            dbCon.Open();
+			dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
+			dbCon.Open();
 
 			htKMLParts = new Hashtable();
 
@@ -141,17 +141,23 @@ namespace Fsxget
 			httpServer.registerFile("/fsxpreu.kml", new ServerFileDynamic(szContentTypeKml, GenUserPrediction));
 			httpServer.registerFile("/fsxfpu.kml", new ServerFileDynamic(szContentTypeKml, GenFlightplanUpdate));
 			httpServer.registerFile("/fsxnau.kml", new ServerFileDynamic(szContentTypeKml, GenNavAdisUpdate));
-            httpServer.registerFile("/fsxapu.kml", new ServerFileDynamic(szContentTypeKml, GenAirportUpdate));
-            httpServer.registerFile("/fsxsapi", new ServerFileDynamic("image/png", GetAirportIcon));
+			httpServer.registerFile("/fsxapu.kml", new ServerFileDynamic(szContentTypeKml, GenAirportUpdate));
+			httpServer.registerFile("/fsxsapi", new ServerFileDynamic("image/png", GetAirportIcon));
 
 			// Register other documents with the HTTP server
 			httpServer.registerFile("/setfreq.html", new ServerFileDynamic("text/html", GenSetFreqHtml));
 		}
-        
-        ~KmlFactory()
-        {
-            dbCon.Close();
-        }
+
+		~KmlFactory()
+		{
+			while (dbCon.State != System.Data.ConnectionState.Closed && dbCon.State != System.Data.ConnectionState.Open)
+			{
+				if (dbCon.State == System.Data.ConnectionState.Closed)
+					return;
+
+				dbCon.Close();
+			}
+		}
 
 		public void CreateStartupKML(String strFile)
 		{
@@ -212,7 +218,7 @@ namespace Fsxget
 								}
 							}
 							strKMLPart += "</Update>";
-                            fsxCon.objUserAircraft = null;
+							fsxCon.objUserAircraft = null;
 							break;
 						default:
 							strKMLPart += "</Update>";
@@ -256,7 +262,7 @@ namespace Fsxget
 
 		public byte[] GenUserPrediction(String query)
 		{
-            lock (fsxCon.lockUserAircraft)
+			lock (fsxCon.lockUserAircraft)
 			{
 				String strKMLPart = GetExpireString((uint)Program.Config[Config.SETTING.USER_PATH_PREDICTION]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
 				if (fsxCon.objUserAircraft != null)
@@ -301,7 +307,7 @@ namespace Fsxget
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
 			lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_HELICOPTER].lockObject)
 			{
-                strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_HELICOPTER].htObjects, "aih", "fsxhu", KML_ICON_TYPES.AI_HELICOPTER, KML_ICON_TYPES.AI_HELICOPTER_PREDICTION_POINT, "9fd20091");
+				strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_HELICOPTER].htObjects, "aih", "fsxhu", KML_ICON_TYPES.AI_HELICOPTER, KML_ICON_TYPES.AI_HELICOPTER_PREDICTION_POINT, "9fd20091");
 			}
 			strKML += "</Update>" + strUpdateKMLFooter;
 			return encodeDefault(strKML);
@@ -310,9 +316,9 @@ namespace Fsxget
 		public byte[] GenAIBoatUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_AI_BOATS]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
-            lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_BOAT].lockObject)
+			lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_BOAT].lockObject)
 			{
-                strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_BOAT].htObjects, "aib", "fsxbu", KML_ICON_TYPES.AI_BOAT, KML_ICON_TYPES.AI_BOAT_PREDICTION_POINT, "9fd20091");
+				strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_BOAT].htObjects, "aib", "fsxbu", KML_ICON_TYPES.AI_BOAT, KML_ICON_TYPES.AI_BOAT_PREDICTION_POINT, "9fd20091");
 			}
 			strKML += "</Update>" + strUpdateKMLFooter;
 			//            File.WriteAllText(String.Format("C:\\temp\\boatupd{0}.kml", nFileNr++), strKML, Encoding.UTF8);
@@ -322,9 +328,9 @@ namespace Fsxget
 		public byte[] GenAIGroundUnitUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
-            lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_GROUND].lockObject)
+			lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_GROUND].lockObject)
 			{
-                strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_GROUND].htObjects, "aig", "fsxgu", KML_ICON_TYPES.AI_GROUND_UNIT, KML_ICON_TYPES.AI_GROUND_PREDICTION_POINT, "9fd20091");
+				strKML += GetAIObjectUpdate(fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AI_GROUND].htObjects, "aig", "fsxgu", KML_ICON_TYPES.AI_GROUND_UNIT, KML_ICON_TYPES.AI_GROUND_PREDICTION_POINT, "9fd20091");
 			}
 			strKML += "</Update>" + strUpdateKMLFooter;
 			return encodeDefault(strKML);
@@ -371,7 +377,7 @@ namespace Fsxget
 		public byte[] GenNavAdisUpdate(String query)
 		{
 			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
-            lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.NAVAIDS].lockObject)
+			lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.NAVAIDS].lockObject)
 			{
 				foreach (DictionaryEntry entry in fsxCon.objects[(int)FsxConnection.OBJCONTAINER.NAVAIDS].htObjects)
 				{
@@ -428,7 +434,7 @@ namespace Fsxget
 					bError = true;
 			}
 
-			
+
 
 			if (bError)
 				return encodeDefault("<html><body>" + System.Web.HttpUtility.HtmlEncode(Program.getText("Kml_SetFreq_Error")) + "</body></html>");
@@ -436,78 +442,78 @@ namespace Fsxget
 				return encodeDefault("<html><body>" + System.Web.HttpUtility.HtmlEncode(Program.getText("Kml_SetFreq_Ok")) + "</body></html>");
 		}
 
-        public byte[] GenAirportUpdate(String query)
-        {
-            String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
-            lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].lockObject)
-            {
-                foreach (DictionaryEntry entry in fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].htObjects)
-                {
-                    FsxConnection.SceneryDBObject airport = (FsxConnection.SceneryDBObject)entry.Value;
-                    switch (airport.State)
-                    {
-                        case FsxConnection.SceneryObject.STATE.NEW:
-                            strKML += GenAirportKml(ref airport);
-                            strKML = strKML.Replace("%ID%", "id=\"ap" + airport.ObjectID.ToString() + "\"");
-                            airport.State = FsxConnection.SceneryObject.STATE.DATAREAD;
-                            break;
-                        case FsxConnection.SceneryObject.STATE.DELETED:
-                            strKML += "<Delete><Folder targetId=\"ap" + airport.ObjectID.ToString() + "\"/></Delete>";
-                            break;
-                    }
-                }
-                fsxCon.CleanupHashtable(ref fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].htObjects);
-            }
-            return encodeDefault(strKML + "</Update>" + strUpdateKMLFooter);
-        }
-        
-        public void GenTaxiSignsKML()
-        {
-            String strKML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Document><name>LEMD</name>";
-            OleDbConnection dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
-            dbCon.Open();
-            OleDbCommand cmd = new OleDbCommand("SELECT Longitude, Latitude, Label, Heading FROM TaxiwaySigns WHERE AirportID=5742", dbCon);
-            OleDbDataReader rd = cmd.ExecuteReader();
-            int nFile = 1;
-            while (rd.Read())
-            {
-                String strFile = String.Format("C:\\taxisign{0}.png", nFile++);
-                Bitmap bmp = FsxConnection.RenderTaxiwaySign(rd.GetString(2));
-                bmp.Save(strFile, System.Drawing.Imaging.ImageFormat.Png);
-                int nBreite = bmp.Width / 16;
-                int nHoehe = bmp.Height / 16;
-                float fLon = rd.GetFloat(0);
-                float fLat = rd.GetFloat(1);
-                float fLonE = 0;
-                float fLatN = 0;
-                float fLonW = 0;
-                float fLatS = 0;
-                float fTmp = 0;
-                KmlFactory.MovePoint(fLon, fLat, 90, nBreite / 2, ref fLonE, ref fTmp);
-                KmlFactory.MovePoint(fLon, fLat, 180, nHoehe / 2, ref fTmp, ref fLatS);
-                KmlFactory.MovePoint(fLon, fLat, 270, nBreite / 2, ref fLonW, ref fTmp);
-                KmlFactory.MovePoint(fLon, fLat, 0, nHoehe / 2, ref fTmp, ref fLatN);
-                fTmp = rd.GetFloat(3);
-                fTmp -= 90;
-                if (fTmp > 180)
-                {
-                    fTmp = (360 - fTmp) * -1;
-                }
-                fTmp *= -1;
-                //                strKML += "<Placemark><name>" + XmlConvert.ToString( rd.GetFloat(3) ) + " - " + XmlConvert.ToString( fTmp ) + "</name><Point><coordinates>" + XmlConvert.ToString(fLon) + "," + XmlConvert.ToString(fLat) + "</coordinates></Point></Placemark>";
-                strKML += "<GroundOverlay><Icon><href>" + strFile.Substring(3) + "</href></Icon><LatLonBox>";
-                strKML += "<north>" + XmlConvert.ToString(fLatN) + "</north>";
-                strKML += "<south>" + XmlConvert.ToString(fLatS) + "</south>";
-                strKML += "<east>" + XmlConvert.ToString(fLonE) + "</east>";
-                strKML += "<west>" + XmlConvert.ToString(fLonW) + "</west>";
-                strKML += "<rotation>" + XmlConvert.ToString(fTmp) + "</rotation>";
-                strKML += "</LatLonBox></GroundOverlay>";
-            }
-            rd.Close();
-            dbCon.Close();
-            strKML += "</Document></kml>";
-            File.WriteAllText("C:\\test.kml", strKML, Encoding.UTF8);
-        }
+		public byte[] GenAirportUpdate(String query)
+		{
+			String strKML = strUpdateKMLHeader + GetExpireString((uint)Program.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
+			lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].lockObject)
+			{
+				foreach (DictionaryEntry entry in fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].htObjects)
+				{
+					FsxConnection.SceneryDBObject airport = (FsxConnection.SceneryDBObject)entry.Value;
+					switch (airport.State)
+					{
+						case FsxConnection.SceneryObject.STATE.NEW:
+							strKML += GenAirportKml(ref airport);
+							strKML = strKML.Replace("%ID%", "id=\"ap" + airport.ObjectID.ToString() + "\"");
+							airport.State = FsxConnection.SceneryObject.STATE.DATAREAD;
+							break;
+						case FsxConnection.SceneryObject.STATE.DELETED:
+							strKML += "<Delete><Folder targetId=\"ap" + airport.ObjectID.ToString() + "\"/></Delete>";
+							break;
+					}
+				}
+				fsxCon.CleanupHashtable(ref fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].htObjects);
+			}
+			return encodeDefault(strKML + "</Update>" + strUpdateKMLFooter);
+		}
+
+		public void GenTaxiSignsKML()
+		{
+			String strKML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Document><name>LEMD</name>";
+			OleDbConnection dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
+			dbCon.Open();
+			OleDbCommand cmd = new OleDbCommand("SELECT Longitude, Latitude, Label, Heading FROM TaxiwaySigns WHERE AirportID=5742", dbCon);
+			OleDbDataReader rd = cmd.ExecuteReader();
+			int nFile = 1;
+			while (rd.Read())
+			{
+				String strFile = String.Format("C:\\taxisign{0}.png", nFile++);
+				Bitmap bmp = FsxConnection.RenderTaxiwaySign(rd.GetString(2));
+				bmp.Save(strFile, System.Drawing.Imaging.ImageFormat.Png);
+				int nBreite = bmp.Width / 16;
+				int nHoehe = bmp.Height / 16;
+				float fLon = rd.GetFloat(0);
+				float fLat = rd.GetFloat(1);
+				float fLonE = 0;
+				float fLatN = 0;
+				float fLonW = 0;
+				float fLatS = 0;
+				float fTmp = 0;
+				KmlFactory.MovePoint(fLon, fLat, 90, nBreite / 2, ref fLonE, ref fTmp);
+				KmlFactory.MovePoint(fLon, fLat, 180, nHoehe / 2, ref fTmp, ref fLatS);
+				KmlFactory.MovePoint(fLon, fLat, 270, nBreite / 2, ref fLonW, ref fTmp);
+				KmlFactory.MovePoint(fLon, fLat, 0, nHoehe / 2, ref fTmp, ref fLatN);
+				fTmp = rd.GetFloat(3);
+				fTmp -= 90;
+				if (fTmp > 180)
+				{
+					fTmp = (360 - fTmp) * -1;
+				}
+				fTmp *= -1;
+				//                strKML += "<Placemark><name>" + XmlConvert.ToString( rd.GetFloat(3) ) + " - " + XmlConvert.ToString( fTmp ) + "</name><Point><coordinates>" + XmlConvert.ToString(fLon) + "," + XmlConvert.ToString(fLat) + "</coordinates></Point></Placemark>";
+				strKML += "<GroundOverlay><Icon><href>" + strFile.Substring(3) + "</href></Icon><LatLonBox>";
+				strKML += "<north>" + XmlConvert.ToString(fLatN) + "</north>";
+				strKML += "<south>" + XmlConvert.ToString(fLatS) + "</south>";
+				strKML += "<east>" + XmlConvert.ToString(fLonE) + "</east>";
+				strKML += "<west>" + XmlConvert.ToString(fLonW) + "</west>";
+				strKML += "<rotation>" + XmlConvert.ToString(fTmp) + "</rotation>";
+				strKML += "</LatLonBox></GroundOverlay>";
+			}
+			rd.Close();
+			dbCon.Close();
+			strKML += "</Document></kml>";
+			File.WriteAllText("C:\\test.kml", strKML, Encoding.UTF8);
+		}
 
 		private String GetAIObjectUpdate(Hashtable ht, String strFolderPrefix, String strPartFile, KML_ICON_TYPES icoObject, KML_ICON_TYPES icoPredictionPoint, String strPredictionColor)
 		{
@@ -632,7 +638,7 @@ namespace Fsxget
 
 		public String GetIconLink(KML_ICON_TYPES icon)
 		{
-			if(httpServer.fileExists("/gfx/ge/icons/" + strIconNames[(int)icon]))
+			if (httpServer.fileExists("/gfx/ge/icons/" + strIconNames[(int)icon]))
 				return Program.Config.Server + "/gfx/ge/icons/" + strIconNames[(int)icon];
 			else
 				return Program.Config.Server + "/gfx/noimage.png";
@@ -668,110 +674,110 @@ namespace Fsxget
 		private String GenNavAidKml(ref FsxConnection.SceneryDBObject navaid)
 		{
 			String strKMLPart = "<Create><Folder targetId=\"";
-            OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, TypeID, Longitude, Latitude, Altitude, MagVar, Range, Freq FROM navaids WHERE ID=" + navaid.ObjectID.ToString(), dbCon);
-            OleDbDataReader rd = cmd.ExecuteReader();
-            if (rd.Read())
-            {
-                KML_ICON_TYPES tIconType = KML_ICON_TYPES.NONE;
-                switch( rd.GetInt32(2) )    
-                {
-                    case 1:
-                        strKMLPart += "fsxnavor\">";
-                        strKMLPart += (String)htKMLParts["fsxvor"];
-                        strKMLPart = strKMLPart.Replace("%TYPE%", "DME");
-                        tIconType = KML_ICON_TYPES.DME;
-                        break;
-                    case 2:
-                        strKMLPart += "fsxnavor\">";
-                        strKMLPart += (String)htKMLParts["fsxvor"];
-                        strKMLPart = strKMLPart.Replace("%TYPE%", "VOR");
-                        strKMLPart += GenVorKML(navaid.ObjectID, rd.GetFloat(3), rd.GetFloat(4), rd.GetFloat(6));
-                        tIconType = KML_ICON_TYPES.VOR;
-                        break;
-                    case 3:
-                        strKMLPart += "fsxnavor\">";
-                        strKMLPart += (String)htKMLParts["fsxvor"];
-                        strKMLPart = strKMLPart.Replace("%TYPE%", "VOR / DME");
-                        strKMLPart += GenVorKML(navaid.ObjectID, rd.GetFloat(3), rd.GetFloat(4), rd.GetFloat(6));
-                        tIconType = KML_ICON_TYPES.VORDME;
-                        break;
-                    case 4:
-                        strKMLPart += "fsxnandb\">";
-                        strKMLPart += (String)htKMLParts["fsxndb"];
-                        strKMLPart = strKMLPart.Replace("%TYPE%", "NDB");
-                        tIconType = KML_ICON_TYPES.NDB;
-                        break;
-                    default:
-                        return "";
-                }
-                strKMLPart = strKMLPart.Replace("%ICON%", GetIconLink(tIconType));
-                strKMLPart = strKMLPart.Replace("%ID%", "id=\"na" + navaid.ObjectID.ToString() + "\"");
-                strKMLPart = strKMLPart.Replace("%NAME%", rd.GetString(1));
-                strKMLPart = strKMLPart.Replace("%MAGVAR%", XmlConvert.ToString(rd.GetFloat(6)));
-                strKMLPart = strKMLPart.Replace("%IDENT%", rd.GetString(0));
-                strKMLPart = strKMLPart.Replace("%MORSE%", FsxConnection.GetMorseCode(rd.GetString(0)));
-                strKMLPart = strKMLPart.Replace("%FREQUENCY_UF%", String.Format("{0:F2}", rd.GetFloat(8)));
-                strKMLPart = strKMLPart.Replace("%FREQUENCY%", XmlConvert.ToString(rd.GetFloat(8)));
-                strKMLPart = strKMLPart.Replace("%ALTITUDE%", XmlConvert.ToString(rd.GetFloat(5)));
-                strKMLPart = strKMLPart.Replace("%ALTITUDE_UF%", String.Format("{0:F2}ft", rd.GetFloat(5) * 3.28095));
-                strKMLPart = strKMLPart.Replace("%LONGITUDE%", XmlConvert.ToString(rd.GetFloat(3)));
-                strKMLPart = strKMLPart.Replace("%LATITUDE%", XmlConvert.ToString(rd.GetFloat(4)));
-                strKMLPart = strKMLPart.Replace("%SERVER%", Program.Config.Server);
-            }
-            rd.Close();
+			OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, TypeID, Longitude, Latitude, Altitude, MagVar, Range, Freq FROM navaids WHERE ID=" + navaid.ObjectID.ToString(), dbCon);
+			OleDbDataReader rd = cmd.ExecuteReader();
+			if (rd.Read())
+			{
+				KML_ICON_TYPES tIconType = KML_ICON_TYPES.NONE;
+				switch (rd.GetInt32(2))
+				{
+					case 1:
+						strKMLPart += "fsxnavor\">";
+						strKMLPart += (String)htKMLParts["fsxvor"];
+						strKMLPart = strKMLPart.Replace("%TYPE%", "DME");
+						tIconType = KML_ICON_TYPES.DME;
+						break;
+					case 2:
+						strKMLPart += "fsxnavor\">";
+						strKMLPart += (String)htKMLParts["fsxvor"];
+						strKMLPart = strKMLPart.Replace("%TYPE%", "VOR");
+						strKMLPart += GenVorKML(navaid.ObjectID, rd.GetFloat(3), rd.GetFloat(4), rd.GetFloat(6));
+						tIconType = KML_ICON_TYPES.VOR;
+						break;
+					case 3:
+						strKMLPart += "fsxnavor\">";
+						strKMLPart += (String)htKMLParts["fsxvor"];
+						strKMLPart = strKMLPart.Replace("%TYPE%", "VOR / DME");
+						strKMLPart += GenVorKML(navaid.ObjectID, rd.GetFloat(3), rd.GetFloat(4), rd.GetFloat(6));
+						tIconType = KML_ICON_TYPES.VORDME;
+						break;
+					case 4:
+						strKMLPart += "fsxnandb\">";
+						strKMLPart += (String)htKMLParts["fsxndb"];
+						strKMLPart = strKMLPart.Replace("%TYPE%", "NDB");
+						tIconType = KML_ICON_TYPES.NDB;
+						break;
+					default:
+						return "";
+				}
+				strKMLPart = strKMLPart.Replace("%ICON%", GetIconLink(tIconType));
+				strKMLPart = strKMLPart.Replace("%ID%", "id=\"na" + navaid.ObjectID.ToString() + "\"");
+				strKMLPart = strKMLPart.Replace("%NAME%", rd.GetString(1));
+				strKMLPart = strKMLPart.Replace("%MAGVAR%", XmlConvert.ToString(rd.GetFloat(6)));
+				strKMLPart = strKMLPart.Replace("%IDENT%", rd.GetString(0));
+				strKMLPart = strKMLPart.Replace("%MORSE%", FsxConnection.GetMorseCode(rd.GetString(0)));
+				strKMLPart = strKMLPart.Replace("%FREQUENCY_UF%", String.Format("{0:F2}", rd.GetFloat(8)));
+				strKMLPart = strKMLPart.Replace("%FREQUENCY%", XmlConvert.ToString(rd.GetFloat(8)));
+				strKMLPart = strKMLPart.Replace("%ALTITUDE%", XmlConvert.ToString(rd.GetFloat(5)));
+				strKMLPart = strKMLPart.Replace("%ALTITUDE_UF%", String.Format("{0:F2}ft", rd.GetFloat(5) * 3.28095));
+				strKMLPart = strKMLPart.Replace("%LONGITUDE%", XmlConvert.ToString(rd.GetFloat(3)));
+				strKMLPart = strKMLPart.Replace("%LATITUDE%", XmlConvert.ToString(rd.GetFloat(4)));
+				strKMLPart = strKMLPart.Replace("%SERVER%", Program.Config.Server);
+			}
+			rd.Close();
 			return strKMLPart + "</Folder></Create>";
 		}
 
-        private String GenAirportKml(ref FsxConnection.SceneryDBObject airport)
-        {
+		private String GenAirportKml(ref FsxConnection.SceneryDBObject airport)
+		{
 			String strKMLPart = "<Create><Folder targetId=\"fsxap\">";
-            OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, Longitude, Latitude, Altitude, MagVar FROM airports WHERE ID=" + airport.ObjectID.ToString() + " ORDER BY Ident", dbCon);
-            OleDbDataReader rd = cmd.ExecuteReader();
-            if (rd.Read())
-            {
-                strKMLPart += htKMLParts["fsxapu"];
-                strKMLPart = strKMLPart.Replace("%IDENT%", rd.GetString(0));
-                strKMLPart = strKMLPart.Replace("%ICON%", Program.Config.Server + "/fsxsapi?" + airport.ObjectID.ToString());
-                strKMLPart = strKMLPart.Replace("%NAME%", rd.GetString(1));
-                strKMLPart = strKMLPart.Replace("%LONGITUDE%", XmlConvert.ToString(rd.GetFloat(2)));
-                strKMLPart = strKMLPart.Replace("%LATITUDE%", XmlConvert.ToString(rd.GetFloat(3)));
-                strKMLPart = strKMLPart.Replace("%ALTITUDE_UF%", String.Format("{0:F2}ft", rd.GetFloat(4) * 3.28095));
-                strKMLPart = strKMLPart.Replace("%MAGVAR%", XmlConvert.ToString(rd.GetFloat(5)));
-            }
-            rd.Close();
-            cmd.CommandText = "SELECT [Number], Longitude, Latitude FROM AirportBoundary INNER JOIN AirportBoundaryVertex ON AirportBoundary.ID=AirportBoundaryVertex.BoundaryID WHERE AirportID=" + airport.ObjectID.ToString() + " ORDER BY [Number],SortNr";
-            rd = cmd.ExecuteReader();
-            String strBoundary = "";
-            int nNumber = -1;
-            while (rd.Read())
-            {
-                if (rd.GetInt32(0) != nNumber)
-                {
-                    if (nNumber > -1)
-                        strBoundary += "</coordinates></LineString>";
-                    nNumber = rd.GetInt32(0);
-                    strBoundary += "<LineString><tessellate>1</tessellate><coordinates>";
-                }
-                strBoundary += XmlConvert.ToString(rd.GetFloat(1)) + "," + XmlConvert.ToString(rd.GetFloat(2)) + " ";
-            }
-            rd.Close();
-            if( strBoundary.Length > 0 )
-                strBoundary += "</coordinates></LineString>";
-            strKMLPart = strKMLPart.Replace("%BOUNDARIES%", strBoundary);
-            return strKMLPart + "</Folder></Create>";
-        }
+			OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, Longitude, Latitude, Altitude, MagVar FROM airports WHERE ID=" + airport.ObjectID.ToString() + " ORDER BY Ident", dbCon);
+			OleDbDataReader rd = cmd.ExecuteReader();
+			if (rd.Read())
+			{
+				strKMLPart += htKMLParts["fsxapu"];
+				strKMLPart = strKMLPart.Replace("%IDENT%", rd.GetString(0));
+				strKMLPart = strKMLPart.Replace("%ICON%", Program.Config.Server + "/fsxsapi?" + airport.ObjectID.ToString());
+				strKMLPart = strKMLPart.Replace("%NAME%", rd.GetString(1));
+				strKMLPart = strKMLPart.Replace("%LONGITUDE%", XmlConvert.ToString(rd.GetFloat(2)));
+				strKMLPart = strKMLPart.Replace("%LATITUDE%", XmlConvert.ToString(rd.GetFloat(3)));
+				strKMLPart = strKMLPart.Replace("%ALTITUDE_UF%", String.Format("{0:F2}ft", rd.GetFloat(4) * 3.28095));
+				strKMLPart = strKMLPart.Replace("%MAGVAR%", XmlConvert.ToString(rd.GetFloat(5)));
+			}
+			rd.Close();
+			cmd.CommandText = "SELECT [Number], Longitude, Latitude FROM AirportBoundary INNER JOIN AirportBoundaryVertex ON AirportBoundary.ID=AirportBoundaryVertex.BoundaryID WHERE AirportID=" + airport.ObjectID.ToString() + " ORDER BY [Number],SortNr";
+			rd = cmd.ExecuteReader();
+			String strBoundary = "";
+			int nNumber = -1;
+			while (rd.Read())
+			{
+				if (rd.GetInt32(0) != nNumber)
+				{
+					if (nNumber > -1)
+						strBoundary += "</coordinates></LineString>";
+					nNumber = rd.GetInt32(0);
+					strBoundary += "<LineString><tessellate>1</tessellate><coordinates>";
+				}
+				strBoundary += XmlConvert.ToString(rd.GetFloat(1)) + "," + XmlConvert.ToString(rd.GetFloat(2)) + " ";
+			}
+			rd.Close();
+			if (strBoundary.Length > 0)
+				strBoundary += "</coordinates></LineString>";
+			strKMLPart = strKMLPart.Replace("%BOUNDARIES%", strBoundary);
+			return strKMLPart + "</Folder></Create>";
+		}
 
-        public byte[] GetAirportIcon(String query)
-        {
-            Bitmap bmp = FsxConnection.RenderSimpleAirportIcon(int.Parse(query.Substring(1)), dbCon);
-            byte[] bBuffer = new byte[4096];
-            MemoryStream ms = new MemoryStream(bBuffer);
-            bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-            ms.Close();
-            return bBuffer;
-        }
+		public byte[] GetAirportIcon(String query)
+		{
+			Bitmap bmp = FsxConnection.RenderSimpleAirportIcon(int.Parse(query.Substring(1)), dbCon);
+			byte[] bBuffer = new byte[4096];
+			MemoryStream ms = new MemoryStream(bBuffer);
+			bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+			ms.Close();
+			return bBuffer;
+		}
 
-        public static void MovePoint(float fLongitude, float fLatitude, float fHeading, float fDistMeter, ref float fLonResult, ref float fLatResult)
+		public static void MovePoint(float fLongitude, float fLatitude, float fHeading, float fDistMeter, ref float fLonResult, ref float fLatResult)
 		{
 			double dDistMeter = (Math.PI / 10800) * fDistMeter / 1000;
 			double dHeading = fHeading * dPI180;
@@ -789,19 +795,19 @@ namespace Fsxget
 			fLatResult = (float)(dLatResult * d180PI);
 			fLonResult = (float)(dLonResult * d180PI);
 		}
-        public static void GetDistance(float fLon1, float fLat1, float fLon2, float fLat2, ref float fDistMeter, ref float fHeading)
-        {
-            double dLon1 = fLon1 * dPI180;
-            double dLat1 = fLat1 * dPI180;
-            double dLon2 = fLon2 * dPI180;
-            double dLat2 = fLat2 * dPI180;
+		public static void GetDistance(float fLon1, float fLat1, float fLon2, float fLat2, ref float fDistMeter, ref float fHeading)
+		{
+			double dLon1 = fLon1 * dPI180;
+			double dLat1 = fLat1 * dPI180;
+			double dLon2 = fLon2 * dPI180;
+			double dLat2 = fLat2 * dPI180;
 
-            double dDist = Math.Acos(Math.Sin(dLat1) * Math.Sin(dLat2) + Math.Cos(dLat1) * Math.Cos(dLat2) * Math.Cos(dLon2 - dLon1));
-            fHeading = (float) (Math.Acos((Math.Sin(dLat2) - Math.Cos(dDist) * Math.Sin(dLat1)) / Math.Cos(dLat1) / Math.Sin(dDist)) * d180PI);
-            if (dLon2 - dLon1 < 0)
-                fHeading = 360 - fHeading;
-            fDistMeter = (float)((dDist * d180PI) * (60 * 1852));
-        }
+			double dDist = Math.Acos(Math.Sin(dLat1) * Math.Sin(dLat2) + Math.Cos(dLat1) * Math.Cos(dLat2) * Math.Cos(dLon2 - dLon1));
+			fHeading = (float)(Math.Acos((Math.Sin(dLat2) - Math.Cos(dDist) * Math.Sin(dLat1)) / Math.Cos(dLat1) / Math.Sin(dDist)) * d180PI);
+			if (dLon2 - dLon1 < 0)
+				fHeading = 360 - fHeading;
+			fDistMeter = (float)((dDist * d180PI) * (60 * 1852));
+		}
 
 		protected byte[] encodeDefault(String data)
 		{

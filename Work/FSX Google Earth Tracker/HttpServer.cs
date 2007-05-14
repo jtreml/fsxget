@@ -17,6 +17,26 @@ namespace Fsxget
 	public class HttpServer
 	{
 		// TODO: The code for restricting the HTTP server to localhost, etc. is still missing
+		private class ServerFileInternal
+		{
+			public ServerFileInternal(String path, ServerFile file)
+			{
+				Path = path;
+				File = file;
+				Persistent = true;
+			}
+
+			public ServerFileInternal(String path, ServerFile file, bool persistent)
+			{
+				Path = path;
+				File = file;
+				Persistent = persistent;
+			}
+
+			public ServerFile File;
+			public bool Persistent;
+			public String Path;
+		}
 
 		Hashtable documents;
 
@@ -35,18 +55,36 @@ namespace Fsxget
 
 		public void registerFile(String path, ServerFile file)
 		{
-			documents.Add(path, file);
+			lock (documents)
+			{
+				documents.Add(path, new ServerFileInternal(path, file));
+			}
+			//Console.WriteLine(path);
+		}
+
+		public void registerOneTimeFile(String path, ServerFile file)
+		{
+			lock (documents)
+			{
+				documents.Add(path, new ServerFileInternal(path, file, false));
+			}
 			//Console.WriteLine(path);
 		}
 
 		public ServerFile getFile(String path)
 		{
-			return (ServerFile)documents[path];
+			lock (documents)
+			{
+				return (ServerFile)documents[path];
+			}
 		}
 
 		public void unregisterFile(String path)
 		{
-			documents.Remove(path);
+			lock (documents)
+			{
+				documents.Remove(path);
+			}
 		}
 
 		public void start()
@@ -92,26 +130,37 @@ namespace Fsxget
 			HttpListenerResponse response = context.Response;
 
 			String szUrl = request.Url.LocalPath;
-			ServerFile file = (ServerFile)documents[szUrl];
+
+			ServerFileInternal file;
+			lock (documents)
+			{
+				file = (ServerFileInternal)documents[szUrl];
+			}
 
 			if (file != null)
 			{
 				String szQuery = request.Url.Query;
 
-				byte[] buffer = file.getContent(szQuery);
+				byte[] buffer = file.File.getContentBytes(szQuery);
 
 				if (buffer != null)
 				{
 					response.ContentLength64 = buffer.Length;
 
-					response.AddHeader("Content-type", file.contentType);
+					response.AddHeader("Content-type", file.File.ContentType);
 
 					System.IO.Stream output = response.OutputStream;
 					output.Write(buffer, 0, buffer.Length);
 					output.Close();
+
+					if (!file.Persistent)
+						unregisterFile(file.Path);
 				}
 				else
 				{
+					// TODO: To improve usability and human readability, add content to the 
+					// repsonse representing an error page stating that there has been a 500 error
+
 					response.StatusCode = 500;
 					response.StatusDescription = "Internal Server Error";
 					response.Close();
@@ -119,6 +168,9 @@ namespace Fsxget
 			}
 			else
 			{
+				// TODO: To improve usability and human readability, add content to the 
+				// repsonse representing an error page stating that there has been a 404 error
+
 				response.StatusCode = 404;
 				response.StatusDescription = "Not Found";
 				response.Close();
@@ -137,7 +189,10 @@ namespace Fsxget
 
 		public bool fileExists(String url)
 		{
-			return documents.Contains(url);
+			lock (documents)
+			{
+				return documents.Contains(url);
+			}
 		}
 	}
 }

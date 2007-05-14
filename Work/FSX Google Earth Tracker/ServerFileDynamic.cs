@@ -36,7 +36,7 @@ namespace Fsxget
 			}
 		}
 
-		public override byte[] getContent(String query)
+		protected override byte[] getContent(String query)
 		{
 			if (dataDelegate == null)
 				return null;
