@@ -13,25 +13,41 @@ namespace Fsxget
 	/// subclasses to inherit this method.</remarks>
 	public abstract class ServerFile
 	{
-		protected String szContenType;
+		private Object oLockContent = new Object();
+
+		private String szContenType;
 
 		public ServerFile(String contentType)
 		{
 			szContenType = contentType;
 		}
 
-		public String contentType
+		public String ContentType
 		{
 			get
 			{
-				return szContenType;
+				lock (szContenType)
+				{
+					return szContenType;
+				}
 			}
 			set
 			{
-				szContenType = value;
+				lock (szContenType)
+				{
+					szContenType = value;
+				}
 			}
 		}
 
-		public abstract byte[] getContent(String query);
+		public byte[] getContentBytes(String query)
+		{
+			lock (oLockContent)
+			{
+				return getContent(query);
+			}
+		}
+
+		protected abstract byte[] getContent(String query);
 	}
 }
