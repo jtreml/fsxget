@@ -11,6 +11,7 @@ using System.Threading;
 using System.Data.OleDb;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Reflection;
 
 namespace Fsxget
 {
@@ -745,7 +746,10 @@ namespace Fsxget
 		private uint uiUserAircraftID;
 		private SimConnect simconnect;
 		public Object lockSimConnect;
-		public StructObjectContainer[] objects;
+        public Object lockUserAircraft;
+        private System.Timers.Timer timerUserAircraft;
+        public SceneryMovingObject objUserAircraft;
+        public StructObjectContainer[] objects;
         public Hashtable htFlightPlans;
 		private uint unFlightPlanNr;
 		private OleDbConnection dbCon;
@@ -826,6 +830,16 @@ namespace Fsxget
             AIRPORTS
 		};
 
+        public enum OBJCONTAINER
+        {
+            AI_PLANE = 0,
+            AI_HELICOPTER,
+            AI_BOAT,
+            AI_GROUND,
+            NAVAIDS,
+            AIRPORTS,
+        }
+
 		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
 		public struct StructBasicMovingSceneryObject
 		{
@@ -879,49 +893,48 @@ namespace Fsxget
 				timerConnect.Elapsed += new ElapsedEventHandler(OnTimerConnectElapsed);
 			}
 
-            objects = new StructObjectContainer[Enum.GetNames(typeof(DATA_REQUESTS)).Length];
+            objects = new StructObjectContainer[Enum.GetNames(typeof(OBJCONTAINER)).Length];
 
-            objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT] = new StructObjectContainer();
-            objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].lockObject = new Object();
-            objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].htObjects = new Hashtable();
-            objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].timer = new System.Timers.Timer();
-            objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].timer.Elapsed += new ElapsedEventHandler(OnTimerQueryUserAircraftElapsed);
+            lockUserAircraft = new Object();
+            objUserAircraft = null;
+            timerUserAircraft = new System.Timers.Timer();
+            timerUserAircraft.Elapsed += new ElapsedEventHandler(OnTimerQueryUserAircraftElapsed);
 
-			objects[(int)DATA_REQUESTS.REQUEST_AI_PLANE] = new StructObjectContainer();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_PLANE].lockObject = new Object();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_PLANE].htObjects = new Hashtable();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_PLANE].timer = new System.Timers.Timer();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_PLANE].timer.Elapsed += new ElapsedEventHandler(OnTimerQueryAIAircraftsElapsed);
+            objects[(int)OBJCONTAINER.AI_PLANE] = new StructObjectContainer();
+            objects[(int)OBJCONTAINER.AI_PLANE].lockObject = new Object();
+            objects[(int)OBJCONTAINER.AI_PLANE].htObjects = new Hashtable();
+            objects[(int)OBJCONTAINER.AI_PLANE].timer = new System.Timers.Timer();
+            objects[(int)OBJCONTAINER.AI_PLANE].timer.Elapsed += new ElapsedEventHandler(OnTimerQueryAIAircraftsElapsed);
 
-			objects[(int)DATA_REQUESTS.REQUEST_AI_HELICOPTER] = new StructObjectContainer();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_HELICOPTER].lockObject = new Object();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_HELICOPTER].htObjects = new Hashtable();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_HELICOPTER].timer = new System.Timers.Timer();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_HELICOPTER].timer.Elapsed += new ElapsedEventHandler(OnTimerQueryAIHelicoptersElapsed);
+            objects[(int)OBJCONTAINER.AI_HELICOPTER] = new StructObjectContainer();
+            objects[(int)OBJCONTAINER.AI_HELICOPTER].lockObject = new Object();
+            objects[(int)OBJCONTAINER.AI_HELICOPTER].htObjects = new Hashtable();
+            objects[(int)OBJCONTAINER.AI_HELICOPTER].timer = new System.Timers.Timer();
+            objects[(int)OBJCONTAINER.AI_HELICOPTER].timer.Elapsed += new ElapsedEventHandler(OnTimerQueryAIHelicoptersElapsed);
 
-			objects[(int)DATA_REQUESTS.REQUEST_AI_BOAT] = new StructObjectContainer();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_BOAT].lockObject = new Object();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_BOAT].htObjects = new Hashtable();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_BOAT].timer = new System.Timers.Timer();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_BOAT].timer.Elapsed += new ElapsedEventHandler(OntimerQueryAIBoatsElapsed);
+            objects[(int)OBJCONTAINER.AI_BOAT] = new StructObjectContainer();
+            objects[(int)OBJCONTAINER.AI_BOAT].lockObject = new Object();
+            objects[(int)OBJCONTAINER.AI_BOAT].htObjects = new Hashtable();
+            objects[(int)OBJCONTAINER.AI_BOAT].timer = new System.Timers.Timer();
+            objects[(int)OBJCONTAINER.AI_BOAT].timer.Elapsed += new ElapsedEventHandler(OntimerQueryAIBoatsElapsed);
 
-			objects[(int)DATA_REQUESTS.REQUEST_AI_GROUND] = new StructObjectContainer();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_GROUND].lockObject = new Object();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_GROUND].htObjects = new Hashtable();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_GROUND].timer = new System.Timers.Timer();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_GROUND].timer.Elapsed += new ElapsedEventHandler(OnTimerQueryAIGroundUnitsElapsed);
+            objects[(int)OBJCONTAINER.AI_GROUND] = new StructObjectContainer();
+            objects[(int)OBJCONTAINER.AI_GROUND].lockObject = new Object();
+            objects[(int)OBJCONTAINER.AI_GROUND].htObjects = new Hashtable();
+            objects[(int)OBJCONTAINER.AI_GROUND].timer = new System.Timers.Timer();
+            objects[(int)OBJCONTAINER.AI_GROUND].timer.Elapsed += new ElapsedEventHandler(OnTimerQueryAIGroundUnitsElapsed);
 
-			objects[(int)DATA_REQUESTS.NAVAIDS] = new StructObjectContainer();
-			objects[(int)DATA_REQUESTS.NAVAIDS].lockObject = new Object();
-			objects[(int)DATA_REQUESTS.NAVAIDS].htObjects = new Hashtable();
-			objects[(int)DATA_REQUESTS.NAVAIDS].timer = new System.Timers.Timer();
-			objects[(int)DATA_REQUESTS.NAVAIDS].timer.Elapsed += new ElapsedEventHandler(OnTimerQueryNavAidsElapsed);
+            objects[(int)OBJCONTAINER.NAVAIDS] = new StructObjectContainer();
+            objects[(int)OBJCONTAINER.NAVAIDS].lockObject = new Object();
+            objects[(int)OBJCONTAINER.NAVAIDS].htObjects = new Hashtable();
+            objects[(int)OBJCONTAINER.NAVAIDS].timer = new System.Timers.Timer();
+            objects[(int)OBJCONTAINER.NAVAIDS].timer.Elapsed += new ElapsedEventHandler(OnTimerQueryNavAidsElapsed);
 
-            objects[(int)DATA_REQUESTS.AIRPORTS] = new StructObjectContainer();
-            objects[(int)DATA_REQUESTS.AIRPORTS].lockObject = new Object();
-            objects[(int)DATA_REQUESTS.AIRPORTS].htObjects = new Hashtable();
-            objects[(int)DATA_REQUESTS.AIRPORTS].timer = new System.Timers.Timer();
-            objects[(int)DATA_REQUESTS.AIRPORTS].timer.Elapsed += new ElapsedEventHandler(OnTimerQueryAirportsElapsed);
+            objects[(int)OBJCONTAINER.AIRPORTS] = new StructObjectContainer();
+            objects[(int)OBJCONTAINER.AIRPORTS].lockObject = new Object();
+            objects[(int)OBJCONTAINER.AIRPORTS].htObjects = new Hashtable();
+            objects[(int)OBJCONTAINER.AIRPORTS].timer = new System.Timers.Timer();
+            objects[(int)OBJCONTAINER.AIRPORTS].timer.Elapsed += new ElapsedEventHandler(OnTimerQueryAirportsElapsed);
             
 			lockSimConnect = new Object();
 
@@ -949,26 +962,29 @@ namespace Fsxget
 		}
 		private bool openConnection()
 		{
-			if (simconnect == null)
-			{
-				try
-				{
-					simconnect = new SimConnect(frmMain.Text, frmMainHandle, WM_USER_SIMCONNECT, null, 0);
-					if (initDataRequest())
-					{
-						InitializeTimers();
-						return true;
-					}
-					else
-						return false;
-				}
-				catch
-				{
-					return false;
-				}
-			}
-			else
-				return false;
+            lock (lockSimConnect)
+            {
+                if (simconnect == null)
+                {
+                    try
+                    {
+                        simconnect = new SimConnect(frmMain.Text, frmMainHandle, WM_USER_SIMCONNECT, null, 0);
+                        if (initDataRequest())
+                        {
+                            InitializeTimers();
+                            return true;
+                        }
+                        else
+                            return false;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
+                else
+                    return false;
+            }
 		}
 
         private bool initDataRequest()
@@ -1067,16 +1083,16 @@ namespace Fsxget
 			switch ((DATA_REQUESTS)data.dwRequestID)
 			{
 				case DATA_REQUESTS.REQUEST_USER_AIRCRAFT:
-                    lock (objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].lockObject)
+                    lock (lockUserAircraft)
 					{
-                        if (objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].htObjects.ContainsKey(data.dwObjectID))
+                        if (objUserAircraft != null )
 						{
 							
-                            ((SceneryMovingObject)objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].htObjects[data.dwObjectID]).Update(ref obj);
+                            objUserAircraft.Update(ref obj);
 							uiUserAircraftID = data.dwObjectID;
 						}
 						else
-                            objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].htObjects.Add( data.dwObjectID, new SceneryMovingObject(data.dwObjectID, DATA_REQUESTS.REQUEST_USER_AIRCRAFT, ref obj));
+                            objUserAircraft = new SceneryMovingObject(data.dwObjectID, DATA_REQUESTS.REQUEST_USER_AIRCRAFT, ref obj);
 					}
 					break;
 				case DATA_REQUESTS.REQUEST_AI_PLANE:
@@ -1084,7 +1100,7 @@ namespace Fsxget
 					{
 						if (data.dwObjectID != uiUserAircraftID)
 						{
-							HandleSimObjectRecieved(ref objects[(int)DATA_REQUESTS.REQUEST_AI_PLANE], ref data);
+                            HandleSimObjectRecieved(ref objects[(int)OBJCONTAINER.AI_PLANE], ref data);
 						}
 					}
 					break;
@@ -1093,20 +1109,20 @@ namespace Fsxget
 					{
 						if (data.dwObjectID != uiUserAircraftID)
 						{
-							HandleSimObjectRecieved(ref objects[(int)DATA_REQUESTS.REQUEST_AI_HELICOPTER], ref data);
+                            HandleSimObjectRecieved(ref objects[(int)OBJCONTAINER.AI_HELICOPTER], ref data);
 						}
 					}
 					break;
 				case DATA_REQUESTS.REQUEST_AI_BOAT:
 					lock (objects[(int)DATA_REQUESTS.REQUEST_AI_BOAT].lockObject)
 					{
-						HandleSimObjectRecieved(ref objects[(int)DATA_REQUESTS.REQUEST_AI_BOAT], ref data);
+                        HandleSimObjectRecieved(ref objects[(int)OBJCONTAINER.AI_BOAT], ref data);
 					}
 					break;
 				case DATA_REQUESTS.REQUEST_AI_GROUND:
 					lock (objects[(int)DATA_REQUESTS.REQUEST_AI_GROUND].lockObject)
 					{
-						HandleSimObjectRecieved(ref objects[(int)DATA_REQUESTS.REQUEST_AI_GROUND], ref data);
+                        HandleSimObjectRecieved(ref objects[(int)OBJCONTAINER.AI_GROUND], ref data);
 					}
 					break;
 				default:
@@ -1171,7 +1187,7 @@ namespace Fsxget
         }
         public void DeleteAllObjects()
 		{
-            foreach (DATA_REQUESTS request in Enum.GetValues(typeof(DATA_REQUESTS)))
+            foreach (OBJCONTAINER request in Enum.GetValues(typeof(OBJCONTAINER)))
             {
                 lock (objects[(int)request].lockObject)
                 {
@@ -1285,26 +1301,26 @@ namespace Fsxget
 		#region Timerfunctions
 		public void InitializeTimers()
 		{
-            objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].timer.Stop();
-            objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].timer.Interval = Program.Config[Config.SETTING.QUERY_USER_AIRCRAFT]["Interval"].IntValue;
+            timerUserAircraft.Stop();
+            timerUserAircraft.Interval = Program.Config[Config.SETTING.QUERY_USER_AIRCRAFT]["Interval"].IntValue;
 
-			objects[(int)DATA_REQUESTS.REQUEST_AI_PLANE].timer.Stop();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_PLANE].timer.Interval = Program.Config[Config.SETTING.QUERY_AI_AIRCRAFTS]["Interval"].IntValue;
+			objects[(int)OBJCONTAINER.AI_PLANE].timer.Stop();
+			objects[(int)OBJCONTAINER.AI_PLANE].timer.Interval = Program.Config[Config.SETTING.QUERY_AI_AIRCRAFTS]["Interval"].IntValue;
 
-			objects[(int)DATA_REQUESTS.REQUEST_AI_HELICOPTER].timer.Stop();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_HELICOPTER].timer.Interval = Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Interval"].IntValue;
+			objects[(int)OBJCONTAINER.AI_HELICOPTER].timer.Stop();
+			objects[(int)OBJCONTAINER.AI_HELICOPTER].timer.Interval = Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Interval"].IntValue;
 
-			objects[(int)DATA_REQUESTS.REQUEST_AI_BOAT].timer.Stop();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_BOAT].timer.Interval = Program.Config[Config.SETTING.QUERY_AI_BOATS]["Interval"].IntValue;
+			objects[(int)OBJCONTAINER.AI_BOAT].timer.Stop();
+			objects[(int)OBJCONTAINER.AI_BOAT].timer.Interval = Program.Config[Config.SETTING.QUERY_AI_BOATS]["Interval"].IntValue;
 
-			objects[(int)DATA_REQUESTS.REQUEST_AI_GROUND].timer.Stop();
-			objects[(int)DATA_REQUESTS.REQUEST_AI_GROUND].timer.Interval = Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Interval"].IntValue;
+			objects[(int)OBJCONTAINER.AI_GROUND].timer.Stop();
+			objects[(int)OBJCONTAINER.AI_GROUND].timer.Interval = Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Interval"].IntValue;
 
-			objects[(int)DATA_REQUESTS.NAVAIDS].timer.Stop();
-			objects[(int)DATA_REQUESTS.NAVAIDS].timer.Interval = Program.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue * 1000;
+            objects[(int)OBJCONTAINER.NAVAIDS].timer.Stop();
+            objects[(int)OBJCONTAINER.NAVAIDS].timer.Interval = Program.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue * 1000;
 
-            objects[(int)DATA_REQUESTS.AIRPORTS].timer.Stop();
-            objects[(int)DATA_REQUESTS.AIRPORTS].timer.Interval = Program.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue * 1000;
+            objects[(int)OBJCONTAINER.AIRPORTS].timer.Stop();
+            objects[(int)OBJCONTAINER.AIRPORTS].timer.Interval = Program.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue * 1000;
 
 			EnableTimers();
 		}
@@ -1315,13 +1331,13 @@ namespace Fsxget
 		public void EnableTimers(bool bEnable)
 		{
 			bool bQueryAI = Program.Config[Config.SETTING.QUERY_AI_OBJECTS]["Enabled"].BoolValue;
-			objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].timer.Enabled = bEnable && Program.Config[Config.SETTING.QUERY_USER_AIRCRAFT]["Enabled"].BoolValue;
-			objects[(int)DATA_REQUESTS.REQUEST_AI_PLANE].timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_AIRCRAFTS]["Enabled"].BoolValue;
-			objects[(int)DATA_REQUESTS.REQUEST_AI_HELICOPTER].timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Enabled"].BoolValue;
-			objects[(int)DATA_REQUESTS.REQUEST_AI_BOAT].timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_BOATS]["Enabled"].BoolValue;
-			objects[(int)DATA_REQUESTS.REQUEST_AI_GROUND].timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Enabled"].BoolValue;
-			objects[(int)DATA_REQUESTS.NAVAIDS].timer.Enabled = bEnable && Program.Config[Config.SETTING.QUERY_NAVAIDS]["Enabled"].BoolValue;
-            objects[(int)DATA_REQUESTS.AIRPORTS].timer.Enabled = bEnable && Program.Config[Config.SETTING.QUERY_NAVAIDS]["Enabled"].BoolValue;
+			timerUserAircraft.Enabled = bEnable && Program.Config[Config.SETTING.QUERY_USER_AIRCRAFT]["Enabled"].BoolValue;
+			objects[(int)OBJCONTAINER.AI_PLANE].timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_AIRCRAFTS]["Enabled"].BoolValue;
+			objects[(int)OBJCONTAINER.AI_HELICOPTER].timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_HELICOPTERS]["Enabled"].BoolValue;
+			objects[(int)OBJCONTAINER.AI_BOAT].timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_BOATS]["Enabled"].BoolValue;
+			objects[(int)OBJCONTAINER.AI_GROUND].timer.Enabled = bEnable && bQueryAI && Program.Config[Config.SETTING.QUERY_AI_GROUND_UNITS]["Enabled"].BoolValue;
+            objects[(int)OBJCONTAINER.NAVAIDS].timer.Enabled = bEnable && Program.Config[Config.SETTING.QUERY_NAVAIDS]["Enabled"].BoolValue;
+            objects[(int)OBJCONTAINER.AIRPORTS].timer.Enabled = bEnable && Program.Config[Config.SETTING.QUERY_NAVAIDS]["Enabled"].BoolValue;
         }
 
 		private void OnTimerConnectElapsed(object sender, ElapsedEventArgs e)
@@ -1401,19 +1417,19 @@ namespace Fsxget
 		}
 		private void OnTimerQueryNavAidsElapsed(object sender, ElapsedEventArgs e)
 		{
-			lock (objects[(int)DATA_REQUESTS.NAVAIDS].lockObject)
+            lock (objects[(int)OBJCONTAINER.NAVAIDS].lockObject)
 			{
-				if (objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].htObjects.Count > 0 )
+				if (objUserAircraft != null )
 				{
 					float fNorth = 0;
 					float fEast = 0;
 					float fSouth = 0;
 					float fWest = 0;
 					float fTmp = 0;
-                    KmlFactory.MovePoint(UserAircraft.ObjectPosition.Longitude.Value, UserAircraft.ObjectPosition.Latitude.Value, 0, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fNorth);
-					KmlFactory.MovePoint(UserAircraft.ObjectPosition.Longitude.Value, UserAircraft.ObjectPosition.Latitude.Value, 90, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fEast, ref fTmp);
-					KmlFactory.MovePoint(UserAircraft.ObjectPosition.Longitude.Value, UserAircraft.ObjectPosition.Latitude.Value, 180, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fSouth);
-					KmlFactory.MovePoint(UserAircraft.ObjectPosition.Longitude.Value, UserAircraft.ObjectPosition.Latitude.Value, 270, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fWest, ref fTmp);
+                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 0, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fNorth);
+					KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 90, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fEast, ref fTmp);
+					KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 180, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fSouth);
+					KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 270, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fWest, ref fTmp);
 
 					OleDbCommand cmd = new OleDbCommand("SELECT ID FROM navaids WHERE " +
 						"Latitude >= " + fSouth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
@@ -1425,36 +1441,35 @@ namespace Fsxget
 					while (rd.Read())
 					{
 						uint unID = (uint)rd.GetInt32(0);
-						if (objects[(int)DATA_REQUESTS.NAVAIDS].htObjects.ContainsKey(unID))
+                        if (objects[(int)OBJCONTAINER.NAVAIDS].htObjects.ContainsKey(unID))
 						{
-							((SceneryObject)objects[(int)DATA_REQUESTS.NAVAIDS].htObjects[unID]).bDataRecieved = true;
+                            ((SceneryObject)objects[(int)OBJCONTAINER.NAVAIDS].htObjects[unID]).bDataRecieved = true;
 						}
 						else
 						{
-							objects[(int)DATA_REQUESTS.NAVAIDS].htObjects.Add(unID, new SceneryDBObject( unID, DATA_REQUESTS.NAVAIDS));
+                            objects[(int)OBJCONTAINER.NAVAIDS].htObjects.Add(unID, new SceneryDBObject(unID, DATA_REQUESTS.NAVAIDS));
 						}
 					}
-					MarkDeletedObjects(ref objects[(int)DATA_REQUESTS.NAVAIDS].htObjects);
+                    MarkDeletedObjects(ref objects[(int)OBJCONTAINER.NAVAIDS].htObjects);
 					rd.Close();
 				}
 			}
 		}
         private void OnTimerQueryAirportsElapsed(object sender, ElapsedEventArgs e)
         {
-            lock (objects[(int)DATA_REQUESTS.AIRPORTS].lockObject)
+            lock (objects[(int)OBJCONTAINER.AIRPORTS].lockObject)
             {
-                if (objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].htObjects.Count > 0)
+                if (objUserAircraft != null )
                 {
                     float fNorth = 0;
                     float fEast = 0;
                     float fSouth = 0;
                     float fWest = 0;
                     float fTmp = 0;
-                    SceneryMovingObject UserAircraft = (SceneryMovingObject)objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].htObjects[uiUserAircraftID];
-                    KmlFactory.MovePoint(UserAircraft.ObjectPosition.Longitude.Value, UserAircraft.ObjectPosition.Latitude.Value, 0, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fNorth);
-                    KmlFactory.MovePoint(UserAircraft.ObjectPosition.Longitude.Value, UserAircraft.ObjectPosition.Latitude.Value, 90, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fEast, ref fTmp);
-                    KmlFactory.MovePoint(UserAircraft.ObjectPosition.Longitude.Value, UserAircraft.ObjectPosition.Latitude.Value, 180, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fSouth);
-                    KmlFactory.MovePoint(UserAircraft.ObjectPosition.Longitude.Value, UserAircraft.ObjectPosition.Latitude.Value, 270, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fWest, ref fTmp);
+                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 0, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fNorth);
+                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 90, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fEast, ref fTmp);
+                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 180, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fSouth);
+                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 270, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fWest, ref fTmp);
 
                     OleDbCommand cmd = new OleDbCommand("SELECT ID FROM airports WHERE " +
                         "Latitude >= " + fSouth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
@@ -1466,32 +1481,21 @@ namespace Fsxget
                     while (rd.Read())
                     {
                         uint unID = (uint)rd.GetInt32(0);
-                        if (objects[(int)DATA_REQUESTS.AIRPORTS].htObjects.ContainsKey(unID))
+                        if (objects[(int)OBJCONTAINER.AIRPORTS].htObjects.ContainsKey(unID))
                         {
-                            ((SceneryObject)objects[(int)DATA_REQUESTS.AIRPORTS].htObjects[unID]).bDataRecieved = true;
+                            ((SceneryObject)objects[(int)OBJCONTAINER.AIRPORTS].htObjects[unID]).bDataRecieved = true;
                         }
                         else
                         {
-                            objects[(int)DATA_REQUESTS.AIRPORTS].htObjects.Add(unID, new SceneryDBObject(unID, DATA_REQUESTS.AIRPORTS));
+                            objects[(int)OBJCONTAINER.AIRPORTS].htObjects.Add(unID, new SceneryDBObject(unID, DATA_REQUESTS.AIRPORTS));
                         }
                     }
-                    MarkDeletedObjects(ref objects[(int)DATA_REQUESTS.AIRPORTS].htObjects);
+                    MarkDeletedObjects(ref objects[(int)OBJCONTAINER.AIRPORTS].htObjects);
                     rd.Close();
                 }
             }
         }
         #endregion
-
-        public SceneryMovingObject UserAircraft
-        {
-            get
-            {
-                if (objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].htObjects.ContainsKey(uiUserAircraftID))
-                    return (SceneryMovingObject)objects[(int)DATA_REQUESTS.REQUEST_USER_AIRCRAFT].htObjects[uiUserAircraftID];
-                else
-                    return null;
-            }
-        }
 
         #region Static Helperfunctions
         static public String GetMorseCode(String str)
@@ -1859,6 +1863,66 @@ namespace Fsxget
             g.DrawImage(bmp, ptDest);
 
             return bmpTmp;
+        }
+        static public Bitmap RenderSimpleAirportIcon(int nID, OleDbConnection dbCon)
+        {
+            OleDbCommand cmd = new OleDbCommand("SELECT Heading, Hardened, HasLights FROM Runways INNER JOIN SurfaceType ON Runways.SurfaceID = SurfaceType.ID WHERE AirportID=" + nID.ToString() + " ORDER BY Length DESC", dbCon);
+            OleDbDataReader rd = cmd.ExecuteReader();
+            Bitmap bmp = null;
+            if (rd.Read())
+            {
+                float fHeading = rd.GetFloat(0);
+                if (fHeading > 180)
+                    fHeading -= 180;
+                bool bHard = rd.GetBoolean(1);
+                bool bLights = rd.GetBoolean(2);
+
+                Stream s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapd.png");
+                bmp = new Bitmap(s);
+
+                Pen pen = new Pen(Color.FromArgb(0, 0, 128));
+                Brush brush = new SolidBrush(bHard ? Color.FromArgb(0, 0, 128) : Color.FromArgb(255, 255, 255));
+                // x24, y24
+
+                Graphics g = Graphics.FromImage(bmp);
+
+                double dPI180 = Math.PI / 180;
+                int y1 = (int)(Math.Sin((90 - fHeading) * dPI180) * 18);
+                int x1 = (int)(Math.Sin(fHeading * dPI180) * 18);
+
+                Point[] pts = new Point[4];
+                pts[0] = new Point();
+                pts[1] = new Point();
+                pts[2] = new Point();
+                pts[3] = new Point();
+                
+                int y2 = (int)(Math.Sin( fHeading * dPI180 ) * 3);
+                int x2 = (int)(Math.Sin( (fHeading + 90) * dPI180) * 3);
+
+                pts[0].X = 24 - x1 - x2;
+                pts[0].Y = 24 + y1 - y2;
+                pts[1].X = 24 - x1 + x2;
+                pts[1].Y = 24 + y1 + y2;
+
+                pts[2].X = 24 + x1 + x2;
+                pts[2].Y = 24 - y1 + y2;
+                pts[3].X = 24 + x1 - x2;
+                pts[3].Y = 24 - y1 - y2;
+
+                g.FillPolygon(brush, pts);
+                g.DrawPolygon(pen, pts);
+
+                if (bLights)
+                {
+                    s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapl.png");
+                    Bitmap bmpLight = new Bitmap(s);
+//                    g.FillEllipse(new SolidBrush(Color.White), 18, 5, 12, 12);
+                    g.DrawImage(bmpLight, 17, 5);
+                }
+                bmp.MakeTransparent(Color.White);
+            }
+            rd.Close();
+            return bmp;
         }
         #endregion
 
