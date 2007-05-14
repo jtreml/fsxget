@@ -770,7 +770,17 @@ namespace Fsxget
 
 		public byte[] GetAirportIconByCode(String query)
 		{
-			OleDbCommand cmd = new OleDbCommand("SELECT ID, Name FROM Airports WHERE Ident=\"" + query.Substring(1) + "\"", dbCon);
+			String apcode;
+			try
+			{
+				apcode = query.Substring(1);
+			}
+			catch
+			{
+				apcode = "";
+			}
+
+			OleDbCommand cmd = new OleDbCommand("SELECT ID, Name FROM Airports WHERE Ident=\"" + apcode + "\"", dbCon);
 			OleDbDataReader rd = cmd.ExecuteReader();
 			if (rd.Read())
 			{
@@ -778,17 +788,32 @@ namespace Fsxget
 				return GetAirportIcon("?" + id);
 			}
 			else
-				return encodeDefault("Unknown airport code!");
+				return GetAirportIcon("");
 		}
 
 		public byte[] GetAirportIcon(String query)
 		{
-			Bitmap bmp = FsxConnection.RenderSimpleAirportIcon(int.Parse(query.Substring(1)), dbCon);
-			byte[] bBuffer = new byte[4096];
-			MemoryStream ms = new MemoryStream(bBuffer);
-			bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-			ms.Close();
-			return bBuffer;
+			int apid;
+			try
+			{
+				apid = int.Parse(query.Substring(1));
+			}
+			catch
+			{
+				apid = 0;
+			}
+
+			Bitmap bmp = FsxConnection.RenderSimpleAirportIcon(apid, dbCon);
+			if (bmp != null)
+			{
+				byte[] bBuffer = new byte[4096];
+				MemoryStream ms = new MemoryStream(bBuffer);
+				bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+				ms.Close();
+				return bBuffer;
+			}
+			else
+				return null;
 		}
 
 		public static void MovePoint(float fLongitude, float fLatitude, float fHeading, float fDistMeter, ref float fLonResult, ref float fLatResult)
