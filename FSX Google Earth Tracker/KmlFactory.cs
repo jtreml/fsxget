@@ -143,6 +143,7 @@ namespace Fsxget
 			httpServer.registerFile("/fsxnau.kml", new ServerFileDynamic(szContentTypeKml, GenNavAdisUpdate));
 			httpServer.registerFile("/fsxapu.kml", new ServerFileDynamic(szContentTypeKml, GenAirportUpdate));
 			httpServer.registerFile("/fsxsapi", new ServerFileDynamic("image/png", GetAirportIcon));
+			httpServer.registerFile("/fsxsapic", new ServerFileDynamic("image/png", GetAirportIconByCode));
 
 			// Register other documents with the HTTP server
 			httpServer.registerFile("/setfreq.html", new ServerFileDynamic("text/html", GenSetFreqHtml));
@@ -765,6 +766,20 @@ namespace Fsxget
 				strBoundary += "</coordinates></LineString>";
 			strKMLPart = strKMLPart.Replace("%BOUNDARIES%", strBoundary);
 			return strKMLPart + "</Folder></Create>";
+		}
+
+		public byte[] GetAirportIconByCode(String query)
+		{
+			OleDbCommand cmd = new OleDbCommand("SELECT ID, Name FROM Airports WHERE Ident=\"" + query.Substring(1) + "\"", dbCon);
+			OleDbDataReader rd = cmd.ExecuteReader();
+			if (rd.Read())
+			{
+				String test = rd.GetString(1);
+				String id = rd.GetValue(0).ToString();
+				return GetAirportIcon("?" + id);
+			}
+			else
+				return encodeDefault("Unknown airport code!");
 		}
 
 		public byte[] GetAirportIcon(String query)
