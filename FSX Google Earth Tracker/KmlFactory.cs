@@ -774,7 +774,6 @@ namespace Fsxget
 			OleDbDataReader rd = cmd.ExecuteReader();
 			if (rd.Read())
 			{
-				String test = rd.GetString(1);
 				String id = rd.GetValue(0).ToString();
 				return GetAirportIcon("?" + id);
 			}
