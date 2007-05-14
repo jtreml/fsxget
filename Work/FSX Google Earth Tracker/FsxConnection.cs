@@ -1096,7 +1096,7 @@ namespace Fsxget
 					}
 					break;
 				case DATA_REQUESTS.REQUEST_AI_PLANE:
-					lock (objects[(int)DATA_REQUESTS.REQUEST_AI_PLANE].lockObject)
+                    lock (objects[(int)OBJCONTAINER.AI_PLANE].lockObject)
 					{
 						if (data.dwObjectID != uiUserAircraftID)
 						{
@@ -1105,7 +1105,7 @@ namespace Fsxget
 					}
 					break;
 				case DATA_REQUESTS.REQUEST_AI_HELICOPTER:
-					lock (objects[(int)DATA_REQUESTS.REQUEST_AI_HELICOPTER].lockObject)
+                    lock (objects[(int)OBJCONTAINER.AI_HELICOPTER].lockObject)
 					{
 						if (data.dwObjectID != uiUserAircraftID)
 						{
@@ -1114,13 +1114,13 @@ namespace Fsxget
 					}
 					break;
 				case DATA_REQUESTS.REQUEST_AI_BOAT:
-					lock (objects[(int)DATA_REQUESTS.REQUEST_AI_BOAT].lockObject)
+                    lock (objects[(int)OBJCONTAINER.AI_BOAT].lockObject)
 					{
                         HandleSimObjectRecieved(ref objects[(int)OBJCONTAINER.AI_BOAT], ref data);
 					}
 					break;
 				case DATA_REQUESTS.REQUEST_AI_GROUND:
-					lock (objects[(int)DATA_REQUESTS.REQUEST_AI_GROUND].lockObject)
+                    lock (objects[(int)OBJCONTAINER.AI_GROUND].lockObject)
 					{
                         HandleSimObjectRecieved(ref objects[(int)OBJCONTAINER.AI_GROUND], ref data);
 					}
