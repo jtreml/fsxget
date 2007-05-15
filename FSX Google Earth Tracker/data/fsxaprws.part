@@ -1,0 +1,8 @@
+<br>
+<B>Runways</B>
+<table>
+<tr>
+<th>Runway</th><th>Length</th><th>Surface</th>
+</tr>
+%RUNWAYS%
+</table>

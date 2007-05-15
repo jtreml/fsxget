@@ -808,6 +808,7 @@ namespace Fsxget
 			EVENT_SET_NAV1,
 			EVENT_SET_NAV2,
 			EVENT_SET_ADF,
+            EVENT_SET_COM,
 		};
 		public enum GROUP_ID
 		{
@@ -1022,7 +1023,8 @@ namespace Fsxget
 				simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_NAV1, "NAV1_RADIO_SET");
 				simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_NAV2, "NAV2_RADIO_SET");
 				simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_ADF, "ADF_SET");
-				//                simconnect.SetNotificationGroupPriority(GROUP_ID.GROUP_USER, SimConnect.SIMCONNECT_GROUP_PRIORITY_HIGHEST);
+                simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_COM, "COM_RADIO_SET");
+                //                simconnect.SetNotificationGroupPriority(GROUP_ID.GROUP_USER, SimConnect.SIMCONNECT_GROUP_PRIORITY_HIGHEST);
 				// IMPORTANT: register it with the simconnect managed wrapper marshaller
 				// if you skip this step, you will only receive a uint in the .dwData field.
 				simconnect.RegisterDataDefineStruct<StructBasicMovingSceneryObject>(DEFINITIONS.StructBasicMovingSceneryObject);
@@ -1227,16 +1229,13 @@ namespace Fsxget
 			{
 				strType = strType.ToLower();
 				if (strType == "nav1")
-				{
-
 					simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_NAV1, UIntToBCD((uint)(dFreq * 100)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
-				}
 				else if (strType == "nav2")
 					simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_NAV2, UIntToBCD((uint)(dFreq * 100)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
 				else if (strType == "adf")
-				{
 					simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_ADF, UIntToBCD((uint)(dFreq)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
-				}
+                else if( strType =="com")
+                    simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_COM, UIntToBCD((uint)(dFreq * 100)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
 				else
 					bRet = false;
 			}
@@ -2284,14 +2283,27 @@ namespace Fsxget
                             float fLength = 0;
                             float fWidth = 0;
                             int nNumber = 0;
-                            char cPrimDesignator = 'N';
-                            char cSekDesignator = 'N';
+                            char cPrimDesignator = ' ';
+                            char cSekDesignator = ' ';
                             float fPatAlt = 0;
                             bool bPrimPatternRight = false;
                             bool bSekPatternRight = false;
                             int nIdx = 0;
                             int nName = 0;
 
+                            nType = 0;
+                            fHeading = 0;
+                            fLength = 0;
+                            fWidth = 0;
+                            nNumber = 0;
+                            cPrimDesignator = ' ';
+                            cSekDesignator = ' ';
+                            fPatAlt = 0;
+                            bPrimPatternRight = false;
+                            bSekPatternRight = false;
+                            nIdx = 0;
+                            nName = 0;
+                            
                             if (xmlnChild.Name == "Com")
                             {
                                 foreach (XmlAttribute xmla in xmlnChild.Attributes)
@@ -2480,7 +2492,7 @@ namespace Fsxget
                                     }
                                 }
                             }
-                            else if (xmlnChild.Name == "TaxiwayPoint")
+/*                            else if (xmlnChild.Name == "TaxiwayPoint")
                             {
                                 bool bReverse = false;
                                 foreach (XmlAttribute xmla in xmlnChild.Attributes)
@@ -2514,6 +2526,7 @@ namespace Fsxget
                                     (bReverse ? "1" : "0") + ");";
                                 cmd.ExecuteNonQuery();
                             }
+*/
                             else if (xmlnChild.Name == "TaxiwayParking")
                             {
                                 foreach (XmlAttribute xmla in xmlnChild.Attributes)
@@ -2565,7 +2578,7 @@ namespace Fsxget
                                     nNumber.ToString() + ");";
                                 cmd.ExecuteNonQuery();
                             }
-                            else if (xmlnChild.Name == "TaxiwayPath")
+/*                            else if (xmlnChild.Name == "TaxiwayPath")
                             {
                                 int nSurface = 0;
                                 int nIdxEnd = 0;
@@ -2652,6 +2665,7 @@ namespace Fsxget
                                     "'" + strName.Replace("'", "''") + "');";
                                 cmd.ExecuteNonQuery();
                             }
+ */
                             else if (xmlnChild.Name == "TaxiwaySign")
                             {
                                 foreach (XmlAttribute xmla in xmlnChild.Attributes)

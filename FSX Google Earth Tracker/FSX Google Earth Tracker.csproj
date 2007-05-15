@@ -130,6 +130,11 @@
     <Content Include="data\fsxguc.part" />
     <Content Include="data\fsxgum.part" />
     <None Include="Config.cd" />
+    <Content Include="data\fsxapcom.part" />
+    <Content Include="data\fsxapcoms.part" />
+    <Content Include="data\fsxapfreq.part" />
+    <Content Include="data\fsxaprw.part" />
+    <Content Include="data\fsxaprws.part" />
     <None Include="data\fsxfppath.part" />
     <None Include="data\fsxfpwp.part" />
     <None Include="data\fsxhuc.part" />
