@@ -2,7 +2,7 @@
 	<name>%IDENT%</name>
 	<Placemark>
 		<name>%IDENT%</name>
-		<description><![CDATA[<B>Name:</B> %NAME%<br><B>Ident: </B> %IDENT% <br><B>Altitude:</B>  %ALTITUDE_UF%<br><B>Magnetic Variation:</B>  %MAGVAR%]]></description>
+		<description><![CDATA[<B>Name:</B> %NAME%<br><B>Ident: </B> %IDENT% <br><B>Altitude:</B>  %ALTITUDE_UF%<br><B>Magnetic Variation:</B>  %MAGVAR% %COMS% %RUNWAYS%]]></description>
 		<Style>
 			<IconStyle>
 				<Icon>

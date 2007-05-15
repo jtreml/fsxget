@@ -61,6 +61,15 @@ namespace Fsxget
                 "fsx-p-inter.png",
                 ""
             };
+        protected static String[] strRunwayDirections = new String[] {
+            "N",
+            "NE",
+            "SE",
+            "S",
+            "SW",
+            "W",
+            "NW"
+        };
 
 		protected FsxConnection fsxCon;
 		protected HttpServer httpServer;
@@ -687,19 +696,110 @@ namespace Fsxget
 			String strKMLPart = "<Create><Folder targetId=\"fsxap\">";
 			OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, Longitude, Latitude, Altitude, MagVar FROM airports WHERE ID=" + airport.ObjectID.ToString() + " ORDER BY Ident", dbCon);
 			OleDbDataReader rd = cmd.ExecuteReader();
-			if (rd.Read())
-			{
-				strKMLPart += htKMLParts["fsxapu"];
-				strKMLPart = strKMLPart.Replace("%IDENT%", rd.GetString(0));
-				strKMLPart = strKMLPart.Replace("%ICON%", Program.Config.Server + "/fsxsapi?" + airport.ObjectID.ToString());
-				strKMLPart = strKMLPart.Replace("%NAME%", rd.GetString(1));
-				strKMLPart = strKMLPart.Replace("%LONGITUDE%", XmlConvert.ToString(rd.GetFloat(2)));
-				strKMLPart = strKMLPart.Replace("%LATITUDE%", XmlConvert.ToString(rd.GetFloat(3)));
-				strKMLPart = strKMLPart.Replace("%ALTITUDE_UF%", String.Format("{0:F2}ft", rd.GetFloat(4) * 3.28095));
-				strKMLPart = strKMLPart.Replace("%MAGVAR%", XmlConvert.ToString(rd.GetFloat(5)));
-			}
+            if (rd.Read())
+            {
+                strKMLPart += htKMLParts["fsxapu"];
+                strKMLPart = strKMLPart.Replace("%IDENT%", rd.GetString(0));
+                strKMLPart = strKMLPart.Replace("%ICON%", Program.Config.Server + "/fsxsapi?" + airport.ObjectID.ToString());
+                strKMLPart = strKMLPart.Replace("%NAME%", rd.GetString(1));
+                strKMLPart = strKMLPart.Replace("%LONGITUDE%", XmlConvert.ToString(rd.GetFloat(2)));
+                strKMLPart = strKMLPart.Replace("%LATITUDE%", XmlConvert.ToString(rd.GetFloat(3)));
+                strKMLPart = strKMLPart.Replace("%ALTITUDE_UF%", String.Format("{0:F2}ft", rd.GetFloat(4) * 3.28095));
+                strKMLPart = strKMLPart.Replace("%MAGVAR%", XmlConvert.ToString(rd.GetFloat(5)));
+            }
 			rd.Close();
-			cmd.CommandText = "SELECT [Number], Longitude, Latitude FROM AirportBoundary INNER JOIN AirportBoundaryVertex ON AirportBoundary.ID=AirportBoundaryVertex.BoundaryID WHERE AirportID=" + airport.ObjectID.ToString() + " ORDER BY [Number],SortNr";
+            
+            // Com-Frequencies
+            cmd.CommandText = "SELECT TypeID, AirportComTypes.Name, Freq FROM AirportComs INNER JOIN AirportComTypes ON AirportComs.TypeID = AirportComTypes.ID WHERE AirportID=" + airport.ObjectID.ToString() + " ORDER BY AirportComTypes.Name";
+            rd = cmd.ExecuteReader();
+            int nType = 0;
+            String strComs = "";
+            String strCom = "";
+            String strFreq = ((String)htKMLParts["fsxapfreq"]).Replace( "%SERVER%", Program.Config.Server );
+            String strFreqs = "";
+            while (rd.Read())
+            {
+                if (rd.GetInt32(0) != nType)
+                {
+                    strComs += strCom.Replace( "%FREQ%", strFreqs );
+                    strFreqs = "";
+                    strCom = (String)htKMLParts["fsxapcom"];
+                    strCom = strCom.Replace("%TYPE%", rd.GetString(1));
+                    nType = rd.GetInt32(0);
+                }
+                String strTmp = strFreq;
+                strTmp = strTmp.Replace("%FREQ_UF%", rd.GetFloat(2).ToString());
+                strTmp = strTmp.Replace("%FREQ%", XmlConvert.ToString(rd.GetFloat(2)));
+                strFreqs += strTmp;
+            }
+            rd.Close();
+            strKMLPart = strKMLPart.Replace("%COMS%", ((String)htKMLParts["fsxapcoms"]).Replace("%COMS%", strComs));
+
+            // Runways
+            cmd.CommandText = "SELECT [Number], PrimaryDesignator, SecondaryDesignator, Length, Width, SurfaceID, Name, HasLights, Hardened, Heading FROM Runways INNER JOIN SurfaceType ON Runways.SurfaceID = SurfaceType.ID WHERE AirportID=" + airport.ObjectID.ToString();
+            rd = cmd.ExecuteReader();
+            float fHeading = 0;
+            nType = 0;
+            bool bLights = false;
+            float fLength = 0;
+            String strRunways = "";
+            while (rd.Read())
+            {
+                String strRunway = (String)htKMLParts["fsxaprw"];
+                if (fLength > rd.GetFloat(3))
+                {
+                    fLength = rd.GetFloat(3);
+                    nType = rd.GetInt32(5) == 20 ? 2 : (rd.GetBoolean(8) ? 0 : 1);
+                    bLights = rd.GetBoolean(7);
+                    fHeading = rd.GetFloat(9);
+                }
+                int nNr = rd.GetInt16(0);
+                String strName = "";
+                if (nNr >= 1000)
+                    strName = strRunwayDirections[(nNr - 1000) / 45];
+                else
+                    strName = String.Format("{0:00}", nNr);
+                String strDes = rd.GetString(1);
+                if( strDes != "N" )
+                    strName += strDes;
+                strRunway = strRunway.Replace("%RUNWAY%", strName);
+                strRunway = strRunway.Replace("%LENGTH%", rd.GetFloat(3).ToString());
+                strRunway = strRunway.Replace("%SURFACE%", rd.GetString(6));
+                strRunways += strRunway;
+                strDes = rd.GetString(2);
+                if (strDes != " ")
+                {
+                    strRunway = (String)htKMLParts["fsxaprw"];
+                    if (nNr >= 1000)
+                    {
+                        nNr -= 1000;
+                        if (nNr >= 180)
+                            nNr -= 180;
+                        else
+                            nNr += 180;
+                        strName = strRunwayDirections[nNr/ 45];
+                    }
+                    else
+                    {
+                        if (nNr >= 18)
+                            nNr -= 18;
+                        else
+                            nNr += 18;
+                        strName = String.Format("{0:00}", nNr);
+                    }
+                    if (strDes != "N")
+                        strName += strDes;
+                    strRunway = strRunway.Replace("%RUNWAY%", strName);
+                    strRunway = strRunway.Replace("%LENGTH%", rd.GetFloat(3).ToString());
+                    strRunway = strRunway.Replace("%SURFACE%", rd.GetString(6));
+                    strRunways += strRunway;
+                }
+            }
+            rd.Close();
+            strKMLPart = strKMLPart.Replace("%RUNWAYS%", ((String)htKMLParts["fsxaprws"]).Replace("%RUNWAYS%", strRunways));
+
+            // Boundary-Fences
+            cmd.CommandText = "SELECT [Number], Longitude, Latitude FROM AirportBoundary INNER JOIN AirportBoundaryVertex ON AirportBoundary.ID=AirportBoundaryVertex.BoundaryID WHERE AirportID=" + airport.ObjectID.ToString() + " ORDER BY [Number],SortNr";
 			rd = cmd.ExecuteReader();
 			String strBoundary = "";
 			int nNumber = -1;
