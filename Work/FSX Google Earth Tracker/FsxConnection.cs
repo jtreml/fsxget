@@ -840,6 +840,13 @@ namespace Fsxget
             AIRPORTS,
         }
 
+        public enum RUNWAYTYPE
+        {
+            HARDENED,
+            FASTENED,
+            WATER,
+        }
+
 		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
 		public struct StructBasicMovingSceneryObject
 		{
@@ -1874,65 +1881,82 @@ namespace Fsxget
                 float fHeading = rd.GetFloat(0);
                 if (fHeading > 180)
                     fHeading -= 180;
+                RUNWAYTYPE tType;
+                if (rd.GetInt32(3) == 20)
+                    tType = RUNWAYTYPE.WATER;
+                else if (rd.GetBoolean(1))
+                    tType = RUNWAYTYPE.HARDENED;
+                else
+                    tType = RUNWAYTYPE.FASTENED;
+
                 bool bHard = rd.GetBoolean(1);
                 bool bLights = rd.GetBoolean(2);
-
-                Stream s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapd.png");
-                bmp = new Bitmap(s);
-
-                Graphics g = Graphics.FromImage(bmp);
-
-                if (rd.GetInt32(3) != 20) // No Watersurface
-                {
-                    Pen pen = new Pen(Color.FromArgb(0, 0, 128));
-                    Brush brush = new SolidBrush(bHard ? Color.FromArgb(0, 0, 128) : Color.FromArgb(255, 255, 255));
-                    // x24, y24
-
-                    double dPI180 = Math.PI / 180;
-                    int y1 = (int)(Math.Sin((90 - fHeading) * dPI180) * 18);
-                    int x1 = (int)(Math.Sin(fHeading * dPI180) * 18);
-
-                    Point[] pts = new Point[4];
-                    pts[0] = new Point();
-                    pts[1] = new Point();
-                    pts[2] = new Point();
-                    pts[3] = new Point();
-
-                    int y2 = (int)(Math.Sin(fHeading * dPI180) * 3);
-                    int x2 = (int)(Math.Sin((fHeading + 90) * dPI180) * 3);
-
-                    pts[0].X = 24 - x1 - x2;
-                    pts[0].Y = 24 + y1 - y2;
-                    pts[1].X = 24 - x1 + x2;
-                    pts[1].Y = 24 + y1 + y2;
-
-                    pts[2].X = 24 + x1 + x2;
-                    pts[2].Y = 24 - y1 + y2;
-                    pts[3].X = 24 + x1 - x2;
-                    pts[3].Y = 24 - y1 - y2;
-
-                    g.FillPolygon(brush, pts);
-                    g.DrawPolygon(pen, pts);
-
-                    if (bLights)
-                    {
-                        s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapl.png");
-                        Bitmap bmpLight = new Bitmap(s);
-                        //                    g.FillEllipse(new SolidBrush(Color.White), 18, 5, 12, 12);
-                        g.DrawImage(bmpLight, 17, 5);
-                    }
-                    bmp.MakeTransparent(Color.White);
-                }
-                else
-                {
-                    s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapw.png");
-                    Bitmap bmpWater = new Bitmap(s);
-                    g.DrawImage(bmpWater, 20, 19);
-                }
+                bmp = RenderSimpleAirportIcon(fHeading, tType, bLights);
             }
             rd.Close();
             return bmp;
         }
+        static public Bitmap RenderSimpleAirportIcon(float fHeading, RUNWAYTYPE tType, bool bLights)
+        {
+            Bitmap bmp = null;
+            if (fHeading > 180)
+                fHeading -= 180;
+
+            Stream s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapd.png");
+            bmp = new Bitmap(s);
+
+            Graphics g = Graphics.FromImage(bmp);
+
+            if (tType != RUNWAYTYPE.WATER ) 
+            {
+                Pen pen = new Pen(Color.FromArgb(0, 0, 128));
+                Brush brush = new SolidBrush(tType == RUNWAYTYPE.HARDENED ? Color.FromArgb(0, 0, 128) : Color.FromArgb(255, 255, 255));
+                // x24, y24
+
+                double dPI180 = Math.PI / 180;
+                int y1 = (int)(Math.Sin((90 - fHeading) * dPI180) * 18);
+                int x1 = (int)(Math.Sin(fHeading * dPI180) * 18);
+
+                Point[] pts = new Point[4];
+                pts[0] = new Point();
+                pts[1] = new Point();
+                pts[2] = new Point();
+                pts[3] = new Point();
+
+                int y2 = (int)(Math.Sin(fHeading * dPI180) * 3);
+                int x2 = (int)(Math.Sin((fHeading + 90) * dPI180) * 3);
+
+                pts[0].X = 24 - x1 - x2;
+                pts[0].Y = 24 + y1 - y2;
+                pts[1].X = 24 - x1 + x2;
+                pts[1].Y = 24 + y1 + y2;
+
+                pts[2].X = 24 + x1 + x2;
+                pts[2].Y = 24 - y1 + y2;
+                pts[3].X = 24 + x1 - x2;
+                pts[3].Y = 24 - y1 - y2;
+
+                g.FillPolygon(brush, pts);
+                g.DrawPolygon(pen, pts);
+
+                if (bLights)
+                {
+                    s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapl.png");
+                    Bitmap bmpLight = new Bitmap(s);
+                    //                    g.FillEllipse(new SolidBrush(Color.White), 18, 5, 12, 12);
+                    g.DrawImage(bmpLight, 17, 5);
+                }
+                bmp.MakeTransparent(Color.White);
+            }
+            else
+            {
+                s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapw.png");
+                Bitmap bmpWater = new Bitmap(s);
+                g.DrawImage(bmpWater, 20, 19);
+            }
+            return bmp;
+        }
+
         #endregion
 
         #region Database-Creation
