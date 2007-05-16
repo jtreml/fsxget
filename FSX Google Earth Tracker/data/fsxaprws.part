@@ -2,7 +2,7 @@
 <B>Runways</B>
 <table>
 <tr>
-<th>Runway</th><th>Length</th><th>Surface</th>
+<th>Runway</th><th>Length</th><th>Surface</th><th>ILS Name (Ident) Frequency Heading</th>
 </tr>
 %RUNWAYS%
 </table>

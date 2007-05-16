@@ -693,8 +693,9 @@ namespace Fsxget
 
 		private String GenAirportKml(ref FsxConnection.SceneryDBObject airport)
 		{
-			String strKMLPart = "<Create><Folder targetId=\"fsxap\">";
-			OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, Longitude, Latitude, Altitude, MagVar FROM airports WHERE ID=" + airport.ObjectID.ToString() + " ORDER BY Ident", dbCon);
+            OleDbConnection dbCon2 = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb"); String strKMLPart = "<Create><Folder targetId=\"fsxap\">";
+            dbCon2.Open();
+            OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, Longitude, Latitude, Altitude, MagVar FROM airports WHERE ID=" + airport.ObjectID.ToString() + " ORDER BY Ident", dbCon);
 			OleDbDataReader rd = cmd.ExecuteReader();
             if (rd.Read())
             {
@@ -733,42 +734,67 @@ namespace Fsxget
                 strFreqs += strTmp;
             }
             rd.Close();
+            strComs += strCom.Replace("%FREQ%", strFreqs);
             strKMLPart = strKMLPart.Replace("%COMS%", ((String)htKMLParts["fsxapcoms"]).Replace("%COMS%", strComs));
 
             // Runways
-            cmd.CommandText = "SELECT [Number], PrimaryDesignator, SecondaryDesignator, Length, Width, SurfaceID, Name, HasLights, Hardened, Heading FROM Runways INNER JOIN SurfaceType ON Runways.SurfaceID = SurfaceType.ID WHERE AirportID=" + airport.ObjectID.ToString();
+            cmd.CommandText = "SELECT [Number], PrimaryDesignator, SecondaryDesignator, Length, SurfaceID, Name, HasLights, Hardened, Heading, PrimaryTakeoff, PrimaryLanding, SecondaryTakeoff, SecondaryLanding, Runways.ID FROM Runways INNER JOIN SurfaceType ON Runways.SurfaceID = SurfaceType.ID WHERE AirportID=" + airport.ObjectID.ToString();
             rd = cmd.ExecuteReader();
             float fHeading = 0;
             nType = 0;
             bool bLights = false;
             float fLength = 0;
             String strRunways = "";
+            String strIlsTmpl = (String)htKMLParts["fsxils"];
+            strIlsTmpl = strIlsTmpl.Replace("%SERVER%", Program.Config.Server);
             while (rd.Read())
             {
                 String strRunway = (String)htKMLParts["fsxaprw"];
                 if (fLength > rd.GetFloat(3))
                 {
                     fLength = rd.GetFloat(3);
-                    nType = rd.GetInt32(5) == 20 ? 2 : (rd.GetBoolean(8) ? 0 : 1);
-                    bLights = rd.GetBoolean(7);
-                    fHeading = rd.GetFloat(9);
+                    nType = rd.GetInt32(4) == 20 ? 2 : (rd.GetBoolean(7) ? 0 : 1);
+                    bLights = rd.GetBoolean(6);
+                    fHeading = rd.GetFloat(8);
                 }
                 int nNr = rd.GetInt16(0);
                 String strName = "";
-                if (nNr >= 1000)
-                    strName = strRunwayDirections[(nNr - 1000) / 45];
-                else
-                    strName = String.Format("{0:00}", nNr);
-                String strDes = rd.GetString(1);
-                if( strDes != "N" )
-                    strName += strDes;
-                strRunway = strRunway.Replace("%RUNWAY%", strName);
-                strRunway = strRunway.Replace("%LENGTH%", rd.GetFloat(3).ToString());
-                strRunway = strRunway.Replace("%SURFACE%", rd.GetString(6));
-                strRunways += strRunway;
-                strDes = rd.GetString(2);
-                if (strDes != " ")
+                String strDes = "";
+                String strIls = "";
+                if (rd.GetBoolean(9) || rd.GetBoolean(10) || (!rd.GetBoolean(9) && !rd.GetBoolean(10) && !rd.GetBoolean(11) && !rd.GetBoolean(12)))
                 {
+                    if (nNr >= 1000)
+                        strName = strRunwayDirections[(nNr - 1000) / 45];
+                    else
+                        strName = String.Format("{0:00}", nNr == 0 ? 36 : nNr);
+                    strDes = rd.GetString(1);
+                    if( strDes != "N" )
+                        strName += strDes;
+
+                    OleDbCommand cmdIls = new OleDbCommand("SELECT Ident, Name, Heading, Freq FROM RunwayILS WHERE EndSecondary=false AND RunwayID=" + rd.GetInt32(13).ToString(), dbCon2);
+                    OleDbDataReader rdIls = cmdIls.ExecuteReader();
+                    
+                    if(rdIls.Read())
+                    {
+                        strIls = strIlsTmpl;
+                        strIls = strIls.Replace("%IDENT%", rdIls.GetString(0));
+                        strIls = strIls.Replace("%NAME%", rdIls.GetString(1));
+                        strIls = strIls.Replace("%FREQ_UF%", rdIls.GetFloat(3).ToString());
+                        strIls = strIls.Replace("%FREQ%", rdIls.GetFloat(3).ToString(System.Globalization.NumberFormatInfo.InvariantInfo));
+                        strIls = strIls.Replace("%HEADING%", rdIls.GetFloat(2).ToString());
+                    }
+                    rdIls.Close();
+
+                    strRunway = strRunway.Replace("%RUNWAY%", strName);
+                    strRunway = strRunway.Replace("%LENGTH%", rd.GetFloat(3).ToString());
+                    strRunway = strRunway.Replace("%SURFACE%", rd.GetString(5));
+                    strRunway = strRunway.Replace("%ILS%", strIls );
+
+                    strRunways += strRunway;
+                }
+                if (rd.GetBoolean(11) || rd.GetBoolean(12) || (!rd.GetBoolean(9) && !rd.GetBoolean(10) && !rd.GetBoolean(11) && !rd.GetBoolean(12)))
+                {
+                    strDes = rd.GetString(2);
                     strRunway = (String)htKMLParts["fsxaprw"];
                     if (nNr >= 1000)
                     {
@@ -777,7 +803,7 @@ namespace Fsxget
                             nNr -= 180;
                         else
                             nNr += 180;
-                        strName = strRunwayDirections[nNr/ 45];
+                        strName = strRunwayDirections[nNr / 45];
                     }
                     else
                     {
@@ -785,13 +811,27 @@ namespace Fsxget
                             nNr -= 18;
                         else
                             nNr += 18;
-                        strName = String.Format("{0:00}", nNr);
+                        strName = String.Format("{0:00}", nNr == 0 ? 36 : nNr);
                     }
                     if (strDes != "N")
                         strName += strDes;
+
+                    OleDbCommand cmdIls = new OleDbCommand("SELECT Ident, Name, Heading, Freq FROM RunwayILS WHERE EndSecondary=true AND RunwayID=" + rd.GetInt32(13).ToString(), dbCon2);
+                    OleDbDataReader rdIls = cmdIls.ExecuteReader();
+                    if(rdIls.Read())
+                    {
+                        strIls = strIlsTmpl;
+                        strIls = strIls.Replace("%IDENT%", rdIls.GetString(0));
+                        strIls = strIls.Replace("%NAME%", rdIls.GetString(1));
+                        strIls = strIls.Replace("%FREQ_UF%", rdIls.GetFloat(3).ToString());
+                        strIls = strIls.Replace("%FREQ%", rdIls.GetFloat(3).ToString(System.Globalization.NumberFormatInfo.InvariantInfo));
+                        strIls = strIls.Replace("%HEADING%", rdIls.GetFloat(2).ToString());
+                    }
+                    rdIls.Close();
                     strRunway = strRunway.Replace("%RUNWAY%", strName);
                     strRunway = strRunway.Replace("%LENGTH%", rd.GetFloat(3).ToString());
-                    strRunway = strRunway.Replace("%SURFACE%", rd.GetString(6));
+                    strRunway = strRunway.Replace("%SURFACE%", rd.GetString(5));
+                    strRunway = strRunway.Replace("%ILS%", strIls );
                     strRunways += strRunway;
                 }
             }
@@ -819,7 +859,8 @@ namespace Fsxget
 				strBoundary += "</coordinates></LineString>";
 			strKMLPart = strKMLPart.Replace("%BOUNDARIES%", strBoundary);
             strKMLPart = strKMLPart.Replace("%TAXIWAYSIGNS%", "" ); //GenTaxiSignsKML(airport.ObjectID));
-			return strKMLPart + "</Folder></Create>";
+            dbCon2.Close();
+            return strKMLPart + "</Folder></Create>";
 		}
 
 		public byte[] GetAirportIconByCode(String query)
