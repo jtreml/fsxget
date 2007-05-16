@@ -147,6 +147,7 @@
     <Content Include="data\fsxvoroverlay.part" />
     <Content Include="data\fsxapu.part" />
     <Content Include="data\fsxtaxisignoverlay.part" />
+    <Content Include="data\fsxils.part" />
     <None Include="data\settings.default" />
     <None Include="fsxget.exe.manifest" />
     <EmbeddedResource Include="data\gfx\icons\tbconnected.ico" />

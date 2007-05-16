@@ -2203,44 +2203,46 @@ namespace Fsxget
                             fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
                         cmd.ExecuteNonQuery();
                     }
-                    nodes = xmld.GetElementsByTagName("Ndb");
-                    foreach (XmlNode xmln in nodes)
+                    if (strHead != "APX")
                     {
-                        foreach (XmlAttribute xmla in xmln.Attributes)
+                        nodes = xmld.GetElementsByTagName("Ndb");
+                        foreach (XmlNode xmln in nodes)
                         {
-                            if (xmla.Name == "lat")
-                                fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-                            else if (xmla.Name == "lon")
-                                fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-                            else if (xmla.Name == "alt")
+                            foreach (XmlAttribute xmla in xmln.Attributes)
                             {
-                                fAlt = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                if (xmla.Name == "lat")
+                                    fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                else if (xmla.Name == "lon")
+                                    fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                else if (xmla.Name == "alt")
+                                {
+                                    fAlt = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                }
+                                else if (xmla.Name == "range")
+                                    fRange = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                                else if (xmla.Name == "frequency")
+                                    fFreq = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                else if (xmla.Name == "magvar")
+                                    fMagVar = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                                else if (xmla.Name == "ident")
+                                {
+                                    strIdent = xmla.Value;
+                                }
+                                else if (xmla.Name == "name")
+                                    strName = xmla.Value;
                             }
-                            else if (xmla.Name == "range")
-                                fRange = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
-                            else if (xmla.Name == "frequency")
-                                fFreq = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-                            else if (xmla.Name == "magvar")
-                                fMagVar = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-                            else if (xmla.Name == "ident")
-                            {
-                                strIdent = xmla.Value;
-                            }
-                            else if (xmla.Name == "name")
-                                strName = xmla.Value;
+                            cmd.CommandText = "INSERT INTO navaids ( Ident, Name, TypeID, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
+                                strIdent + "', '" +
+                                strName.Replace("'", "''") + "', 4," +
+                                fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                fRange.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                                fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
+                            cmd.ExecuteNonQuery();
                         }
-                        cmd.CommandText = "INSERT INTO navaids ( Ident, Name, TypeID, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
-                            strIdent + "', '" +
-                            strName.Replace("'", "''") + "', 4," +
-                            fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-                            fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-                            fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-                            fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-                            fRange.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-                            fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
-                        cmd.ExecuteNonQuery();
                     }
-                    
                     nodes = xmld.GetElementsByTagName("Airport");
                     foreach (XmlNode xmln in nodes)
                     {
@@ -2290,19 +2292,10 @@ namespace Fsxget
                             bool bSekPatternRight = false;
                             int nIdx = 0;
                             int nName = 0;
-
-                            nType = 0;
-                            fHeading = 0;
-                            fLength = 0;
-                            fWidth = 0;
-                            nNumber = 0;
-                            cPrimDesignator = ' ';
-                            cSekDesignator = ' ';
-                            fPatAlt = 0;
-                            bPrimPatternRight = false;
-                            bSekPatternRight = false;
-                            nIdx = 0;
-                            nName = 0;
+                            bool bPrimTO = true;
+                            bool bPrimLand = true;
+                            bool bSecTO = true;
+                            bool bSecLand = true;
                             
                             if (xmlnChild.Name == "Com")
                             {
@@ -2401,8 +2394,16 @@ namespace Fsxget
                                         bPrimPatternRight = xmla.Value == "RIGHT";
                                     else if (xmla.Name == "secondaryPattern")
                                         bSekPatternRight = xmla.Value == "RIGHT";
+                                    else if (xmla.Name == "primaryTakeoff")
+                                        bPrimTO = xmla.Value == "YES";
+                                    else if (xmla.Name == "primaryLanding")
+                                        bPrimLand = xmla.Value == "YES";
+                                    else if (xmla.Name == "secondaryLanding")
+                                        bSecLand = xmla.Value == "YES";
+                                    else if (xmla.Name == "secondaryTakeoff")
+                                        bSecTO = xmla.Value == "YES";
                                 }
-                                cmd.CommandText = "INSERT INTO Runways (AirportID, Longitude, Latitude, Altitude, Heading, Length, Width, [Number], SurfaceID, PrimaryDesignator, SecondaryDesignator, PatternAltitude, PrimaryPatternRight, SecondaryPatternRight) VALUES (" +
+                                cmd.CommandText = "INSERT INTO Runways (AirportID, Longitude, Latitude, Altitude, Heading, Length, Width, [Number], SurfaceID, PrimaryDesignator, SecondaryDesignator, PatternAltitude, PrimaryPatternRight, SecondaryPatternRight, PrimaryTakeoff, PrimaryLanding, SecondaryTakeoff, SecondaryLanding) VALUES (" +
                                     nAPID.ToString() + "," +
                                     fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
                                     fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
@@ -2416,7 +2417,11 @@ namespace Fsxget
                                     "'" + cSekDesignator + "'," +
                                     fPatAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," + 
                                     (bPrimPatternRight ? "1" : "0") + "," +
-                                    (bSekPatternRight ? "1" : "0") + ");";
+                                    (bSekPatternRight ? "1" : "0") + "," + 
+                                    (bPrimTO ? "1" : "0") + "," +
+                                    (bPrimLand ? "1" : "0") + "," +
+                                    (bSecTO ? "1" : "0") + "," +
+                                    (bSecLand ? "1" : "0") + ");";
                                 cmd.ExecuteNonQuery();
                                 cmd.CommandText = "SELECT @@IDENTITY";
                                 int nRunwayID = (int)cmd.ExecuteScalar();
