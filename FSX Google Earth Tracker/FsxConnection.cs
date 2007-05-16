@@ -2247,6 +2247,9 @@ namespace Fsxget
                     foreach (XmlNode xmln in nodes)
                     {
                         int nBoundNr = 0;
+                        String strCountry = "";
+                        String strState = "";
+                        String strCity = "";
                         foreach (XmlAttribute xmla in xmln.Attributes)
                         {
                             if (xmla.Name == "lat")
@@ -2260,20 +2263,31 @@ namespace Fsxget
                             else if (xmla.Name == "ident")
                             {
                                 strIdent = xmla.Value;
-                                if (strIdent == "EDDF")
-                                    File.Copy(strTmpFile, "C:\\EDDF.xml");
                             }
                             else if (xmla.Name == "name")
                                 strName = xmla.Value;
+                            else if (xmla.Name == "region")
+                                strRegion = xmla.Value;
+                            else if (xmla.Name == "country")
+                                strCountry = xmla.Value;
+                            else if (xmla.Name == "state")
+                                strState = xmla.Value;
+                            else if (xmla.Name == "city")
+                                strCity = xmla.Value;
                         }
 
-                        cmd.CommandText = "INSERT INTO airports ( Ident, Name, Longitude, Latitude, Altitude, MagVar ) VALUES ( '" +
+                        cmd.CommandText = "INSERT INTO airports ( Ident, Name, Longitude, Latitude, Altitude, MagVar, Region, Country, State, City ) VALUES ( '" +
                             strIdent + "', '" +
                             strName.Replace("'", "''") + "'," +
                             fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
                             fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
                             fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-                            fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
+                            fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ",'" +
+                            strRegion.Replace("'", "''") + "','" +
+                            strCountry.Replace("'", "''") + "','" +
+                            strState.Replace("'", "''") + "','" +
+                            strCity.Replace("'", "''") + "');";
+
                         cmd.ExecuteNonQuery();
                         cmd.CommandText = "SELECT @@IDENTITY";
                         int nAPID = (int)cmd.ExecuteScalar();
