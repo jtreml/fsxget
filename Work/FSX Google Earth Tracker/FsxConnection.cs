@@ -341,7 +341,8 @@ namespace Fsxget
 			private ObjectData<String> strATCFlightNumber;
 			private ObjectPosition objPos;
 			private ObjectData<float> fHeading;
-			private double dTime;
+            private float fAltAGL;
+            private double dTime;
 			public ObjectPath objPath;
 			public PathPrediction pathPrediction;
 			#endregion
@@ -368,7 +369,8 @@ namespace Fsxget
 				objPos.Latitude.Value = (float)obj.dLatitude;
 				objPos.Altitude.Value = (float)obj.dAltitude;
 				fHeading.Value = (float)obj.dHeading;
-				dTime = obj.dTime;
+                fAltAGL = (float)obj.dAltAGL;
+                dTime = obj.dTime;
 				ConfigChanged();
 			}
 
@@ -388,7 +390,8 @@ namespace Fsxget
 				objPos.Longitude.Value = (float)obj.dLongitude;
 				objPos.Latitude.Value = (float)obj.dLatitude;
 				objPos.Altitude.Value = (float)obj.dAltitude;
-				strTitle.Value = obj.szTitle;
+                fAltAGL = (float)obj.dAltAGL;
+                strTitle.Value = obj.szTitle;
 				strATCType.Value = obj.szATCType;
 				strATCModel.Value = obj.szATCModel;
 				strATCID.Value = obj.szATCID;
@@ -574,6 +577,14 @@ namespace Fsxget
 				}
 			}
 
+            public float AltitudeAGL
+            {
+                get
+                {
+                    return fAltAGL;
+                }
+            }
+
 			#endregion
 		}
 		public class FlightPlan : SceneryObject
@@ -723,18 +734,44 @@ namespace Fsxget
 				}
 			}
 		}
-		public class SceneryDBObject : SceneryObject
+		public class SceneryAirportObject : SceneryObject
 		{
-            public SceneryDBObject(uint unID, DATA_REQUESTS tType)
+            private STATE tTaxiSignState;
+            private bool bHasTaxiSigns;
+
+            public SceneryAirportObject(uint unID, DATA_REQUESTS tType)
 				: base(unID, tType)
 			{
-			}
+                tTaxiSignState = STATE.UNCHANGED;
+                bHasTaxiSigns = false;
+            }
 
-/*			bool IsInRegion(float fNorth, float fEast, float fSouth, float fWest)
-			{
-				return fLon >= fWest && fLon <= fEast && fLat >= fNorth && fLat <= fSouth;
-			}
-*/
+            public STATE TaxiSignState
+            {
+                get
+                {
+                    return tTaxiSignState;
+                }
+                set
+                {
+                    tTaxiSignState = value;
+                }
+            }
+            public bool HasTaxiSigns
+            {
+                get
+                {
+                    return bHasTaxiSigns;
+                }
+                set
+                {
+                    if (bHasTaxiSigns && value == false)
+                        tTaxiSignState = STATE.DELETED;
+                    else if (!bHasTaxiSigns && value == true)
+                        tTaxiSignState = STATE.NEW;
+                    bHasTaxiSigns = value;
+                }
+            }
 		}
 		#endregion
 
@@ -868,6 +905,7 @@ namespace Fsxget
 			public double dAltitude;
 			public double dTime;
 			public double dHeading;
+            public double dAltAGL;
 		};
 
 		public struct StructObjectContainer
@@ -943,8 +981,8 @@ namespace Fsxget
             objects[(int)OBJCONTAINER.AIRPORTS].htObjects = new Hashtable();
             objects[(int)OBJCONTAINER.AIRPORTS].timer = new System.Timers.Timer();
             objects[(int)OBJCONTAINER.AIRPORTS].timer.Elapsed += new ElapsedEventHandler(OnTimerQueryAirportsElapsed);
-            
-			lockSimConnect = new Object();
+
+            lockSimConnect = new Object();
 
 			htFlightPlans = new Hashtable();
 
@@ -1019,6 +1057,7 @@ namespace Fsxget
 				simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Plane Altitude", "meters", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 				simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Absolute Time", "seconds", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 				simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "PLANE HEADING DEGREES TRUE", "degrees", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+                simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "PLANE ALT ABOVE GROUND", "meters", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 
 				simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_NAV1, "NAV1_RADIO_SET");
 				simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_NAV2, "NAV2_RADIO_SET");
@@ -1290,11 +1329,8 @@ namespace Fsxget
 					{
 						simconnect.ReceiveMessage();
 					}
-					catch (Exception e)
+					catch 
 					{
-#if DEBUG
-						frmMain.NotifyError("Error receiving data from FSX!\n\n" + e.Message);
-#endif
 					}
 				}
 				return true;
@@ -1437,7 +1473,7 @@ namespace Fsxget
 					KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 180, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fSouth);
 					KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 270, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fWest, ref fTmp);
 
-					OleDbCommand cmd = new OleDbCommand("SELECT ID FROM navaids WHERE " +
+					OleDbCommand cmd = new OleDbCommand("SELECT ID, Longitude, Latitude FROM navaids WHERE " +
 						"Latitude >= " + fSouth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
 						"Latitude <= " + fNorth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
 						"Longitude >= " + fWest.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
@@ -1446,15 +1482,21 @@ namespace Fsxget
 					OleDbDataReader rd = cmd.ExecuteReader();
 					while (rd.Read())
 					{
-						uint unID = (uint)rd.GetInt32(0);
-                        if (objects[(int)OBJCONTAINER.NAVAIDS].htObjects.ContainsKey(unID))
-						{
-                            ((SceneryObject)objects[(int)OBJCONTAINER.NAVAIDS].htObjects[unID]).bDataRecieved = true;
-						}
-						else
-						{
-                            objects[(int)OBJCONTAINER.NAVAIDS].htObjects.Add(unID, new SceneryDBObject(unID, DATA_REQUESTS.NAVAIDS));
-						}
+                        float fDist = 0;
+                        float fHead = 0;
+                        KmlFactory.GetDistance(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, rd.GetFloat(1), rd.GetFloat(2), ref fDist, ref fHead);
+                        if (fDist <= Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue)
+                        {
+                            uint unID = (uint)rd.GetInt32(0);
+                            if (objects[(int)OBJCONTAINER.NAVAIDS].htObjects.ContainsKey(unID))
+                            {
+                                ((SceneryObject)objects[(int)OBJCONTAINER.NAVAIDS].htObjects[unID]).bDataRecieved = true;
+                            }
+                            else
+                            {
+                                objects[(int)OBJCONTAINER.NAVAIDS].htObjects.Add(unID, new SceneryObject(unID, DATA_REQUESTS.NAVAIDS));
+                            }
+                        }
 					}
                     MarkDeletedObjects(ref objects[(int)OBJCONTAINER.NAVAIDS].htObjects);
 					rd.Close();
@@ -1465,7 +1507,7 @@ namespace Fsxget
         {
             lock (objects[(int)OBJCONTAINER.AIRPORTS].lockObject)
             {
-                if (objUserAircraft != null )
+                if (objUserAircraft != null)
                 {
                     float fNorth = 0;
                     float fEast = 0;
@@ -1477,7 +1519,7 @@ namespace Fsxget
                     KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 180, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fSouth);
                     KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 270, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fWest, ref fTmp);
 
-                    OleDbCommand cmd = new OleDbCommand("SELECT ID FROM airports WHERE " +
+                    OleDbCommand cmd = new OleDbCommand("SELECT ID, Longitude, Latitude FROM airports WHERE " +
                         "Latitude >= " + fSouth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
                         "Latitude <= " + fNorth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
                         "Longitude >= " + fWest.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
@@ -1486,15 +1528,27 @@ namespace Fsxget
                     OleDbDataReader rd = cmd.ExecuteReader();
                     while (rd.Read())
                     {
+                        float fDist = 0;
+                        float fHead = 0;
+                        KmlFactory.GetDistance(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, rd.GetFloat(1), rd.GetFloat(2), ref fDist, ref fHead);
                         uint unID = (uint)rd.GetInt32(0);
-                        if (objects[(int)OBJCONTAINER.AIRPORTS].htObjects.ContainsKey(unID))
+                        if (fDist <= Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue)
                         {
-                            ((SceneryObject)objects[(int)OBJCONTAINER.AIRPORTS].htObjects[unID]).bDataRecieved = true;
+                            if (objects[(int)OBJCONTAINER.AIRPORTS].htObjects.ContainsKey(unID))
+                            {
+                                ((SceneryAirportObject)objects[(int)OBJCONTAINER.AIRPORTS].htObjects[unID]).bDataRecieved = true;
+                            }
+                            else
+                            {
+                                objects[(int)OBJCONTAINER.AIRPORTS].htObjects.Add(unID, new SceneryAirportObject(unID, DATA_REQUESTS.AIRPORTS));
+                            }
+                            if (fDist <= 5000 && objUserAircraft.AltitudeAGL < 300)
+                                ((SceneryAirportObject)objects[(int)OBJCONTAINER.AIRPORTS].htObjects[unID]).HasTaxiSigns = true;
+                            else
+                                ((SceneryAirportObject)objects[(int)OBJCONTAINER.AIRPORTS].htObjects[unID]).HasTaxiSigns = false;
                         }
                         else
-                        {
-                            objects[(int)OBJCONTAINER.AIRPORTS].htObjects.Add(unID, new SceneryDBObject(unID, DATA_REQUESTS.AIRPORTS));
-                        }
+                            System.Diagnostics.Trace.WriteLine("Out of Range");
                     }
                     MarkDeletedObjects(ref objects[(int)OBJCONTAINER.AIRPORTS].htObjects);
                     rd.Close();
@@ -1855,44 +1909,6 @@ namespace Fsxget
             g = Graphics.FromImage(bmp);
             g.DrawImage(bmpTmp, 0, 0);
 
-            bmpTmp = new Bitmap(nXOff, nHeight * 2);
-
-            Point[] ptDest = new Point[] {
-                new Point( nXOff, nHeight ),
-                new Point( 0, nHeight ),
-                new Point( nXOff, 0 ),
-            };
-
-            g = Graphics.FromImage(bmpTmp);
-
-            g.DrawImage(bmp, 0, nHeight);
-            g.DrawImage(bmp, ptDest);
-
-            return bmpTmp;
-        }
-        static public Bitmap RenderSimpleAirportIcon(int nID, OleDbConnection dbCon)
-        {
-            OleDbCommand cmd = new OleDbCommand("SELECT Heading, Hardened, HasLights, SurfaceID FROM Runways INNER JOIN SurfaceType ON Runways.SurfaceID = SurfaceType.ID WHERE AirportID=" + nID.ToString() + " ORDER BY Length DESC", dbCon);
-            OleDbDataReader rd = cmd.ExecuteReader();
-            Bitmap bmp = null;
-            if (rd.Read())
-            {
-                float fHeading = rd.GetFloat(0);
-                if (fHeading > 180)
-                    fHeading -= 180;
-                RUNWAYTYPE tType;
-                if (rd.GetInt32(3) == 20)
-                    tType = RUNWAYTYPE.WATER;
-                else if (rd.GetBoolean(1))
-                    tType = RUNWAYTYPE.HARDENED;
-                else
-                    tType = RUNWAYTYPE.FASTENED;
-
-                bool bHard = rd.GetBoolean(1);
-                bool bLights = rd.GetBoolean(2);
-                bmp = RenderSimpleAirportIcon(fHeading, tType, bLights);
-            }
-            rd.Close();
             return bmp;
         }
         static public Bitmap RenderSimpleAirportIcon(float fHeading, RUNWAYTYPE tType, bool bLights)
@@ -2094,8 +2110,6 @@ namespace Fsxget
             float fMagVar = 0.0f;
             float fAlt = 0.0f;
             float fRange = 0.0f;
-
-            int nFileNr = 1;
 
             OleDbConnection dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
             dbCon.Open();

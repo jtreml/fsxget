@@ -53,21 +53,37 @@ namespace Fsxget
 			documents = new Hashtable(capacity);
 		}
 
-		public void registerFile(String path, ServerFile file)
+		public bool registerFile(String path, ServerFile file)
 		{
 			lock (documents)
 			{
-				documents.Add(path, new ServerFileInternal(path, file));
+                try
+                {
+                    documents.Add(path, new ServerFileInternal(path, file));
+                }
+                catch
+                {
+                    return false;
+                }
 			}
+            return true;
 			//Console.WriteLine(path);
 		}
 
-		public void registerOneTimeFile(String path, ServerFile file)
+        public bool registerOneTimeFile(String path, ServerFile file)
 		{
 			lock (documents)
 			{
-				documents.Add(path, new ServerFileInternal(path, file, false));
+                try
+                {
+                    documents.Add(path, new ServerFileInternal(path, file, false));
+                }
+                catch
+                {
+                    return false;
+                }
 			}
+            return true;
 			//Console.WriteLine(path);
 		}
 
