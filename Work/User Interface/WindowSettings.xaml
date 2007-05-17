@@ -1,0 +1,226 @@
+﻿<Window x:Class="FSXGET.WindowSettings"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Flight Simulator X Google Earth Tracker" Height="600" Width="800"
+	MinHeight="500"
+	MinWidth="790"
+	Icon="app.ico"
+    >
+
+	<DockPanel Background="#e6eff2">
+		<Grid DockPanel.Dock="Top">
+			<Grid MinWidth="949" Height="80">
+				<Image Source="pack://application:,,,/Resources/ui_headerx.png" Stretch="Fill" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
+				<Image Source="pack://application:,,,/Resources/ui_header.png" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"></Image>
+
+				<!--Logo & Title-->
+				<Canvas HorizontalAlignment="Left" VerticalAlignment="Top">
+					<Image Canvas.Top="13" Canvas.Left="18" Height="34" Width="34" Source="pack://application:,,,/Resources/ui_logo.png" />
+					<StackPanel Orientation="Horizontal" Canvas.Top="14" Canvas.Left="53" Margin="0">
+						<Label FontSize="19" Foreground="White" VerticalContentAlignment="Bottom" Padding="3">Flight Simulator X</Label>
+						<Label FontSize="17" Foreground="White" VerticalContentAlignment="Bottom" Padding="3">Google Earth Tracker</Label>
+					</StackPanel>
+				</Canvas>
+			</Grid>
+
+			<!--Help Button-->
+			<Canvas HorizontalAlignment="Right">
+				<StackPanel Name="StackPanelHelp" Canvas.Right="15" Canvas.Top="12" Orientation="Horizontal">
+					<Image Name="ImgHelp1" Height="16" Source="pack://application:,,,/Resources/ui_help.png" />
+					<Label Foreground="White" FontSize="11" Padding="5,3,1,3">
+						<Hyperlink Name="HyperlinkHelp" Click="HyperlinkHelpClicked" TextDecorations="None" Foreground="White">
+							Help
+							<Hyperlink.ContextMenu>
+								<ContextMenu Name="ConextMenuHelp">
+									<MenuItem Header="Online Help">
+										<MenuItem.Icon>
+											<Image Source="pack://application:,,,/Resources/ui_help.png"/>
+										</MenuItem.Icon>
+									</MenuItem>
+									<Separator />
+									<MenuItem Header="FSXGET Homepage">
+										<MenuItem.Icon>
+											<Image Source="pack://application:,,,/Resources/ui_web.png"/>
+										</MenuItem.Icon>
+									</MenuItem>
+									<Separator />
+									<MenuItem Header="Microsoft Fight Simulator X Homepage">
+										<MenuItem.Icon>
+											<Image Source="pack://application:,,,/Resources/ui_web.png"/>
+										</MenuItem.Icon>
+									</MenuItem>
+									<MenuItem Header="Google Earth Homepage">
+										<MenuItem.Icon>
+											<Image Source="pack://application:,,,/Resources/ui_web.png"/>
+										</MenuItem.Icon>
+									</MenuItem>
+									<Separator />
+									<MenuItem Header="About">
+										<MenuItem.Icon>
+											<Image Source="pack://application:,,,/Resources/ui_info.png"/>
+										</MenuItem.Icon>
+									</MenuItem>
+								</ContextMenu>
+							</Hyperlink.ContextMenu>
+						</Hyperlink>
+					</Label>
+					<Image Name="ImgHelp2" Height="11" Source="pack://application:,,,/Resources/ui_arr.png" />
+				</StackPanel>
+			</Canvas>
+		</Grid>
+
+
+		<Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+			<Grid HorizontalAlignment="Left" VerticalAlignment="Top" Width="282" Height="495">
+				<Image Source="pack://application:,,,/Resources/ui_side.png" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"></Image>
+			</Grid>
+
+			<!--Docking panel for the two side of the main screen between the header and the footer-->
+			<DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+				<!--Contains a dock panel for the two menus and a spacing grid at the bottom (because of the according spacing grid on the right side)-->
+				<DockPanel DockPanel.Dock="Left" Width="162" VerticalAlignment="Stretch">
+					<Grid DockPanel.Dock="Bottom" Height="20" />
+					<DockPanel Margin="14,10,8,0" DockPanel.Dock="Top" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+						<!--Left Top Menu-->
+						<StackPanel Orientation="Vertical" DockPanel.Dock="Top">
+							<Label FontWeight="Bold" Foreground="#606060" Padding="0,2,0,5">Overview</Label>
+							<Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="*" />
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+
+								<Image Grid.Column="0" Grid.Row="0" Source="pack://application:,,,/Resources/ui_stat.png" Height="16" />
+								<Label Grid.Column="1" Grid.Row="0">
+									<Hyperlink Name="HyperlinkOverviewStatus" Foreground="Black" TextDecorations="None" Click="HyperlinkOverviewStatusClicked">Status Overview</Hyperlink>
+								</Label>
+							</Grid>
+							<Label FontWeight="Bold" Foreground="#606060" Padding="0,15,0,5">Configuration</Label>
+							<Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="*" />
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+
+								<Image Grid.Column="0" Grid.Row="0" Source="pack://application:,,,/Resources/ui_ge.png" Height="16" />
+								<Label Grid.Column="1" Grid.Row="0">Google Earth</Label>
+							</Grid>
+
+							<Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16,0,0,4">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="*" />
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+
+								<Image Grid.Column="0" Grid.Row="0" Source="pack://application:,,,/Resources/ui_simdat.png" Height="16" />
+								<Label Grid.Column="1" Grid.Row="0">
+									<Hyperlink Name="HyperlinkSettingsSimData" Foreground="Black" TextDecorations="None" Click="HyperlinkSettingsSimDataClicked">Simulation Data</Hyperlink>
+								</Label>
+
+								<Image Grid.Column="0" Grid.Row="1" Source="pack://application:,,,/Resources/ui_view.png" Height="16" />
+								<Label Grid.Column="1" Grid.Row="1">
+									<Hyperlink Name="HyperlinkSettingsView" Foreground="Black" TextDecorations="None" Click="HyperlinkSettingsViewClicked">View Settings</Hyperlink>
+								</Label>
+
+								<Image Grid.Column="0" Grid.Row="2" Source="pack://application:,,,/Resources/ui_fp.png" Height="16" />
+								<Label Grid.Column="1" Grid.Row="2">
+									<Hyperlink Name="HyperlinkSettingsFp" Foreground="Black" TextDecorations="None" Click="HyperlinkSettingsFpClicked">Flight Plans</Hyperlink>
+								</Label>
+
+							</Grid>
+
+							<Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="*" />
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+
+								<Image Grid.Column="0" Grid.Row="0" Source="pack://application:,,,/Resources/ui_log.png" Height="16" />
+								<Label Grid.Column="1" Grid.Row="0">
+									<Hyperlink Name="HyperlinkSettingsLog" Foreground="Black" TextDecorations="None" Click="HyperlinkSettingsLogClicked">Flight Log</Hyperlink>
+								</Label>
+
+								<Image Grid.Column="0" Grid.Row="1" Source="pack://application:,,,/Resources/ui_fsx.png" Height="16" />
+								<Label Grid.Column="1" Grid.Row="1">
+									<Hyperlink Name="HyperlinkSettingsFs" Foreground="Black" TextDecorations="None" Click="HyperlinkSettingsFsClicked">Flight Simulator</Hyperlink>
+								</Label>
+
+								<Label Foreground="#444444" Grid.Column="1" Grid.Row="2" />
+
+								<Image Grid.Column="0" Grid.Row="3" Source="pack://application:,,,/Resources/ui_admin.png" Height="16" />
+								<Label Foreground="#444444" Grid.Column="1" Grid.Row="3">Settings</Label>
+							</Grid>
+						</StackPanel>
+
+						<!--Left Bottom Menu-->
+						<Border BorderBrush="#bed6e0" BorderThickness="1" DockPanel.Dock="Bottom" HorizontalAlignment="Left" VerticalAlignment="Bottom" >
+							<Image Source="pack://application:,,,/Resources/ui_cp.jpg" Width="75"></Image>
+						</Border>
+						<!--
+							<Grid HorizontalAlignment="Left" VerticalAlignment="Bottom" DockPanel.Dock="Bottom">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="*" />
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+
+								<Label Foreground="#444444" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2">See also:</Label>
+
+								<Image Grid.Column="0" Grid.Row="1" />
+
+								<Label Grid.Column="1" Grid.Row="1">
+									<Hyperlink Foreground="#444444">Google Earth Homepage</Hyperlink>
+								</Label>
+								<Image Grid.Column="0" Grid.Row="2" />
+								<Label Grid.Column="1" Grid.Row="2">
+									<Hyperlink Foreground="#444444">Flight Simulator X Website</Hyperlink>
+								</Label>
+							</Grid>
+						-->
+					</DockPanel>
+				</DockPanel>
+
+				<!--Docking panel for the right side (side next to the menu)-->
+				<DockPanel DockPanel.Dock="Right" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+					<Grid DockPanel.Dock="Bottom" Height="20" />
+					<Border BorderThickness="1,1,0,1" BorderBrush="#bed6e0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+						<ScrollViewer Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+							<DockPanel Background="White">
+								<!--Section Headline-->
+								<Label Name="LabelHeadline" DockPanel.Dock="Top" Style="{StaticResource HeadlinePane}">Settings</Label>
+
+								<!--Main Screen-->
+								<StackPanel Margin="5" DockPanel.Dock="Bottom"  Name="MainPanel" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+									<!--Here goes the specific content for each section-->
+								</StackPanel>
+							</DockPanel>
+						</ScrollViewer>
+					</Border>
+				</DockPanel>
+			</DockPanel>
+		</Grid>
+	</DockPanel>
+</Window>

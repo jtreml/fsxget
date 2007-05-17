@@ -1,0 +1,12 @@
+<UserControl x:Class="FSXGET.CtrlSettingsLog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	Tag="Log Settings"
+	>
+
+	<Grid Style="{StaticResource GridContentPage}">
+		<StackPanel Orientation="Vertical">
+			<TextBlock Style="{StaticResource TextblockData}">Here go the log settings. Should provide different services for log files (save to disc or ftp). Select path where to save and naming / format options (separate files, incl. data, option to zip, incremental saving and recover on failure). Provide similar list for user and aircraft objects as in Sim Data dialog to select what exactly yo include in the log.</TextBlock>
+		</StackPanel>
+	</Grid>
+</UserControl>

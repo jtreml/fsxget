@@ -1,0 +1,12 @@
+<UserControl x:Class="FSXGET.CtrlSettingsFp"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	Tag="Flight Plan Settings"
+	>
+
+	<Grid Style="{StaticResource GridContentPage}">
+		<StackPanel Orientation="Vertical">
+			<TextBlock Style="{StaticResource TextblockData}">Here go the flight plan settings. Should have a list of all loaded flight plans with a checkbox to enable / disable them for display in GE. Should provide controls to manage the list (remove, add, edit FPs) and should provide a option for automatically loading of all flight plans in selected directories (incl. options to search subdirs).</TextBlock>
+		</StackPanel>
+	</Grid>
+</UserControl>

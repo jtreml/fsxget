@@ -1,0 +1,209 @@
+﻿<Application x:Class="FSXGET.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    StartupUri="WindowSettings.xaml"
+    >
+	<Application.Resources>
+
+		<!--Headline Pane-->
+		<Style x:Key="HeadlinePane">
+			<Setter Property="Label.Background" Value="#eeeeee" />
+			<Setter Property="Label.BorderBrush" Value="#e5e5e5" />
+			<Setter Property="Label.BorderThickness" Value="0,0,0,1" />
+			<Setter Property="Label.MinHeight" Value="35" />
+			<Setter Property="Label.HorizontalAlignment" Value="Stretch" />
+			<Setter Property="Label.Padding" Value="10,0,0,0" />
+			<Setter Property="Label.VerticalContentAlignment" Value="Center" />
+		</Style>
+
+		<!--Content Page Grid-->
+		<Style x:Key="GridContentPage">
+			<Setter Property="TextBlock.Margin" Value="8,4,8,12" />
+			<Setter Property="TextBlock.HorizontalAlignment" Value="Stretch" />
+		</Style>
+
+		<!--Textblocks-->
+		<Style x:Key="TextblockData">
+			<Setter Property="TextBlock.TextWrapping" Value="Wrap" />
+			<Setter Property="TextBlock.Margin" Value="0,6,0,14" />
+			<Setter Property="TextBlock.HorizontalAlignment" Value="Stretch" />
+		</Style>
+		
+		<Style x:Key="TextblockInstructions" BasedOn="{StaticResource TextblockData}">
+			<Setter Property="TextBlock.FontSize" Value="11" />
+			<Setter Property="TextBlock.FontStyle" Value="Italic" />
+		</Style>
+		
+		<!--Tables-->
+		<Style x:Key="TableHeaderBackground">
+			<Setter Property="Rectangle.Fill" Value="#f7fbfc" />
+		</Style>
+
+		<Style x:Key="TableHeaderBorder">
+			<Setter Property="Border.BorderBrush" Value="#eeeeee" />
+			<Setter Property="Border.BorderThickness" Value="1" />
+		</Style>
+		<Style x:Key="TableFirstRowBorder" BasedOn="{StaticResource TableHeaderBorder}" />
+		<Style x:Key="TableRowBorder" BasedOn="{StaticResource TableHeaderBorder}">
+			<Setter Property="Border.BorderThickness" Value="1,0,1,1" />
+		</Style>
+
+		<Style x:Key="TableHeaderLabel">
+			<Setter Property="Label.FontSize" Value="10" />
+			<Setter Property="Label.FontWeight" Value="Bold" />
+			<Setter Property="Label.Padding" Value="4,3,4,3" />
+			<Setter Property="Label.VerticalAlignment" Value="Center" />
+		</Style>
+
+		<Style x:Key="TableTextboxWithLabelTextbox">
+			<Setter Property="TextBox.Margin" Value="4,0,2,0" />
+			<Setter Property="TextBox.Padding" Value="0" />
+			<Setter Property="TextBox.Width" Value="40" />
+			<Setter Property="TextBox.FontSize" Value="9" />
+			<Setter Property="TextBox.BorderThickness" Value="1" />
+			<Setter Property="TextBox.TextAlignment" Value="Right" />
+		</Style>
+		<Style x:Key="TableTextboxWithLabelLabel">
+			<Setter Property="Label.Margin" Value="2,0,4,0" />
+			<Setter Property="Label.Padding" Value="0" />
+			<Setter Property="Label.VerticalContentAlignment" Value="Center" />
+			<Setter Property="Label.FontSize" Value="9" />
+		</Style>
+
+		<Style x:Key="TableCheckbox">
+			<Setter Property="CheckBox.BorderBrush" Value="#eeeeee" />
+			<Setter Property="CheckBox.BorderThickness" Value="1" />
+			<Setter Property="CheckBox.Margin" Value="4,3,4,3" />
+			<Setter Property="CheckBox.VerticalAlignment" Value="Center" />
+		</Style>
+
+		<Style x:Key="TableLabel">
+			<Setter Property="Label.VerticalAlignment" Value="Center" />
+			<Setter Property="Label.Padding" Value="4,3,4,3" />
+			<Setter Property="Label.Margin" Value="0" />
+		</Style>
+
+		<Style x:Key="TableImageButtonInContainer">
+			<Setter Property="Button.Padding" Value="0" />
+			<Setter Property="Button.Margin" Value="2" />
+			<Setter Property="Button.Width" Value="15" />
+			<Setter Property="Button.Height" Value="15" />
+			<Setter Property="Button.FontSize" Value="8" />
+			<Setter Property="Button.HorizontalContentAlignment" Value="Center" />
+			<Setter Property="Button.VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style x:Key="TableImageButtonInContainerImage">
+			<Setter Property="Image.Stretch" Value="UniformToFill" />
+			<Setter Property="Image.Margin" Value="0" />
+		</Style>
+
+		<Style x:Key="TableStackPanel">
+			<Setter Property="StackPanel.Margin" Value="2,0,2,0" />
+			<Setter Property="StackPanel.VerticalAlignment" Value="Center" />
+		</Style>
+
+		<!--Table HorizontalAlignment Specials-->
+		<Style x:Key="TableHeaderLabelCenter" BasedOn="{StaticResource TableHeaderLabel}">
+			<Setter Property="Label.HorizontalAlignment" Value="Center" />
+		</Style>
+		<Style x:Key="TableHeaderLabelLeft" BasedOn="{StaticResource TableHeaderLabel}">
+			<Setter Property="Label.HorizontalAlignment" Value="Left" />
+		</Style>
+
+		<Style x:Key="TableCheckboxCenter" BasedOn="{StaticResource TableCheckbox}">
+			<Setter Property="CheckBox.HorizontalAlignment" Value="Center" />
+		</Style>
+
+		<Style x:Key="TableLabelLeft" BasedOn="{StaticResource TableLabel}">
+			<Setter Property="Label.HorizontalAlignment" Value="Left" />
+		</Style>
+
+		<Style x:Key="TableStackPanelCenter" BasedOn="{StaticResource TableStackPanel}">
+			<Setter Property="StackPanel.HorizontalAlignment" Value="Center" />
+		</Style>
+
+		<Style x:Key="TableImageButtonInContainerCenter" BasedOn="{StaticResource TableImageButtonInContainer}">
+			<Setter Property="Button.HorizontalAlignment" Value="Center" />
+		</Style>
+
+
+		<!--Expanders-->
+		<Style x:Key="ExpanderDefaultGrid">
+			<Setter Property="Grid.Margin" Value="0,0,0,14" />
+			<Setter Property="Grid.HorizontalAlignment" Value="Stretch" />
+		</Style>
+
+		<Style x:Key="ExpanderDefaultHeaderBorder">
+			<Setter Property="Border.BorderBrush" Value="#d8f0fa" />
+			<Setter Property="Border.Background" Value="#ecf7fd" />
+			<Setter Property="Border.BorderThickness" Value="1" />
+			<Setter Property="Border.CornerRadius" Value="5" />
+			<Setter Property="Border.VerticalAlignment" Value="Top" />
+			<Setter Property="Border.HorizontalAlignment" Value="Stretch" />
+		</Style>
+
+		<Style x:Key="ExpanderDefaultHeaderGrid">
+			<Setter Property="Grid.Background" Value="Transparent" />
+			<Setter Property="Grid.VerticalAlignment" Value="Top" />
+			<Setter Property="Grid.HorizontalAlignment" Value="Stretch" />
+		</Style>
+
+		<Style x:Key="ExpanderDefaultHeaderColDef1">
+			<Setter Property="ColumnDefinition.Width" Value="Auto" />
+		</Style>
+		<Style x:Key="ExpanderDefaultHeaderColDef2">
+			<Setter Property="ColumnDefinition.Width" Value="*" />
+		</Style>
+		<Style x:Key="ExpanderDefaultHeaderColDef3">
+			<Setter Property="ColumnDefinition.Width" Value="25" />
+		</Style>
+
+		<Style x:Key="ExpanderDefaultHeaderLabelLeft">
+			<Setter Property="Label.HorizontalAlignment" Value="Left" />
+			<Setter Property="Label.Foreground" Value="#003399" />
+			<Setter Property="Label.Background" Value="Transparent" />
+			<Setter Property="Label.FontWeight" Value="Bold" />
+		</Style>
+		<Style x:Key="ExpanderDefaultHeaderLabelRight">
+			<Setter Property="Label.HorizontalAlignment" Value="Right" />
+			<Setter Property="Label.Background" Value="Transparent" />
+		</Style>
+
+		<Style x:Key="ExpanderDefaultHeaderSep">
+			<Setter Property="Separator.HorizontalAlignment" Value="Stretch" />
+			<Setter Property="Separator.BorderBrush" Value="#a7bcdf" />
+			<Setter Property="Separator.BorderThickness" Value="1" />
+		</Style>
+
+		<Style x:Key="ExpanderDefaultExpander">
+			<Setter Property="Expander.Padding" Value="2,3,0,3" />
+			<Setter Property="Expander.FlowDirection" Value="RightToLeft" />
+			<Setter Property="Expander.ExpandDirection" Value="Down" />
+			<Setter Property="Expander.IsExpanded" Value="True" />
+			<Setter Property="Expander.HorizontalAlignment" Value="Stretch" />
+			<Setter Property="Expander.VerticalAlignment" Value="Top" />
+			<Setter Property="Expander.Background" Value="Transparent" />
+		</Style>
+
+		<Style x:Key="ExpanderDefaultDataGrid">
+			<Setter Property="Grid.HorizontalAlignment" Value="Stretch" />
+			<Setter Property="Grid.FlowDirection" Value="LeftToRight" />
+		</Style>
+
+		<Style x:Key="ExpanderDefaultDataStack">
+			<Setter Property="StackPanel.Margin" Value="10,6,14,6" />
+			<Setter Property="StackPanel.Orientation" Value="Vertical" />
+		</Style>
+
+		<Style x:Key="ExpanderDefaultDataInstructionBlock" BasedOn="{StaticResource TextblockInstructions}">
+			<Setter Property="TextBlock.Margin" Value="0,0,0,10" />
+			<Setter Property="TextBlock.Padding" Value="0" />
+		</Style>
+
+		<Style x:Key="ExpanderDefaultDataDataBlock" BasedOn="{StaticResource TextblockData}">
+			<Setter Property="TextBlock.Margin" Value="0,0,0,10" />
+			<Setter Property="TextBlock.Padding" Value="0" />
+		</Style>
+
+	</Application.Resources>
+</Application>

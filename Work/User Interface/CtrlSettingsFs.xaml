@@ -1,0 +1,12 @@
+<UserControl x:Class="FSXGET.CtrlSettingsFs"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	Tag="Flight Simulator Options"
+	>
+
+	<Grid Style="{StaticResource GridContentPage}">
+		<StackPanel Orientation="Vertical">
+			<TextBlock Style="{StaticResource TextblockData}">Here go the fs settings. Select whether to automatically detect FSX start or not and as a suboption whether to integrate as a menu in FSX. Chechbox whether to regularly extract scenery data from FSX in a background thread, incl. priority select for this thread and option to do the update now.</TextBlock>
+		</StackPanel>
+	</Grid>
+</UserControl>
