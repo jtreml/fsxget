@@ -30,8 +30,4 @@
 			%BOUNDARIES%
 		</MultiGeometry>
 	</Placemark>
-	<Folder>
-		<name>Taxiway Signs</name>
-		%TAXIWAYSIGNS%
-	</Folder>
 </Folder>

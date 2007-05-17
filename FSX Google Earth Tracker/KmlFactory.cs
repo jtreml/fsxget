@@ -153,7 +153,6 @@ namespace Fsxget
 			httpServer.registerFile("/fsxapu.kml", new ServerFileDynamic(szContentTypeKml, GenAirportUpdate));
 			httpServer.registerFile("/fsxsapi", new ServerFileDynamic("image/png", GetAirportIcon));
             httpServer.registerFile("/fsxts", new ServerFileDynamic("image/png", GetTaxiSign));
-			httpServer.registerFile("/fsxsapic", new ServerFileDynamic("image/png", GetAirportIconByCode));
 
 			// Register other documents with the HTTP server
 			httpServer.registerFile("/setfreq.html", new ServerFileDynamic("text/html", GenSetFreqHtml));
@@ -392,7 +391,7 @@ namespace Fsxget
 			{
 				foreach (DictionaryEntry entry in fsxCon.objects[(int)FsxConnection.OBJCONTAINER.NAVAIDS].htObjects)
 				{
-					FsxConnection.SceneryDBObject navaid = (FsxConnection.SceneryDBObject)entry.Value;
+					FsxConnection.SceneryObject navaid = (FsxConnection.SceneryObject)entry.Value;
 					switch (navaid.State)
 					{
 						case FsxConnection.SceneryObject.STATE.NEW:
@@ -460,18 +459,27 @@ namespace Fsxget
 			{
 				foreach (DictionaryEntry entry in fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].htObjects)
 				{
-					FsxConnection.SceneryDBObject airport = (FsxConnection.SceneryDBObject)entry.Value;
+                    FsxConnection.SceneryAirportObject airport = (FsxConnection.SceneryAirportObject)entry.Value;
 					switch (airport.State)
 					{
 						case FsxConnection.SceneryObject.STATE.NEW:
 							strKML += GenAirportKml(ref airport);
-							strKML = strKML.Replace("%ID%", "id=\"ap" + airport.ObjectID.ToString() + "\"");
 							airport.State = FsxConnection.SceneryObject.STATE.DATAREAD;
 							break;
 						case FsxConnection.SceneryObject.STATE.DELETED:
 							strKML += "<Delete><Folder targetId=\"ap" + airport.ObjectID.ToString() + "\"/></Delete>";
 							break;
 					}
+                    if (!airport.HasTaxiSigns && airport.TaxiSignState == FsxConnection.SceneryObject.STATE.DELETED)
+                    {
+                        strKML += "<Delete><Folder targetId=\"apts" + airport.ObjectID.ToString() + "\"/></Delete>";
+                        airport.TaxiSignState = FsxConnection.SceneryObject.STATE.DATAREAD;
+                    }
+                    else if (airport.HasTaxiSigns && airport.TaxiSignState == FsxConnection.SceneryObject.STATE.NEW)
+                    {
+                        strKML += GenTaxiSignsKML(airport.ObjectID);
+                        airport.TaxiSignState = FsxConnection.SceneryObject.STATE.DATAREAD;
+                    }
 				}
 				fsxCon.CleanupHashtable(ref fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].htObjects);
 			}
@@ -634,7 +642,7 @@ namespace Fsxget
 			return strKMLPart;
 		}
 
-		private String GenNavAidKml(ref FsxConnection.SceneryDBObject navaid)
+		private String GenNavAidKml(ref FsxConnection.SceneryObject navaid)
 		{
 			String strKMLPart = "<Create><Folder targetId=\"";
 			OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, TypeID, Longitude, Latitude, Altitude, MagVar, Range, Freq FROM navaids WHERE ID=" + navaid.ObjectID.ToString(), dbCon);
@@ -691,22 +699,26 @@ namespace Fsxget
 			return strKMLPart + "</Folder></Create>";
 		}
 
-		private String GenAirportKml(ref FsxConnection.SceneryDBObject airport)
+		private String GenAirportKml(ref FsxConnection.SceneryAirportObject airport)
 		{
-            OleDbConnection dbCon2 = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb"); String strKMLPart = "<Create><Folder targetId=\"fsxap\">";
+            OleDbConnection dbCon2 = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb"); 
+            String strKMLPart = "<Create><Folder targetId=\"fsxap\">";
             dbCon2.Open();
             OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, Longitude, Latitude, Altitude, MagVar FROM airports WHERE ID=" + airport.ObjectID.ToString() + " ORDER BY Ident", dbCon);
 			OleDbDataReader rd = cmd.ExecuteReader();
+            float fAlt = 0;
             if (rd.Read())
             {
+                fAlt = rd.GetFloat(4);
                 strKMLPart += htKMLParts["fsxapu"];
                 strKMLPart = strKMLPart.Replace("%IDENT%", rd.GetString(0));
-                strKMLPart = strKMLPart.Replace("%ICON%", Program.Config.Server + "/fsxsapi?" + airport.ObjectID.ToString());
                 strKMLPart = strKMLPart.Replace("%NAME%", rd.GetString(1));
                 strKMLPart = strKMLPart.Replace("%LONGITUDE%", XmlConvert.ToString(rd.GetFloat(2)));
                 strKMLPart = strKMLPart.Replace("%LATITUDE%", XmlConvert.ToString(rd.GetFloat(3)));
-                strKMLPart = strKMLPart.Replace("%ALTITUDE_UF%", String.Format("{0:F2}ft", rd.GetFloat(4) * 3.28095));
+                strKMLPart = strKMLPart.Replace("%ALTITUDE_UF%", String.Format("{0:F2}ft", fAlt * 3.28095));
                 strKMLPart = strKMLPart.Replace("%MAGVAR%", XmlConvert.ToString(rd.GetFloat(5)));
+                strKMLPart = strKMLPart.Replace("%ID%", "id=\"ap" + airport.ObjectID.ToString() + "\"");
+                strKMLPart = strKMLPart.Replace("%IDTS%", "id=\"apts" + airport.ObjectID.ToString() + "\"");
             }
 			rd.Close();
             
@@ -738,24 +750,27 @@ namespace Fsxget
             strKMLPart = strKMLPart.Replace("%COMS%", ((String)htKMLParts["fsxapcoms"]).Replace("%COMS%", strComs));
 
             // Runways
-            cmd.CommandText = "SELECT [Number], PrimaryDesignator, SecondaryDesignator, Length, SurfaceID, Name, HasLights, Hardened, Heading, PrimaryTakeoff, PrimaryLanding, SecondaryTakeoff, SecondaryLanding, Runways.ID FROM Runways INNER JOIN SurfaceType ON Runways.SurfaceID = SurfaceType.ID WHERE AirportID=" + airport.ObjectID.ToString();
+            cmd.CommandText = "SELECT [Number], PrimaryDesignator, SecondaryDesignator, Length, SurfaceID, Name, HasLights, Hardened, Heading, PrimaryTakeoff, PrimaryLanding, SecondaryTakeoff, SecondaryLanding, Runways.ID, PatternAltitude, PrimaryPatternRight, SecondaryPatternRight FROM Runways INNER JOIN SurfaceType ON Runways.SurfaceID = SurfaceType.ID WHERE AirportID=" + airport.ObjectID.ToString();
             rd = cmd.ExecuteReader();
             float fHeading = 0;
             nType = 0;
             bool bLights = false;
             float fLength = 0;
+            bool bHardened = false;
             String strRunways = "";
             String strIlsTmpl = (String)htKMLParts["fsxils"];
+            String strPattern = "";
             strIlsTmpl = strIlsTmpl.Replace("%SERVER%", Program.Config.Server);
             while (rd.Read())
             {
                 String strRunway = (String)htKMLParts["fsxaprw"];
-                if (fLength > rd.GetFloat(3))
+                if (fLength < rd.GetFloat(3) || (bHardened == false && rd.GetBoolean(7) ))
                 {
                     fLength = rd.GetFloat(3);
                     nType = rd.GetInt32(4) == 20 ? 2 : (rd.GetBoolean(7) ? 0 : 1);
                     bLights = rd.GetBoolean(6);
                     fHeading = rd.GetFloat(8);
+                    bHardened = rd.GetBoolean(7);
                 }
                 int nNr = rd.GetInt16(0);
                 String strName = "";
@@ -771,6 +786,10 @@ namespace Fsxget
                     if( strDes != "N" )
                         strName += strDes;
 
+                    strPattern = (String)htKMLParts["fsxpat"];
+                    strPattern = strPattern.Replace( "%ALTITUDE_UF%", String.Format("{0:F2}ft", (fAlt+rd.GetFloat(14) * 3.28095)));
+                    strPattern = strPattern.Replace( "%TRAFFIC%", rd.GetBoolean(15) ? "RIGHT" : "LEFT" );
+                    
                     OleDbCommand cmdIls = new OleDbCommand("SELECT Ident, Name, Heading, Freq FROM RunwayILS WHERE EndSecondary=false AND RunwayID=" + rd.GetInt32(13).ToString(), dbCon2);
                     OleDbDataReader rdIls = cmdIls.ExecuteReader();
                     
@@ -788,6 +807,7 @@ namespace Fsxget
                     strRunway = strRunway.Replace("%RUNWAY%", strName);
                     strRunway = strRunway.Replace("%LENGTH%", rd.GetFloat(3).ToString());
                     strRunway = strRunway.Replace("%SURFACE%", rd.GetString(5));
+                    strRunway = strRunway.Replace("%PATTERN%", strPattern);
                     strRunway = strRunway.Replace("%ILS%", strIls );
 
                     strRunways += strRunway;
@@ -816,6 +836,10 @@ namespace Fsxget
                     if (strDes != "N")
                         strName += strDes;
 
+                    strPattern = (String)htKMLParts["fsxpat"];
+                    strPattern = strPattern.Replace( "%ALTITUDE_UF%", String.Format("{0:F2}ft", (fAlt+rd.GetFloat(14) * 3.28095)));
+                    strPattern = strPattern.Replace( "%TRAFFIC%", rd.GetBoolean(16) ? "RIGHT" : "LEFT" );
+
                     OleDbCommand cmdIls = new OleDbCommand("SELECT Ident, Name, Heading, Freq FROM RunwayILS WHERE EndSecondary=true AND RunwayID=" + rd.GetInt32(13).ToString(), dbCon2);
                     OleDbDataReader rdIls = cmdIls.ExecuteReader();
                     if(rdIls.Read())
@@ -831,12 +855,14 @@ namespace Fsxget
                     strRunway = strRunway.Replace("%RUNWAY%", strName);
                     strRunway = strRunway.Replace("%LENGTH%", rd.GetFloat(3).ToString());
                     strRunway = strRunway.Replace("%SURFACE%", rd.GetString(5));
+                    strRunway = strRunway.Replace("%PATTERN%", strPattern);
                     strRunway = strRunway.Replace("%ILS%", strIls );
                     strRunways += strRunway;
                 }
             }
             rd.Close();
             strKMLPart = strKMLPart.Replace("%RUNWAYS%", ((String)htKMLParts["fsxaprws"]).Replace("%RUNWAYS%", strRunways));
+            strKMLPart = strKMLPart.Replace("%ICON%", String.Format( "{0}/fsxsapi?head={1}&amp;type={2}&amp;lights={3}", Program.Config.Server, fHeading.ToString(System.Globalization.NumberFormatInfo.InvariantInfo), nType, bLights ? "1" : "0" ) );
 
             // Boundary-Fences
             cmd.CommandText = "SELECT [Number], Longitude, Latitude FROM AirportBoundary INNER JOIN AirportBoundaryVertex ON AirportBoundary.ID=AirportBoundaryVertex.BoundaryID WHERE AirportID=" + airport.ObjectID.ToString() + " ORDER BY [Number],SortNr";
@@ -858,47 +884,80 @@ namespace Fsxget
 			if (strBoundary.Length > 0)
 				strBoundary += "</coordinates></LineString>";
 			strKMLPart = strKMLPart.Replace("%BOUNDARIES%", strBoundary);
-            strKMLPart = strKMLPart.Replace("%TAXIWAYSIGNS%", "" ); //GenTaxiSignsKML(airport.ObjectID));
             dbCon2.Close();
             return strKMLPart + "</Folder></Create>";
 		}
 
-		public byte[] GetAirportIconByCode(String query)
-		{
-			String apcode;
-			try
-			{
-				apcode = query.Substring(1);
-			}
-			catch
-			{
-				apcode = "";
-			}
-
-			OleDbCommand cmd = new OleDbCommand("SELECT ID, Name FROM Airports WHERE Ident=\"" + apcode + "\"", dbCon);
-			OleDbDataReader rd = cmd.ExecuteReader();
-			if (rd.Read())
-			{
-				String id = rd.GetValue(0).ToString();
-				return GetAirportIcon("?" + id);
-			}
-			else
-				return GetAirportIcon("");
-		}
-
 		public byte[] GetAirportIcon(String query)
-		{
-			int apid;
-			try
-			{
-				apid = int.Parse(query.Substring(1));
-			}
-			catch
-			{
-				apid = 0;
-			}
+  		{
+            Hashtable ht = ParseQuery(query);
+            float fHeading = 0;
+            bool bLights = false;
+            int nType = 1;
 
-			Bitmap bmp = FsxConnection.RenderSimpleAirportIcon(apid, dbCon);
+            if (ht.ContainsKey("ident"))
+            {
+                try
+                {
+                    String strIdent = (String)ht["ident"];
+                    OleDbCommand dbCmd = new OleDbCommand("SELECT ID FROM Airports WHERE Ident='" + strIdent.ToString() + "'", dbCon);
+                    OleDbDataReader rd = dbCmd.ExecuteReader();
+                    if (rd.Read())
+                    {
+                        ht.Clear();
+                        ht.Add("id", rd.GetInt32(0).ToString());
+                    }
+                    rd.Close();
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            // no else ! "Fall through"
+            if (ht.ContainsKey("id"))
+            {
+                try
+                {
+                    int nID = int.Parse((String)ht["id"]);
+                    OleDbCommand dbCmd = new OleDbCommand("SELECT Length, Heading, HasLights, Hardened, SurfaceType.ID FROM Runways INNER JOIN SurfaceType ON Runways.SurfaceID = SurfaceType.ID WHERE AirportID=" + nID.ToString(), dbCon);
+                    OleDbDataReader rd = dbCmd.ExecuteReader();
+                    float fLength = 0;
+                    bool bHardened = false;
+                    
+                    while(rd.Read())
+                    {
+                        if (fLength < rd.GetFloat(0) || (bHardened == false && rd.GetBoolean(3)))
+                        {
+                            fLength = rd.GetFloat(0);
+                            nType = rd.GetInt32(4) == 20 ? 2 : (rd.GetBoolean(3) ? 0 : 1);
+                            bLights = rd.GetBoolean(2);
+                            fHeading = rd.GetFloat(1);
+                            bHardened = rd.GetBoolean(3);
+                        }
+                    }
+                    rd.Close();
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            else if( ht.ContainsKey("head" ) )
+            {
+                try
+                {
+                    fHeading = float.Parse((String)ht["head"], System.Globalization.NumberFormatInfo.InvariantInfo);
+                    bLights = (String)ht["lights"] == "1";
+                    nType = int.Parse((String)ht["type"]);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+			Bitmap bmp = FsxConnection.RenderSimpleAirportIcon(fHeading, (FsxConnection.RUNWAYTYPE) nType, bLights );
 			if (bmp != null)
 			{
 				byte[] bBuffer = new byte[4096];
@@ -913,14 +972,14 @@ namespace Fsxget
         
         private String GenTaxiSignsKML(uint nID)
         {
-            String strKML = "";
-            OleDbCommand cmd = new OleDbCommand("SELECT Longitude, Latitude, Label, Heading FROM TaxiwaySigns WHERE AirportID=" + nID.ToString(), dbCon);
+            String strKML = "<Create><Folder targetId=\"ap" + nID.ToString() + "\"><Folder id=\"apts" + nID.ToString() + "\">";
+            OleDbCommand cmd = new OleDbCommand("SELECT Longitude, Latitude, Label, Heading, JustifyRight FROM TaxiwaySigns WHERE AirportID=" + nID.ToString(), dbCon);
             OleDbDataReader rd = cmd.ExecuteReader();
             while (rd.Read())
             {
                 Bitmap bmp = FsxConnection.RenderTaxiwaySign(rd.GetString(2));
-                int nBreite = bmp.Width / 16;
-                int nHoehe = bmp.Height / 16;
+                int nWidth = bmp.Width / 8;
+                int nHeigth = bmp.Height / 8;
                 float fLon = rd.GetFloat(0);
                 float fLat = rd.GetFloat(1);
                 float fLonE = 0;
@@ -928,12 +987,17 @@ namespace Fsxget
                 float fLonW = 0;
                 float fLatS = 0;
                 float fTmp = 0;
-                KmlFactory.MovePoint(fLon, fLat, 90, nBreite / 2, ref fLonE, ref fTmp);
-                KmlFactory.MovePoint(fLon, fLat, 180, nHoehe / 2, ref fTmp, ref fLatS);
-                KmlFactory.MovePoint(fLon, fLat, 270, nBreite / 2, ref fLonW, ref fTmp);
-                KmlFactory.MovePoint(fLon, fLat, 0, nHoehe / 2, ref fTmp, ref fLatN);
+                KmlFactory.MovePoint(fLon, fLat, 90, nWidth / 2, ref fLonE, ref fTmp);
+                KmlFactory.MovePoint(fLon, fLat, 180, nHeigth / 2, ref fTmp, ref fLatS);
+                KmlFactory.MovePoint(fLon, fLat, 270, nWidth / 2, ref fLonW, ref fTmp);
+                KmlFactory.MovePoint(fLon, fLat, 0, nHeigth / 2, ref fTmp, ref fLatN);
                 fTmp = rd.GetFloat(3);
-                fTmp -= 90;
+                if (rd.GetBoolean(4))
+                    fTmp += 90;
+                else
+                    fTmp -= 90;
+                if (fTmp > 360)
+                    fTmp -= 360;
                 if (fTmp > 180)
                 {
                     fTmp = (360 - fTmp) * -1;
@@ -941,17 +1005,26 @@ namespace Fsxget
                 fTmp *= -1;
                 byte[] bytes = System.Text.Encoding.Default.GetBytes(rd.GetString(2));
                 String strBase64 = System.Convert.ToBase64String(bytes);
+                String strPath = "/fsxts?" + strBase64;
                 //                strKML += "<Placemark><name>" + XmlConvert.ToString( rd.GetFloat(3) ) + " - " + XmlConvert.ToString( fTmp ) + "</name><Point><coordinates>" + XmlConvert.ToString(fLon) + "," + XmlConvert.ToString(fLat) + "</coordinates></Point></Placemark>";
-                strKML += "<GroundOverlay><Icon><href>" + Program.Config.Server + "/fsxts?" + strBase64 + "</href></Icon><LatLonBox>";
+                strKML += "<GroundOverlay><Icon><href>" + Program.Config.Server + strPath + "</href></Icon><LatLonBox>";
                 strKML += "<north>" + XmlConvert.ToString(fLatN) + "</north>";
                 strKML += "<south>" + XmlConvert.ToString(fLatS) + "</south>";
                 strKML += "<east>" + XmlConvert.ToString(fLonE) + "</east>";
                 strKML += "<west>" + XmlConvert.ToString(fLonW) + "</west>";
                 strKML += "<rotation>" + XmlConvert.ToString(fTmp) + "</rotation>";
                 strKML += "</LatLonBox></GroundOverlay>";
+/*
+                bytes = new byte[10000];
+			    MemoryStream ms = new MemoryStream(bytes);
+			    bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+			    ms.Close();
+
+               httpServer.registerOneTimeFile( strPath, new ServerFileCached( "image/png", bytes ));
+*/
             }
             rd.Close();
-            return strKML;
+            return strKML + "</Folder></Folder></Create>";
         }
 
         public byte[] GetTaxiSign(String query)
@@ -969,9 +1042,21 @@ namespace Fsxget
             return null;
         }
 
-		public static void MovePoint(float fLongitude, float fLatitude, float fHeading, float fDistMeter, ref float fLonResult, ref float fLatResult)
+		public static Hashtable ParseQuery( String strQuery )
+        {
+            String[] strParts = strQuery.Substring(1).Split('&');
+            Hashtable ht = new Hashtable();
+            foreach (String strPart in strParts)
+            {
+                String[] strComponents = strPart.Split('=');
+                ht.Add(strComponents[0].ToLower(), strComponents.Length == 2 ? strComponents[1] : "");
+            }
+            return ht;
+        }
+        
+        public static void MovePoint(float fLongitude, float fLatitude, float fHeading, float fDistMeter, ref float fLonResult, ref float fLatResult)
 		{
-			double dDistMeter = (Math.PI / 10800) * fDistMeter / 1000;
+			double dDistMeter = (Math.PI / 10800) * fDistMeter / 1852;
 			double dHeading = fHeading * dPI180;
 			double dLatitude = fLatitude * dPI180;
 			double dLongitude = fLongitude * dPI180;
@@ -998,7 +1083,8 @@ namespace Fsxget
 			fHeading = (float)(Math.Acos((Math.Sin(dLat2) - Math.Cos(dDist) * Math.Sin(dLat1)) / Math.Cos(dLat1) / Math.Sin(dDist)) * d180PI);
 			if (dLon2 - dLon1 < 0)
 				fHeading = 360 - fHeading;
-			fDistMeter = (float)((dDist * d180PI) * (60 * 1852));
+			fDistMeter = (float)((dDist * d180PI) * 60000);
+            fDistMeter *= 1.852f;
 		}
 
 		protected byte[] encodeDefault(String data)
