@@ -1,0 +1,375 @@
+<UserControl x:Class="FSXGET.CtrlSettingsSimDat"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	Tag="Simulation Data Options"
+	HorizontalAlignment="Stretch">
+
+	<UserControl.Resources>
+
+		<!--SimData Table Specials-->
+		<Style x:Key="TableHeaderLabelColEnable" BasedOn="{StaticResource TableHeaderLabelCenter}">
+			<Setter Property="Label.ToolTip" Value="Show or hides the selected object type in Google Earth" />
+			<Setter Property="Label.Content" Value="Enable" />
+		</Style>
+		<Style x:Key="TableHeaderLabelColType" BasedOn="{StaticResource TableHeaderLabelLeft}">
+			<Setter Property="Label.ToolTip" Value="Type of vehicle / aircraft" />
+			<Setter Property="Label.Content" Value="Object Type" />
+		</Style>
+		<Style x:Key="TableHeaderLabelColUpdateInt" BasedOn="{StaticResource TableHeaderLabelCenter}">
+			<Setter Property="Label.ToolTip" Value="Interval (in seconds) at which the selected objects will be updated" />
+			<Setter Property="Label.Content" Value="Update Interval" />
+		</Style>
+		<Style x:Key="TableHeaderLabelColPath" BasedOn="{StaticResource TableHeaderLabelCenter}">
+			<Setter Property="Label.ToolTip" Value="Record and display the path which the object drove / flew (For detailed settings click the path button on the right)" />
+			<Setter Property="Label.Content" Value="Path" />
+		</Style>
+		<Style x:Key="TableHeaderLabelColPrediction" BasedOn="{StaticResource TableHeaderLabelCenter}">
+			<Setter Property="Label.ToolTip" Value="Show a course prediction for this object type (For detailed settings click the prediction button on the right)" />
+			<Setter Property="Label.Content" Value="Prediction" />
+		</Style>
+		<Style x:Key="TableHeaderLabelColSeparation" BasedOn="{StaticResource TableHeaderLabelCenter}">
+			<Setter Property="Label.ToolTip" Value="Show alarm if object gets to close to another object (For detailed settings click the separation alarm button on the right)" />
+			<Setter Property="Label.Content" Value="Separation" />
+		</Style>
+		<Style x:Key="TableHeaderLabelColSettings" BasedOn="{StaticResource TableHeaderLabelCenter}">
+			<Setter Property="Label.ToolTip" Value="Set details for path recording, course prediction and separation alarms" />
+			<Setter Property="Label.Content" Value="Settings" />
+		</Style>
+
+		<Style x:Key="TableTextboxWithLabelLabelSec" BasedOn="{StaticResource TableTextboxWithLabelLabel}">
+			<Setter Property="Label.Content" Value="sec." />
+		</Style>
+
+		<Style x:Key="TableImageButtonPath" BasedOn="{StaticResource TableImageButtonInContainerCenter}">
+			<Setter Property="Button.ToolTip" Value="Path recording options" />
+		</Style>
+		<Style x:Key="TableImageButtonPathImage" BasedOn="{StaticResource TableImageButtonInContainerImage}">
+			<Setter Property="Image.Source" Value="pack://application:,,,/Resources/ui_path.png" />
+		</Style>
+
+		<Style x:Key="TableImageButtonPrediction" BasedOn="{StaticResource TableImageButtonInContainerCenter}">
+			<Setter Property="Button.ToolTip" Value="Course prediction options" />
+		</Style>
+		<Style x:Key="TableImageButtonPredictionImage" BasedOn="{StaticResource TableImageButtonInContainerImage}">
+			<Setter Property="Image.Source" Value="pack://application:,,,/Resources/ui_pre.png" />
+		</Style>
+
+		<Style x:Key="TableImageButtonAlarm" BasedOn="{StaticResource TableImageButtonInContainerCenter}">
+			<Setter Property="Button.ToolTip" Value="Separation alarm settings" />
+		</Style>
+		<Style x:Key="TableImageButtonAlarmImage" BasedOn="{StaticResource TableImageButtonInContainerImage}">
+			<Setter Property="Image.Source" Value="pack://application:,,,/Resources/ui_alarm.png" />
+		</Style>
+
+	</UserControl.Resources>
+
+	<Grid Style="{StaticResource GridContentPage}">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+		<StackPanel Grid.Column="0" Orientation="Vertical">
+
+			<!--Intro Text-->
+			<TextBlock Style="{StaticResource TextblockInstructions}">
+				Select which objects FSXGET should query from Flight Simulator to
+				display them in Google Earth and at which intervals they will be updated.
+			</TextBlock>
+
+			<!--User Aircraft Expander-->
+			<Grid Style="{StaticResource ExpanderDefaultGrid}">
+				<Border Style="{StaticResource ExpanderDefaultHeaderBorder}">
+					<Grid Style="{StaticResource ExpanderDefaultHeaderGrid}">
+						<Grid.RowDefinitions>
+							<RowDefinition/>
+						</Grid.RowDefinitions>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Style="{StaticResource ExpanderDefaultHeaderColDef1}" />
+							<ColumnDefinition Style="{StaticResource ExpanderDefaultHeaderColDef2}" />
+							<ColumnDefinition Style="{StaticResource ExpanderDefaultHeaderColDef3}" />
+						</Grid.ColumnDefinitions>
+						<Label Grid.Column="0" Grid.Row="0" Style="{StaticResource ExpanderDefaultHeaderLabelLeft}">User Aircraft</Label>
+						<Separator Grid.Column="1" Grid.Row="0" Style="{StaticResource ExpanderDefaultHeaderSep}" />
+						<Label Grid.Column="2" Grid.Row="0" Style="{StaticResource ExpanderDefaultHeaderLabelRight}"></Label>
+					</Grid>
+				</Border>
+
+				<Expander Style="{StaticResource ExpanderDefaultExpander}">
+
+					<!--Data-->
+					<Grid Style="{StaticResource ExpanderDefaultDataGrid}">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<StackPanel Style="{StaticResource ExpanderDefaultDataStack}">
+							<TextBlock Style="{StaticResource ExpanderDefaultDataInstructionBlock}">Select the options you'd like to be enabled for your own aircraft. Move the mouse over the column headlines to see a description.</TextBlock>
+							<Grid HorizontalAlignment="Stretch" VerticalAlignment="Top">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="Auto" MinWidth="10" />
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="Auto" MinWidth="10" />
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="Auto" MinWidth="20" />
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="Auto" MinWidth="20"/>
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="Auto" MinWidth="20"/>
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="Auto" MinWidth="15"/>
+									<ColumnDefinition Width="Auto" />
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+
+								<!--Table Backgrounds & Borders-->
+								<Rectangle Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="14" Style="{StaticResource TableHeaderBackground}" />
+								<Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="14" Style="{StaticResource TableHeaderBorder}" />
+								<Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="14" Style="{StaticResource TableFirstRowBorder}" />
+								<Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="14" Style="{StaticResource TableRowBorder}" />
+								<Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="14" Style="{StaticResource TableRowBorder}" />
+								<Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="14" Style="{StaticResource TableRowBorder}" />
+
+								<!--Column Names-->
+								<Label Grid.Row="0" Grid.Column="0" Style="{StaticResource TableHeaderLabelColEnable}" />
+								<Label Grid.Row="0" Grid.Column="2" Style="{StaticResource TableHeaderLabelColType}" />
+								<Label Grid.Row="0" Grid.Column="5" Style="{StaticResource TableHeaderLabelColUpdateInt}" />
+								<Label Grid.Row="0" Grid.Column="7" Style="{StaticResource TableHeaderLabelColPath}" />
+								<Label Grid.Row="0" Grid.Column="9" Style="{StaticResource TableHeaderLabelColPrediction}" />
+								<Label Grid.Row="0" Grid.Column="11" Style="{StaticResource TableHeaderLabelColSeparation}" />
+								<Label Grid.Row="0" Grid.Column="13" Style="{StaticResource TableHeaderLabelColSettings}" />
+
+								<!--Data Line 1-->
+								<CheckBox Grid.Row="1" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
+								<Label Grid.Row="1" Grid.Column="2" Style="{StaticResource TableLabelLeft}">User Aircraft</Label>
+								<StackPanel Grid.Row="1" Grid.Column="5" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
+									<TextBox Style="{StaticResource TableTextboxWithLabelTextbox}" />
+									<Label Style="{StaticResource TableTextboxWithLabelLabelSec}" />
+								</StackPanel>
+								<CheckBox Grid.Row="1" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Grid.Row="1" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Grid.Row="1" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
+								<StackPanel Grid.Row="1" Grid.Column="13" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
+									<Button Style="{StaticResource TableImageButtonPath}">
+										<Image Style="{StaticResource TableImageButtonPathImage}" />
+									</Button>
+									<Button Style="{StaticResource TableImageButtonPrediction}">
+										<Image Style="{StaticResource TableImageButtonPredictionImage}" />
+									</Button>
+									<Button Style="{StaticResource TableImageButtonAlarm}">
+										<Image Style="{StaticResource TableImageButtonAlarmImage}" />
+									</Button>
+								</StackPanel>
+
+							</Grid>
+						</StackPanel>
+					</Grid>
+
+				</Expander>
+			</Grid>
+
+			<!--AI Objects Expander-->
+			<Grid Style="{StaticResource ExpanderDefaultGrid}">
+				<Border Style="{StaticResource ExpanderDefaultHeaderBorder}">
+					<Grid Style="{StaticResource ExpanderDefaultHeaderGrid}">
+						<Grid.RowDefinitions>
+							<RowDefinition/>
+						</Grid.RowDefinitions>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Style="{StaticResource ExpanderDefaultHeaderColDef1}" />
+							<ColumnDefinition Style="{StaticResource ExpanderDefaultHeaderColDef2}" />
+							<ColumnDefinition Style="{StaticResource ExpanderDefaultHeaderColDef3}" />
+						</Grid.ColumnDefinitions>
+						<Label Grid.Column="0" Grid.Row="0" Style="{StaticResource ExpanderDefaultHeaderLabelLeft}">AI Controlled Aircrafts &amp; Vehicles</Label>
+						<Separator Grid.Column="1" Grid.Row="0" Style="{StaticResource ExpanderDefaultHeaderSep}" />
+						<Label Grid.Column="2" Grid.Row="0" Style="{StaticResource ExpanderDefaultHeaderLabelRight}"></Label>
+					</Grid>
+				</Border>
+
+				<Expander Style="{StaticResource ExpanderDefaultExpander}">
+
+					<!--Data-->
+					<Grid Style="{StaticResource ExpanderDefaultDataGrid}">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<StackPanel Style="{StaticResource ExpanderDefaultDataStack}">
+							<TextBlock Style="{StaticResource ExpanderDefaultDataInstructionBlock}">Select the options you'd like to be enabled for each AI vehicle type. Move the mouse over the column headlines to see a description.</TextBlock>
+							<Grid HorizontalAlignment="Stretch" VerticalAlignment="Top">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="Auto" MinWidth="10" />
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="Auto" MinWidth="10" />
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="Auto" MinWidth="20" />
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="Auto" MinWidth="20"/>
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="Auto" MinWidth="20"/>
+									<ColumnDefinition Width="Auto" />
+									<ColumnDefinition Width="Auto" MinWidth="15"/>
+									<ColumnDefinition Width="Auto" />
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+
+								<!--Table Backgrounds & Borders-->
+								<Rectangle Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="14" Style="{StaticResource TableHeaderBackground}" />
+								<Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="14" Style="{StaticResource TableHeaderBorder}" />
+								<Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="14" Style="{StaticResource TableFirstRowBorder}" />
+								<Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="14" Style="{StaticResource TableRowBorder}" />
+								<Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="14" Style="{StaticResource TableRowBorder}" />
+								<Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="14" Style="{StaticResource TableRowBorder}" />
+
+								<!--Column Names-->
+								<Label Grid.Row="0" Grid.Column="0" Style="{StaticResource TableHeaderLabelColEnable}" />
+								<Label Grid.Row="0" Grid.Column="2" Style="{StaticResource TableHeaderLabelColType}" />
+								<Label Grid.Row="0" Grid.Column="5" Style="{StaticResource TableHeaderLabelColUpdateInt}" />
+								<Label Grid.Row="0" Grid.Column="7" Style="{StaticResource TableHeaderLabelColPath}" />
+								<Label Grid.Row="0" Grid.Column="9" Style="{StaticResource TableHeaderLabelColPrediction}" />
+								<Label Grid.Row="0" Grid.Column="11" Style="{StaticResource TableHeaderLabelColSeparation}" />
+								<Label Grid.Row="0" Grid.Column="13" Style="{StaticResource TableHeaderLabelColSettings}" />
+
+								<!--Data Line 1-->
+								<CheckBox Grid.Row="1" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
+								<Label Grid.Row="1" Grid.Column="2" Style="{StaticResource TableLabelLeft}">Aircrafts (Planes)</Label>
+								<StackPanel Grid.Row="1" Grid.Column="5" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
+									<TextBox Style="{StaticResource TableTextboxWithLabelTextbox}" />
+									<Label Style="{StaticResource TableTextboxWithLabelLabelSec}" />
+								</StackPanel>
+								<CheckBox Grid.Row="1" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Grid.Row="1" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Grid.Row="1" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
+								<StackPanel Grid.Row="1" Grid.Column="13" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
+									<Button Style="{StaticResource TableImageButtonPath}">
+										<Image Style="{StaticResource TableImageButtonPathImage}" />
+									</Button>
+									<Button Style="{StaticResource TableImageButtonPrediction}">
+										<Image Style="{StaticResource TableImageButtonPredictionImage}" />
+									</Button>
+									<Button Style="{StaticResource TableImageButtonAlarm}">
+										<Image Style="{StaticResource TableImageButtonAlarmImage}" />
+									</Button>
+								</StackPanel>
+
+								<!--Data Line 2-->
+								<CheckBox Grid.Row="2" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
+								<Label Grid.Row="2" Grid.Column="2" Style="{StaticResource TableLabelLeft}">Helicopters</Label>
+								<StackPanel Grid.Row="2" Grid.Column="5" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
+									<TextBox Style="{StaticResource TableTextboxWithLabelTextbox}" />
+									<Label Style="{StaticResource TableTextboxWithLabelLabelSec}" />
+								</StackPanel>
+								<CheckBox Grid.Row="2" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Grid.Row="2" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Grid.Row="2" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
+								<StackPanel Grid.Row="2" Grid.Column="13" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
+									<Button Style="{StaticResource TableImageButtonPath}">
+										<Image Style="{StaticResource TableImageButtonPathImage}" />
+									</Button>
+									<Button Style="{StaticResource TableImageButtonPrediction}">
+										<Image Style="{StaticResource TableImageButtonPredictionImage}" />
+									</Button>
+									<Button Style="{StaticResource TableImageButtonAlarm}">
+										<Image Style="{StaticResource TableImageButtonAlarmImage}" />
+									</Button>
+								</StackPanel>
+
+								<!--Data Line 3-->
+								<CheckBox Grid.Row="3" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
+								<Label Grid.Row="3" Grid.Column="2" Style="{StaticResource TableLabelLeft}">Ships &amp; Boats</Label>
+								<StackPanel Grid.Row="3" Grid.Column="5" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
+									<TextBox Style="{StaticResource TableTextboxWithLabelTextbox}" />
+									<Label Style="{StaticResource TableTextboxWithLabelLabelSec}" />
+								</StackPanel>
+								<CheckBox Grid.Row="3" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Grid.Row="3" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Grid.Row="3" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
+								<StackPanel Grid.Row="3" Grid.Column="13" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
+									<Button Style="{StaticResource TableImageButtonPath}">
+										<Image Style="{StaticResource TableImageButtonPathImage}" />
+									</Button>
+									<Button Style="{StaticResource TableImageButtonPrediction}">
+										<Image Style="{StaticResource TableImageButtonPredictionImage}" />
+									</Button>
+									<Button Style="{StaticResource TableImageButtonAlarm}">
+										<Image Style="{StaticResource TableImageButtonAlarmImage}" />
+									</Button>
+								</StackPanel>
+
+								<!--Data Line 4-->
+								<CheckBox Grid.Row="4" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
+								<Label Grid.Row="4" Grid.Column="2" Style="{StaticResource TableLabelLeft}">Ground Vehicles</Label>
+								<StackPanel Grid.Row="4" Grid.Column="5" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
+									<TextBox Style="{StaticResource TableTextboxWithLabelTextbox}" />
+									<Label Style="{StaticResource TableTextboxWithLabelLabelSec}" />
+								</StackPanel>
+								<CheckBox Grid.Row="4" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Grid.Row="4" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Grid.Row="4" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
+								<StackPanel Grid.Row="4" Grid.Column="13" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
+									<Button Style="{StaticResource TableImageButtonPath}">
+										<Image Style="{StaticResource TableImageButtonPathImage}" />
+									</Button>
+									<Button Style="{StaticResource TableImageButtonPrediction}">
+										<Image Style="{StaticResource TableImageButtonPredictionImage}" />
+									</Button>
+									<Button Style="{StaticResource TableImageButtonAlarm}">
+										<Image Style="{StaticResource TableImageButtonAlarmImage}" />
+									</Button>
+								</StackPanel>
+
+							</Grid>
+						</StackPanel>
+
+					</Grid>
+
+				</Expander>
+			</Grid>
+
+			<!--Scenery Data Expander-->
+			<Grid Style="{StaticResource ExpanderDefaultGrid}">
+				<Border Style="{StaticResource ExpanderDefaultHeaderBorder}">
+					<Grid Style="{StaticResource ExpanderDefaultHeaderGrid}">
+						<Grid.RowDefinitions>
+							<RowDefinition/>
+						</Grid.RowDefinitions>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Style="{StaticResource ExpanderDefaultHeaderColDef1}" />
+							<ColumnDefinition Style="{StaticResource ExpanderDefaultHeaderColDef2}" />
+							<ColumnDefinition Style="{StaticResource ExpanderDefaultHeaderColDef3}" />
+						</Grid.ColumnDefinitions>
+						<Label Grid.Column="0" Grid.Row="0" Style="{StaticResource ExpanderDefaultHeaderLabelLeft}">Scenery Data &amp; Objects</Label>
+						<Separator Grid.Column="1" Grid.Row="0" Style="{StaticResource ExpanderDefaultHeaderSep}" />
+						<Label Grid.Column="2" Grid.Row="0" Style="{StaticResource ExpanderDefaultHeaderLabelRight}"></Label>
+					</Grid>
+				</Border>
+
+				<Expander Style="{StaticResource ExpanderDefaultExpander}">
+
+					<!--Data-->
+					<Grid Style="{StaticResource ExpanderDefaultDataGrid}">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<StackPanel Style="{StaticResource ExpanderDefaultDataStack}">
+							<TextBlock Style="{StaticResource ExpanderDefaultDataInstructionBlock}">Select the scenery objects which you'd like to be shown in Google Earth.</TextBlock>
+							<TextBlock Style="{StaticResource ExpanderDefaultDataDataBlock}">Here will soon be options to control the showing of NDBs, NAVs, VORs and airports in GE.</TextBlock>
+							<Button Name="ButtonAirports" Click="ButtonAirportsClick" Width="150" HorizontalAlignment="Left">Airports</Button>
+						</StackPanel>
+					</Grid>
+
+				</Expander>
+			</Grid>
+
+		</StackPanel>
+	</Grid>
+</UserControl>

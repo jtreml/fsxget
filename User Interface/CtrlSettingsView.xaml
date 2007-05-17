@@ -1,0 +1,12 @@
+<UserControl x:Class="FSXGET.CtrlSettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	Tag="Google Earth View Settings"
+	>
+
+	<Grid Style="{StaticResource GridContentPage}">
+		<StackPanel Orientation="Vertical">
+			<TextBlock Style="{StaticResource TextblockData}">Here go the GE view settings. Option for no position control, or auto viewing position control. Options to follow user aircraft or any other aircraft. Select angle, elevation, ... . Option to set following to a certain aircraft by clicking a link in GE. Provide options to personalize all captions for GE, i.e. info balloons, tree view captions, units.</TextBlock>
+		</StackPanel>
+	</Grid>
+</UserControl>

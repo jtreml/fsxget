@@ -1,0 +1,12 @@
+<UserControl x:Class="FSXGET.CtrlOverviewHome"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	Tag="Status Overview"
+	>
+
+	<Grid Style="{StaticResource GridContentPage}">
+		<StackPanel Orientation="Vertical">
+			<TextBlock Style="{StaticResource TextblockData}">Here could go some information about the status of the application. It could display an info box showing whether FSX and the HTTP server are running. How many connections have been registered since the start, how many bytes have been transfered, whether autostart is activated or not, the current app version and the latest available online. Database statistics (number of airports, NDBs and NAVs), size of the database as well as simulation statistic (running since, number of AI aircrafts, helicopters, boats and ground units, user aircraft type, log size, logging enabled / disabled, indexing status.</TextBlock>
+		</StackPanel>
+	</Grid>
+</UserControl>

@@ -5,9 +5,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSX Google Earth Tracker", 
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer", "Installer\Installer.vdproj", "{E082F38D-02EC-4BE8-BE75-19C277EB0930}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User Interface", "User Interface\User Interface.csproj", "{8E52181D-AD7C-464A-A54C-92451D93839B}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 3
+		SccNumberOfProjects = 4
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccLocalPath0 = .
@@ -17,6 +19,9 @@ Global
 		SccProjectUniqueName2 = Installer\\Installer.vdproj
 		SccProjectName2 = Installer
 		SccLocalPath2 = Installer
+		SccProjectUniqueName3 = User\u0020Interface\\User\u0020Interface.csproj
+		SccProjectName3 = User\u0020Interface
+		SccLocalPath3 = User\u0020Interface
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +34,10 @@ Global
 		{86BDE965-A297-492B-9604-B4749CA25759}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E082F38D-02EC-4BE8-BE75-19C277EB0930}.Debug|Any CPU.ActiveCfg = Debug
 		{E082F38D-02EC-4BE8-BE75-19C277EB0930}.Release|Any CPU.ActiveCfg = Release
+		{8E52181D-AD7C-464A-A54C-92451D93839B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E52181D-AD7C-464A-A54C-92451D93839B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E52181D-AD7C-464A-A54C-92451D93839B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E52181D-AD7C-464A-A54C-92451D93839B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
