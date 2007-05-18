@@ -68,7 +68,7 @@ namespace FSXGET
 			ListAirports.SetBinding(ListView.ItemsSourceProperty, itemsBinding);
 
 			// Now get the data and fill listviewy
-			OleDbConnection dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\\Users\\jtr\\Programming\\Projects\\FSX Google Earth Tracker\\Work\\FSX Google Earth Tracker\\data\\fsxget.mdb");
+			OleDbConnection dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\\Users\\jtr\\Programming\\Projects\\FSX Google Earth Tracker\\Repository\\Work\\FSX Google Earth Tracker\\data\\fsxget.mdb");
 
 			dbCon.Open();
 

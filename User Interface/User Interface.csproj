@@ -83,6 +83,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ControlTree.cs" />
     <Compile Include="CtrlOverviewHome.xaml.cs">
       <SubType>Code</SubType>
       <DependentUpon>CtrlOverviewHome.xaml</DependentUpon>

@@ -142,23 +142,23 @@
 								<Label Grid.Row="0" Grid.Column="13" Style="{StaticResource TableHeaderLabelColSettings}" />
 
 								<!--Data Line 1-->
-								<CheckBox Grid.Row="1" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="UserAircraftCheckboxEnable" Unchecked="UserAircraftCheckboxEnableUnchecked" Checked="UserAircraftCheckboxEnableChecked" Grid.Row="1" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
 								<Label Grid.Row="1" Grid.Column="2" Style="{StaticResource TableLabelLeft}">User Aircraft</Label>
 								<StackPanel Grid.Row="1" Grid.Column="5" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
-									<TextBox Style="{StaticResource TableTextboxWithLabelTextbox}" />
+									<TextBox Name="UserAircraftTextboxInterval" Style="{StaticResource TableTextboxWithLabelTextbox}" />
 									<Label Style="{StaticResource TableTextboxWithLabelLabelSec}" />
 								</StackPanel>
-								<CheckBox Grid.Row="1" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
-								<CheckBox Grid.Row="1" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
-								<CheckBox Grid.Row="1" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="UserAircraftCheckboxPath" Unchecked="UserAircraftCheckboxPathUnchecked" Checked="UserAircraftCheckboxPathChecked" Grid.Row="1" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="UserAircraftCheckboxPrediction" Unchecked="UserAircraftCheckboxPredictionUnchecked" Checked="UserAircraftCheckboxPredictionChecked" Grid.Row="1" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="UserAircraftCheckboxSeparation" Unchecked="UserAircraftCheckboxSeparationUnchecked" Checked="UserAircraftCheckboxSeparationChecked" Grid.Row="1" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
 								<StackPanel Grid.Row="1" Grid.Column="13" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
-									<Button Style="{StaticResource TableImageButtonPath}">
+									<Button Name="UserAircraftButtonPath" Click="UserAircraftButtonPathClick" Style="{StaticResource TableImageButtonPath}">
 										<Image Style="{StaticResource TableImageButtonPathImage}" />
 									</Button>
-									<Button Style="{StaticResource TableImageButtonPrediction}">
+									<Button Name="UserAircraftButtonPrediction" Click="UserAircraftButtonPredictionClick" Style="{StaticResource TableImageButtonPrediction}">
 										<Image Style="{StaticResource TableImageButtonPredictionImage}" />
 									</Button>
-									<Button Style="{StaticResource TableImageButtonAlarm}">
+									<Button Name="UserAircraftButtonSeparation" Click="UserAircraftButtonSeparationClick" Style="{StaticResource TableImageButtonAlarm}">
 										<Image Style="{StaticResource TableImageButtonAlarmImage}" />
 									</Button>
 								</StackPanel>
@@ -240,89 +240,89 @@
 								<Label Grid.Row="0" Grid.Column="13" Style="{StaticResource TableHeaderLabelColSettings}" />
 
 								<!--Data Line 1-->
-								<CheckBox Grid.Row="1" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiAircraftCheckboxEnable" Unchecked="AiAircraftCheckboxEnableUnchecked" Checked="AiAircraftCheckboxEnableChecked" Grid.Row="1" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
 								<Label Grid.Row="1" Grid.Column="2" Style="{StaticResource TableLabelLeft}">Aircrafts (Planes)</Label>
 								<StackPanel Grid.Row="1" Grid.Column="5" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
-									<TextBox Style="{StaticResource TableTextboxWithLabelTextbox}" />
+									<TextBox Name="AiAircraftTextboxInterval" Style="{StaticResource TableTextboxWithLabelTextbox}" />
 									<Label Style="{StaticResource TableTextboxWithLabelLabelSec}" />
 								</StackPanel>
-								<CheckBox Grid.Row="1" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
-								<CheckBox Grid.Row="1" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
-								<CheckBox Grid.Row="1" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiAircraftCheckboxPath" Unchecked="AiAircraftCheckboxPathUnchecked" Checked="AiAircraftCheckboxPathChecked" Grid.Row="1" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiAircraftCheckboxPrediction" Unchecked="AiAircraftCheckboxPredictionUnchecked" Checked="AiAircraftCheckboxPredictionChecked" Grid.Row="1" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiAircraftCheckboxSeparation" Unchecked="AiAircraftCheckboxSeparationUnchecked" Checked="AiAircraftCheckboxSeparationChecked" Grid.Row="1" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
 								<StackPanel Grid.Row="1" Grid.Column="13" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
-									<Button Style="{StaticResource TableImageButtonPath}">
+									<Button Name="AiAircraftButtonPath" Click="AiAircraftButtonPathClick" Style="{StaticResource TableImageButtonPath}">
 										<Image Style="{StaticResource TableImageButtonPathImage}" />
 									</Button>
-									<Button Style="{StaticResource TableImageButtonPrediction}">
+									<Button Name="AiAircraftButtonPrediction" Click="AiAircraftButtonPredictionClick" Style="{StaticResource TableImageButtonPrediction}">
 										<Image Style="{StaticResource TableImageButtonPredictionImage}" />
 									</Button>
-									<Button Style="{StaticResource TableImageButtonAlarm}">
+									<Button Name="AiAircraftButtonSeparation" Click="AiAircraftButtonSeparationClick" Style="{StaticResource TableImageButtonAlarm}">
 										<Image Style="{StaticResource TableImageButtonAlarmImage}" />
 									</Button>
 								</StackPanel>
 
 								<!--Data Line 2-->
-								<CheckBox Grid.Row="2" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiHelicopterCheckboxEnable" Unchecked="AiHelicopterCheckboxEnableUnchecked" Checked="AiHelicopterCheckboxEnableChecked" Grid.Row="2" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
 								<Label Grid.Row="2" Grid.Column="2" Style="{StaticResource TableLabelLeft}">Helicopters</Label>
 								<StackPanel Grid.Row="2" Grid.Column="5" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
-									<TextBox Style="{StaticResource TableTextboxWithLabelTextbox}" />
+									<TextBox Name="AiHelicopterTextboxInterval" Style="{StaticResource TableTextboxWithLabelTextbox}" />
 									<Label Style="{StaticResource TableTextboxWithLabelLabelSec}" />
 								</StackPanel>
-								<CheckBox Grid.Row="2" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
-								<CheckBox Grid.Row="2" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
-								<CheckBox Grid.Row="2" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiHelicopterCheckboxPath" Unchecked="AiHelicopterCheckboxPathUnchecked" Checked="AiHelicopterCheckboxPathChecked" Grid.Row="2" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiHelicopterCheckboxPrediction" Unchecked="AiHelicopterCheckboxPredictionUnchecked" Checked="AiHelicopterCheckboxPredictionChecked" Grid.Row="2" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiHelicopterCheckboxSeparation" Unchecked="AiHelicopterCheckboxSeparationUnchecked" Checked="AiHelicopterCheckboxSeparationChecked" Grid.Row="2" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
 								<StackPanel Grid.Row="2" Grid.Column="13" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
-									<Button Style="{StaticResource TableImageButtonPath}">
+									<Button Name="AiHelicopterButtonPath" Click="AiHelicopterButtonPathClick" Style="{StaticResource TableImageButtonPath}">
 										<Image Style="{StaticResource TableImageButtonPathImage}" />
 									</Button>
-									<Button Style="{StaticResource TableImageButtonPrediction}">
+									<Button Name="AiHelicopterButtonPrediction" Click="AiHelicopterButtonPredictionClick" Style="{StaticResource TableImageButtonPrediction}">
 										<Image Style="{StaticResource TableImageButtonPredictionImage}" />
 									</Button>
-									<Button Style="{StaticResource TableImageButtonAlarm}">
+									<Button Name="AiHelicopterButtonSeparation" Click="AiHelicopterButtonSeparationClick" Style="{StaticResource TableImageButtonAlarm}">
 										<Image Style="{StaticResource TableImageButtonAlarmImage}" />
 									</Button>
 								</StackPanel>
 
 								<!--Data Line 3-->
-								<CheckBox Grid.Row="3" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiBoatCheckboxEnable" Unchecked="AiBoatCheckboxEnableUnchecked" Checked="AiBoatCheckboxEnableChecked" Grid.Row="3" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
 								<Label Grid.Row="3" Grid.Column="2" Style="{StaticResource TableLabelLeft}">Ships &amp; Boats</Label>
 								<StackPanel Grid.Row="3" Grid.Column="5" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
-									<TextBox Style="{StaticResource TableTextboxWithLabelTextbox}" />
+									<TextBox Name="AiBoatTextboxInterval" Style="{StaticResource TableTextboxWithLabelTextbox}" />
 									<Label Style="{StaticResource TableTextboxWithLabelLabelSec}" />
 								</StackPanel>
-								<CheckBox Grid.Row="3" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
-								<CheckBox Grid.Row="3" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
-								<CheckBox Grid.Row="3" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiBoatCheckboxPath" Unchecked="AiBoatCheckboxPathUnchecked" Checked="AiBoatCheckboxPathChecked" Grid.Row="3" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiBoatCheckboxPrediction" Unchecked="AiBoatCheckboxPredictionUnchecked" Checked="AiBoatCheckboxPredictionChecked" Grid.Row="3" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiBoatCheckboxSeparation" Unchecked="AiBoatCheckboxSeparationUnchecked" Checked="AiBoatCheckboxSeparationChecked" Grid.Row="3" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
 								<StackPanel Grid.Row="3" Grid.Column="13" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
-									<Button Style="{StaticResource TableImageButtonPath}">
+									<Button Name="AiBoatButtonPath" Click="AiBoatButtonPathClick" Style="{StaticResource TableImageButtonPath}">
 										<Image Style="{StaticResource TableImageButtonPathImage}" />
 									</Button>
-									<Button Style="{StaticResource TableImageButtonPrediction}">
+									<Button Name="AiBoatButtonPrediction" Click="AiBoatButtonPredictionClick" Style="{StaticResource TableImageButtonPrediction}">
 										<Image Style="{StaticResource TableImageButtonPredictionImage}" />
 									</Button>
-									<Button Style="{StaticResource TableImageButtonAlarm}">
+									<Button Name="AiBoatButtonSeparation" Click="AiBoatButtonSeparationClick" Style="{StaticResource TableImageButtonAlarm}">
 										<Image Style="{StaticResource TableImageButtonAlarmImage}" />
 									</Button>
 								</StackPanel>
 
 								<!--Data Line 4-->
-								<CheckBox Grid.Row="4" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiGroundCheckboxEnable" Unchecked="AiGroundCheckboxEnableUnchecked" Checked="AiGroundCheckboxEnableChecked" Grid.Row="4" Grid.Column="0" Style="{StaticResource TableCheckboxCenter}" />
 								<Label Grid.Row="4" Grid.Column="2" Style="{StaticResource TableLabelLeft}">Ground Vehicles</Label>
 								<StackPanel Grid.Row="4" Grid.Column="5" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
-									<TextBox Style="{StaticResource TableTextboxWithLabelTextbox}" />
+									<TextBox Name="AiGroundTextboxInterval" Style="{StaticResource TableTextboxWithLabelTextbox}" />
 									<Label Style="{StaticResource TableTextboxWithLabelLabelSec}" />
 								</StackPanel>
-								<CheckBox Grid.Row="4" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
-								<CheckBox Grid.Row="4" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
-								<CheckBox Grid.Row="4" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiGroundCheckboxPath" Unchecked="AiGroundCheckboxPathUnchecked" Checked="AiGroundCheckboxPathChecked" Grid.Row="4" Grid.Column="7" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiGroundCheckboxPrediction" Unchecked="AiGroundCheckboxPredictionUnchecked" Checked="AiGroundCheckboxPredictionChecked" Grid.Row="4" Grid.Column="9" Style="{StaticResource TableCheckboxCenter}" />
+								<CheckBox Name="AiGroundCheckboxSeparation" Unchecked="AiGroundCheckboxSeparationUnchecked" Checked="AiGroundCheckboxSeparationChecked" Grid.Row="4" Grid.Column="11" Style="{StaticResource TableCheckboxCenter}" />
 								<StackPanel Grid.Row="4" Grid.Column="13" Style="{StaticResource TableStackPanelCenter}" Orientation="Horizontal">
-									<Button Style="{StaticResource TableImageButtonPath}">
+									<Button Name="AiGroundButtonPath" Click="AiGroundButtonPathClick" Style="{StaticResource TableImageButtonPath}">
 										<Image Style="{StaticResource TableImageButtonPathImage}" />
 									</Button>
-									<Button Style="{StaticResource TableImageButtonPrediction}">
+									<Button Name="AiGroundButtonPrediction" Click="AiGroundButtonPredictionClick" Style="{StaticResource TableImageButtonPrediction}">
 										<Image Style="{StaticResource TableImageButtonPredictionImage}" />
 									</Button>
-									<Button Style="{StaticResource TableImageButtonAlarm}">
+									<Button Name="AiGroundButtonSeparation" Click="AiGroundButtonSeparationClick" Style="{StaticResource TableImageButtonAlarm}">
 										<Image Style="{StaticResource TableImageButtonAlarmImage}" />
 									</Button>
 								</StackPanel>
