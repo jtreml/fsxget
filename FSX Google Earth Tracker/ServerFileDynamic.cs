@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Fsxget
 {
-	public delegate byte[] ServerFileDynamicDelegate(String query);
+	public delegate byte[] ServerFileDynamicDelegate(System.Collections.Specialized.NameValueCollection values);
 
 	/// <summary>
 	/// A ServerFile type for extremely dynamic content.
@@ -36,12 +36,12 @@ namespace Fsxget
 			}
 		}
 
-		protected override byte[] getContent(String query)
+		protected override byte[] getContent(System.Collections.Specialized.NameValueCollection values)
 		{
 			if (dataDelegate == null)
 				return null;
 
-			return dataDelegate.Invoke(query);
+            return dataDelegate.Invoke(values);
 		}
 	}
 }

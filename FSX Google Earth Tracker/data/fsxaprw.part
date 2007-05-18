@@ -4,4 +4,5 @@
 <td>%SURFACE%</td>
 %PATTERN%
 %ILS%
+<td><a href="%SERVER%/goto.html?lon=%LONGITUDE%&lat=%LATITUDE%&head=%HEADING%&alt=%ALTITUDE%">Goto</a></td>
 </tr>

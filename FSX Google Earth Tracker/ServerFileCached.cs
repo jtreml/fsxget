@@ -52,7 +52,7 @@ namespace Fsxget
 			}
 		}
 
-		protected override byte[] getContent(String query)
+		protected override byte[] getContent(System.Collections.Specialized.NameValueCollection values)
 		{
 			return data;
 		}

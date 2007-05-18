@@ -854,6 +854,7 @@ namespace Fsxget
 		public enum DEFINITIONS
 		{
 			StructBasicMovingSceneryObject,
+            StructInitPos,
 		};
 
 		public enum DATA_REQUESTS
@@ -1059,7 +1060,9 @@ namespace Fsxget
 				simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "PLANE HEADING DEGREES TRUE", "degrees", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
                 simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "PLANE ALT ABOVE GROUND", "meters", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 
-				simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_NAV1, "NAV1_RADIO_SET");
+                simconnect.AddToDataDefinition(DEFINITIONS.StructInitPos, "Initial Position", null, SIMCONNECT_DATATYPE.INITPOSITION, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+                
+                simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_NAV1, "NAV1_RADIO_SET");
 				simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_NAV2, "NAV2_RADIO_SET");
 				simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_ADF, "ADF_SET");
                 simconnect.MapClientEventToSimEvent(EVENT_ID.EVENT_SET_COM, "COM_RADIO_SET");
@@ -1263,27 +1266,58 @@ namespace Fsxget
 		}
 		public bool SetFrequency(String strType, double dFreq)
 		{
-			bool bRet = true;
-			try
-			{
-				strType = strType.ToLower();
-				if (strType == "nav1")
-					simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_NAV1, UIntToBCD((uint)(dFreq * 100)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
-				else if (strType == "nav2")
-					simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_NAV2, UIntToBCD((uint)(dFreq * 100)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
-				else if (strType == "adf")
-					simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_ADF, UIntToBCD((uint)(dFreq)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
-                else if( strType =="com")
-                    simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_COM, UIntToBCD((uint)(dFreq * 100)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
-				else
-					bRet = false;
-			}
-			catch
-			{
-				bRet = false;
-			}
+            bool bRet = true;
+            lock (lockSimConnect)
+            {
+                try
+                {
+                    strType = strType.ToLower();
+                    if (strType == "nav1")
+                        simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_NAV1, UIntToBCD((uint)(dFreq * 100)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
+                    else if (strType == "nav2")
+                        simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_NAV2, UIntToBCD((uint)(dFreq * 100)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
+                    else if (strType == "adf")
+                        simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_ADF, UIntToBCD((uint)(dFreq)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
+                    else if (strType == "com")
+                        simconnect.TransmitClientEvent(SimConnect.SIMCONNECT_OBJECT_ID_USER, EVENT_ID.EVENT_SET_COM, UIntToBCD((uint)(dFreq * 100)), GROUP_ID.GROUP_USER, SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
+                    else
+                        bRet = false;
+                }
+                catch
+                {
+                    bRet = false;
+                }
+            }
 			return bRet;
 		}
+        public bool Goto(float fLon, float fLat, float fAlt, float fHead)
+        {
+            bool bRet = false;
+            lock (lockSimConnect)
+            {
+                if (simconnect != null)
+                {
+                    SIMCONNECT_DATA_INITPOSITION initpos = new SIMCONNECT_DATA_INITPOSITION();
+                    initpos.Airspeed = 0;
+                    initpos.Altitude = fAlt;
+                    initpos.Bank = 0;
+                    initpos.Heading = fHead;
+                    initpos.Latitude = fLat;
+                    initpos.Longitude = fLon;
+                    initpos.OnGround = 1;
+                    initpos.Pitch = 0;
+                    try
+                    {
+                        simconnect.SetDataOnSimObject(DEFINITIONS.StructInitPos, SimConnect.SIMCONNECT_OBJECT_ID_USER, 0, initpos);
+                        bRet = true;
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+            return bRet;
+        }
         public void AddFlightPlan(String strFileName)
         {
             try
@@ -1542,7 +1576,7 @@ namespace Fsxget
                             {
                                 objects[(int)OBJCONTAINER.AIRPORTS].htObjects.Add(unID, new SceneryAirportObject(unID, DATA_REQUESTS.AIRPORTS));
                             }
-                            if (fDist <= 5000 && objUserAircraft.AltitudeAGL < 300)
+                            if (fDist <= 8000 && objUserAircraft.AltitudeAGL < 300)
                                 ((SceneryAirportObject)objects[(int)OBJCONTAINER.AIRPORTS].htObjects[unID]).HasTaxiSigns = true;
                             else
                                 ((SceneryAirportObject)objects[(int)OBJCONTAINER.AIRPORTS].htObjects[unID]).HasTaxiSigns = false;
@@ -1971,7 +2005,70 @@ namespace Fsxget
             }
             return bmp;
         }
+        
+        static public String[] strNatoABC = new String[] 
+        {
+            "Alpha",
+            "Bravo",
+            "Charlie",
+            "Delta",
+            "Echo",
+            "Foxtrott",
+            "Golf",
+            "Hotel",
+            "India",
+            "Juliett",
+            "Kilo",
+            "Lima",
+            "Mike",
+            "November",
+            "Oscar",
+            "Papa",
+            "Quebec",
+            "Romeo",
+            "Sierra",
+            "Tango",
+            "Uniform",
+            "Victor",
+            "Wiskey",
+            "X-Ray",
+            "Yankee",
+            "Zulu",
+        };
+        
+        static public Bitmap RenderTaxiwayParking(float fRadius, String strName, int nNr)
+        {
+            Bitmap bmp = new Bitmap((int)(fRadius * 16), (int)(fRadius * 16));
+            Graphics g = Graphics.FromImage(bmp);
 
+            Color colFG = Color.FromArgb( 255, 255, 0 );
+//            Color colFG = Color.FromArgb( 0, 0, 0 );
+            Pen pen = new Pen(colFG, 3);
+
+            g.DrawEllipse(pen, 2, 2, bmp.Width - 4, bmp.Height - 4);
+            g.DrawLine(pen, bmp.Width / 2, bmp.Height / 2 - 16, bmp.Width / 2, bmp.Height / 2 + 16 );
+            g.DrawLine(pen, bmp.Width / 2 - 16, bmp.Height / 2, bmp.Width / 2 + 16, bmp.Height / 2 );
+            String strTop;
+            String strBottom;
+
+            if (strName.StartsWith("GATE_"))
+            {
+                strTop = "GATE";
+                strBottom = strNatoABC[strName[5] - 'A'] + " " + nNr.ToString();
+            }
+            else
+            {
+                strTop = strName;
+                strBottom = nNr.ToString();
+            }
+            Font fnt = new Font("Arial", 20, FontStyle.Bold, GraphicsUnit.Pixel);
+            Size size = TextRenderer.MeasureText(strTop, fnt);
+            TextRenderer.DrawText(g, strTop, fnt, new Point((bmp.Width - size.Width) / 2, bmp.Height / 2 - 40 ), colFG);
+            size = TextRenderer.MeasureText(strBottom, fnt);
+            TextRenderer.DrawText(g, strBottom, fnt, new Point((bmp.Width - size.Width) / 2, bmp.Height / 2 + 20 ), colFG);
+            
+            return bmp;
+        }
         #endregion
 
         #region Database-Creation

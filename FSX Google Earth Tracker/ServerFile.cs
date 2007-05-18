@@ -40,14 +40,14 @@ namespace Fsxget
 			}
 		}
 
-		public byte[] getContentBytes(String query)
+        public byte[] getContentBytes(System.Collections.Specialized.NameValueCollection values)
 		{
 			lock (oLockContent)
 			{
-				return getContent(query);
+                return getContent(values);
 			}
 		}
 
-		protected abstract byte[] getContent(String query);
+		protected abstract byte[] getContent(System.Collections.Specialized.NameValueCollection values);
 	}
 }
