@@ -155,22 +155,28 @@ namespace Fsxget
 
 			if (file != null)
 			{
-				String szQuery = request.Url.Query;
-
-				byte[] buffer = file.File.getContentBytes(szQuery);
+                System.Collections.Specialized.NameValueCollection values = request.QueryString;
+               
+				byte[] buffer = file.File.getContentBytes(values);
 
 				if (buffer != null)
 				{
-					response.ContentLength64 = buffer.Length;
+                    try
+                    {
+                        response.ContentLength64 = buffer.Length;
 
-					response.AddHeader("Content-type", file.File.ContentType);
+                        response.AddHeader("Content-type", file.File.ContentType);
 
-					System.IO.Stream output = response.OutputStream;
-					output.Write(buffer, 0, buffer.Length);
-					output.Close();
+                        System.IO.Stream output = response.OutputStream;
+                        output.Write(buffer, 0, buffer.Length);
+                        output.Close();
 
-					if (!file.Persistent)
-						unregisterFile(file.Path);
+                        if (!file.Persistent)
+                            unregisterFile(file.Path);
+                    }
+                    catch
+                    {
+                    }
 				}
 				else
 				{
