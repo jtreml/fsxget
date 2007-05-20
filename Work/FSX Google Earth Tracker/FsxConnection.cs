@@ -342,6 +342,7 @@ namespace Fsxget
 			private ObjectPosition objPos;
 			private ObjectData<float> fHeading;
             private float fAltAGL;
+            private float fGroundSpeed;
             private double dTime;
 			public ObjectPath objPath;
 			public PathPrediction pathPrediction;
@@ -390,6 +391,7 @@ namespace Fsxget
 				objPos.Longitude.Value = (float)obj.dLongitude;
 				objPos.Latitude.Value = (float)obj.dLatitude;
 				objPos.Altitude.Value = (float)obj.dAltitude;
+                fGroundSpeed = (float)(obj.dGroundSpeed*3.600/1.852);
                 fAltAGL = (float)obj.dAltAGL;
                 strTitle.Value = obj.szTitle;
 				strATCType.Value = obj.szATCType;
@@ -470,10 +472,11 @@ namespace Fsxget
 				str = str.Replace("%ALTITUDE%", XmlConvert.ToString(ObjectPosition.Altitude.Value));
 				str = str.Replace("%HEADING%", XmlConvert.ToString(Heading.Value));
 				str = str.Replace("%IMAGE%", Program.Config.Server + "/" + Title.Value);
-			}
+                str = str.Replace("%LOOKATALT%", ((int)ObjectPosition.Altitude.Value).ToString() );
+            }
 
-			#region Accessors
-			public ObjectData<String> Title
+            #region Accessors
+            public ObjectData<String> Title
 			{
 				get
 				{
@@ -582,6 +585,14 @@ namespace Fsxget
                 get
                 {
                     return fAltAGL;
+                }
+            }
+
+            public float GroundSpeed
+            {
+                get
+                {
+                    return fGroundSpeed;
                 }
             }
 
@@ -907,6 +918,7 @@ namespace Fsxget
 			public double dTime;
 			public double dHeading;
             public double dAltAGL;
+            public double dGroundSpeed;
 		};
 
 		public struct StructObjectContainer
@@ -1059,6 +1071,7 @@ namespace Fsxget
 				simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Absolute Time", "seconds", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 				simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "PLANE HEADING DEGREES TRUE", "degrees", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
                 simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "PLANE ALT ABOVE GROUND", "meters", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+                simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "GPS GROUND SPEED", "meters", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 
                 simconnect.AddToDataDefinition(DEFINITIONS.StructInitPos, "Initial Position", null, SIMCONNECT_DATATYPE.INITPOSITION, 0.0f, SimConnect.SIMCONNECT_UNUSED);
                 
@@ -1737,7 +1750,8 @@ namespace Fsxget
 
 
             float f1 = float.Parse(szParts[0], System.Globalization.NumberFormatInfo.InvariantInfo);
-            int iSign = Math.Sign(f1);
+            int iSign = szParts[0][0] == '-' ? -1 : 1;
+               
             f1 = Math.Abs(f1);
             float f2 = float.Parse(szParts[1], System.Globalization.NumberFormatInfo.InvariantInfo);
 
@@ -2196,7 +2210,7 @@ namespace Fsxget
             String strBGL2XMLPath = @"C:\Programme\Microsoft Games\Microsoft Flight Simulator X SDK\Tools\BGL2XML_CMD\Bgl2Xml.exe";
             strPath += "\\Scenery";
             String strTmpFile = Path.GetTempFileName();
-            String[] strFiles = Directory.GetFiles(strPath, "*.bgl", SearchOption.AllDirectories);
+            String[] strFiles = Directory.GetFiles(strPath, "*.xml", SearchOption.AllDirectories);
 
             String strName = "";
             String strIdent = "";
@@ -2223,6 +2237,7 @@ namespace Fsxget
                 System.Diagnostics.Trace.WriteLine(strBGLFile);
                 try
                 {
+/*                    strTmpFile = strBGLFile + ".xml";
                     System.Diagnostics.ProcessStartInfo ps = new System.Diagnostics.ProcessStartInfo(strBGL2XMLPath, "\"" + strBGLFile + "\" \"" + strTmpFile + "\"");
                     ps.CreateNoWindow = true;
                     ps.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
@@ -2239,15 +2254,16 @@ namespace Fsxget
                         p.Kill();
                         continue;
                     }
+ */ 
                 }
                 catch
                 {
                 }
-
 //                try
                 {
                     XmlDocument xmld = new XmlDocument();
-                    xmld.Load(strTmpFile);
+//                    xmld.Load(strTmpFile);
+                    xmld.Load(strBGLFile);
 
                     XmlNodeList nodes;
                     nodes = xmld.GetElementsByTagName("Vor");
@@ -2314,45 +2330,42 @@ namespace Fsxget
                             fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
                         cmd.ExecuteNonQuery();
                     }
-                    if (strHead != "APX")
+                    nodes = xmld.GetElementsByTagName("Ndb");
+                    foreach (XmlNode xmln in nodes)
                     {
-                        nodes = xmld.GetElementsByTagName("Ndb");
-                        foreach (XmlNode xmln in nodes)
+                        foreach (XmlAttribute xmla in xmln.Attributes)
                         {
-                            foreach (XmlAttribute xmla in xmln.Attributes)
+                            if (xmla.Name == "lat")
+                                fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "lon")
+                                fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "alt")
                             {
-                                if (xmla.Name == "lat")
-                                    fLat = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-                                else if (xmla.Name == "lon")
-                                    fLon = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-                                else if (xmla.Name == "alt")
-                                {
-                                    fAlt = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
-                                }
-                                else if (xmla.Name == "range")
-                                    fRange = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
-                                else if (xmla.Name == "frequency")
-                                    fFreq = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-                                else if (xmla.Name == "magvar")
-                                    fMagVar = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
-                                else if (xmla.Name == "ident")
-                                {
-                                    strIdent = xmla.Value;
-                                }
-                                else if (xmla.Name == "name")
-                                    strName = xmla.Value;
+                                fAlt = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
                             }
-                            cmd.CommandText = "INSERT INTO navaids ( Ident, Name, TypeID, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
-                                strIdent + "', '" +
-                                strName.Replace("'", "''") + "', 4," +
-                                fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-                                fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-                                fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-                                fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-                                fRange.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
-                                fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
-                            cmd.ExecuteNonQuery();
+                            else if (xmla.Name == "range")
+                                fRange = float.Parse(xmla.Value.Substring(0, xmla.Value.Length - 1), System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "frequency")
+                                fFreq = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "magvar")
+                                fMagVar = float.Parse(xmla.Value, System.Globalization.NumberFormatInfo.InvariantInfo);
+                            else if (xmla.Name == "ident")
+                            {
+                                strIdent = xmla.Value;
+                            }
+                            else if (xmla.Name == "name")
+                                strName = xmla.Value;
                         }
+                        cmd.CommandText = "INSERT INTO navaids ( Ident, Name, TypeID, Longitude, Latitude, Altitude, MagVar, Range, Freq ) VALUES ( '" +
+                            strIdent + "', '" +
+                            strName.Replace("'", "''") + "', 4," +
+                            fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fRange.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
+                            fFreq.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ");";
+                        cmd.ExecuteNonQuery();
                     }
                     nodes = xmld.GetElementsByTagName("Airport");
                     foreach (XmlNode xmln in nodes)
@@ -2387,16 +2400,33 @@ namespace Fsxget
                                 strCity = xmla.Value;
                         }
 
-                        cmd.CommandText = "INSERT INTO airports ( Ident, Name, Longitude, Latitude, Altitude, MagVar, Region, Country, State, City ) VALUES ( '" +
+                        if (strCountry == "")
+                            strCountry = "NULL";
+                        else
+                        {
+                            cmd.CommandText = "SELECT ID FROM Countrys WHERE Name='" + strCountry.Replace("'", "''") + "'";
+                            strCountry = cmd.ExecuteScalar().ToString();
+                        }
+
+                        if (strState == "")
+                            strState = "NULL";
+                        else
+                        {
+                            cmd.CommandText = "SELECT ID FROM States WHERE Name='" + strState.Replace("'","''") + "'";
+                            strState = cmd.ExecuteScalar().ToString();
+                        }
+
+                        
+                        cmd.CommandText = "INSERT INTO airports ( Ident, Name, Longitude, Latitude, Altitude, MagVar, Region, CountryID, StateID, City ) VALUES ( '" +
                             strIdent + "', '" +
                             strName.Replace("'", "''") + "'," +
                             fLon.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
                             fLat.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
                             fAlt.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "," +
                             fMagVar.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ",'" +
-                            strRegion.Replace("'", "''") + "','" +
-                            strCountry.Replace("'", "''") + "','" +
-                            strState.Replace("'", "''") + "','" +
+                            strRegion.Replace("'", "''") + "'," +
+                            strCountry + "," +
+                            strState + ",'" +
                             strCity.Replace("'", "''") + "');";
 
                         cmd.ExecuteNonQuery();
@@ -2855,7 +2885,7 @@ namespace Fsxget
                 }
             }
             dbCon.Close();
-            File.Delete(strTmpFile);
+//            File.Delete(strTmpFile);
         }
         #endregion
     }

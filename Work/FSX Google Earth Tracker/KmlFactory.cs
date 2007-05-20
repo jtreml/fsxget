@@ -71,6 +71,8 @@ namespace Fsxget
             "NW"
         };
 
+        protected static float[][] fSpeedAlt;
+
 		protected FsxConnection fsxCon;
 		protected HttpServer httpServer;
 
@@ -86,7 +88,50 @@ namespace Fsxget
 
 		public KmlFactory(ref FsxConnection fsxCon, ref HttpServer httpServer)
 		{
-			this.fsxCon = fsxCon;
+			fSpeedAlt = new float[9][];
+
+            fSpeedAlt[0] = new float[3];
+            fSpeedAlt[0][0] = 0;
+            fSpeedAlt[0][1] = 100;
+            
+            fSpeedAlt[1] = new float[3];
+            fSpeedAlt[1][0] = 0;
+            fSpeedAlt[1][1] = 100;
+
+            fSpeedAlt[2] = new float[3];
+            fSpeedAlt[2][0] = 20;
+            fSpeedAlt[2][1] = 200;
+
+            fSpeedAlt[3] = new float[3];
+            fSpeedAlt[3][0] = 60;
+            fSpeedAlt[3][1] = 5000;
+
+            fSpeedAlt[4] = new float[3];
+            fSpeedAlt[4][0] = 80;
+            fSpeedAlt[4][1] = 40000;
+
+            fSpeedAlt[5] = new float[3];
+            fSpeedAlt[5][0] = 120;
+            fSpeedAlt[5][1] = 150000;
+
+            fSpeedAlt[6] = new float[3];
+            fSpeedAlt[6][0] = 200;
+            fSpeedAlt[6][1] = 200000;
+
+            fSpeedAlt[7] = new float[3];
+            fSpeedAlt[7][0] = 300;
+            fSpeedAlt[7][1] = 300000;
+
+            fSpeedAlt[8] = new float[3];
+            fSpeedAlt[8][0] = 300;
+            fSpeedAlt[8][1] = 300000;
+            
+            for (int i = 1; i < fSpeedAlt.Length; i++)
+            {
+                fSpeedAlt[i][2] = (fSpeedAlt[i][1] - fSpeedAlt[i - 1][1]) / Math.Max( 1, (fSpeedAlt[i][0] - fSpeedAlt[i - 1][0]));
+            }
+
+            this.fsxCon = fsxCon;
 			this.httpServer = httpServer;
 
 			dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
@@ -189,6 +234,7 @@ namespace Fsxget
 		{
 			lock (fsxCon.lockUserAircraft)
 			{
+                int i;
 				String strKMLPart = GetExpireString((uint)Program.Config[Config.SETTING.QUERY_USER_AIRCRAFT]["Interval"].IntValue / 1000) + "<Update><targetHref>" + Program.Config.Server + "/fsxobjs.kml</targetHref>";
 				if (fsxCon.objUserAircraft != null)
 				{
@@ -218,6 +264,14 @@ namespace Fsxget
 							strKMLPart += "</Change></Update>";
 							strKMLPart += (String)htKMLParts["fsxview"];
 							fsxCon.objUserAircraft.ReplaceObjectInfos(ref strKMLPart);
+                            int nAlt = 0;
+                            for (i = 1; i < fSpeedAlt.Length; i++)
+                            {
+                                if (fSpeedAlt[i][0] > fsxCon.objUserAircraft.GroundSpeed)
+                                    break;
+                            }
+                            nAlt = (int)(fSpeedAlt[i - 1][1] + fSpeedAlt[i][2] * (fsxCon.objUserAircraft.GroundSpeed - fSpeedAlt[i - 1][0]));
+                            strKMLPart = strKMLPart.Replace("%RANGE%", nAlt.ToString());
 							break;
 						case FsxConnection.SceneryObject.STATE.DELETED:
 							strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "\"/></Delete>";
@@ -225,7 +279,7 @@ namespace Fsxget
 							strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "pp\"/></Delete>";
 							if (fsxCon.objUserAircraft.pathPrediction.HasPoints)
 							{
-								for (int i = 1; i < fsxCon.objUserAircraft.pathPrediction.Positions.Length; i++)
+								for (i = 1; i < fsxCon.objUserAircraft.pathPrediction.Positions.Length; i++)
 								{
 									strKMLPart += "<Delete><Placemark targetId=\"" + fsxCon.objUserAircraft.ObjectID.ToString() + "pp" + i.ToString() + "\"/></Delete>";
 								}
