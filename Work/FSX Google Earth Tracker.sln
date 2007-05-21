@@ -7,9 +7,13 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer", "Installer\Inst
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User Interface", "User Interface\User Interface.csproj", "{8E52181D-AD7C-464A-A54C-92451D93839B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HardwareInfo", "HardwareInfo\HardwareInfo.csproj", "{DECBB995-52C4-4126-B534-D8FC44AB6B19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebLoader", "WebLoader\WebLoader.csproj", "{D8957863-1918-42CC-856B-77C68BDB3C81}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 4
+		SccNumberOfProjects = 6
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccLocalPath0 = .
@@ -22,6 +26,12 @@ Global
 		SccProjectUniqueName3 = User\u0020Interface\\User\u0020Interface.csproj
 		SccProjectName3 = User\u0020Interface
 		SccLocalPath3 = User\u0020Interface
+		SccProjectUniqueName4 = HardwareInfo\\HardwareInfo.csproj
+		SccProjectName4 = HardwareInfo
+		SccLocalPath4 = HardwareInfo
+		SccProjectUniqueName5 = WebLoader\\WebLoader.csproj
+		SccProjectName5 = WebLoader
+		SccLocalPath5 = WebLoader
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +48,14 @@ Global
 		{8E52181D-AD7C-464A-A54C-92451D93839B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E52181D-AD7C-464A-A54C-92451D93839B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E52181D-AD7C-464A-A54C-92451D93839B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8957863-1918-42CC-856B-77C68BDB3C81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8957863-1918-42CC-856B-77C68BDB3C81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8957863-1918-42CC-856B-77C68BDB3C81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8957863-1918-42CC-856B-77C68BDB3C81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
