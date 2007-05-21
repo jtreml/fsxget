@@ -10,6 +10,7 @@ using System.IO;
 using System.Threading;
 using System.Data.OleDb;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Reflection;
 
@@ -2019,7 +2020,161 @@ namespace Fsxget
             }
             return bmp;
         }
-        
+        static public Bitmap RenderComplexAirportIcon(uint unID, OleDbConnection dbCon)
+        {
+            bool bLocalCon = false;
+            if (dbCon == null)
+            {
+                bLocalCon = true;
+                dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
+                dbCon.Open();
+            }
+            
+            OleDbCommand cmd = new OleDbCommand("SELECT ID FROM AirportBoundary WHERE AirportID=" + unID.ToString() + " ORDER BY [Number]" , dbCon);
+            String strId = "";
+            OleDbDataReader rd = cmd.ExecuteReader();
+            while (rd.Read())
+            {
+                if (strId.Length > 0)
+                    strId += ",";
+                strId += rd.GetInt32(0).ToString();
+            }
+            rd.Close();
+
+            cmd.CommandText = "SELECT BoundaryID, Longitude, Latitude FROM AirportBoundaryVertex WHERE BoundaryID IN(" + strId + ") ORDER BY BoundaryID, SortNr";
+            rd = cmd.ExecuteReader();
+            List<float> lstLon = new List<float>();
+            List<float> lstLat = new List<float>();
+            List<int> lstStartIdx = new List<int>();
+            int nIdx = 0;
+            int nId = 0;
+            float fLatN = -90;
+            float fLatS = 90;
+            float fLonE = -180;
+            float fLonW = 180;
+            float fLon = 0;
+            float fLat = 0;
+            while (rd.Read())
+            {
+                if (nId != rd.GetInt32(0))
+                {
+                    lstStartIdx.Add(nIdx);
+                    nId = rd.GetInt32(0);
+                }
+                fLon = rd.GetFloat(1);
+                fLat = rd.GetFloat(2);
+                if (fLon > fLonE)
+                    fLonE = fLon;
+                if (fLon < fLonW)
+                    fLonW = fLon;
+                if (fLat > fLatN)
+                    fLatN = fLat;
+                if (fLat < fLatS)
+                    fLatS = fLat;
+                lstLon.Add(fLon);
+                lstLat.Add(fLat);
+                nIdx++;
+            }
+            rd.Close();
+            lstStartIdx.Add(nIdx);
+            float fDist = 0;
+            float fHead = 0;
+            KmlFactory.GetDistance(fLonE, fLatN, fLonW, fLatN, ref fDist, ref fHead);
+            int nWidth = (int)(fDist / 30);
+            KmlFactory.GetDistance(fLonW, fLatN, fLonW, fLatS, ref fDist, ref fHead);
+            int nHeight = (int)(fDist / 30);
+
+            Bitmap bmp = new Bitmap(nWidth, nHeight);
+            Pen pen = new Pen(Color.FromArgb(255, 255, 255), 3);
+            Brush brush = new SolidBrush(Color.FromArgb(0, 0, 128));
+
+            Graphics g = Graphics.FromImage(bmp);
+//            Graphics g2 = frmMain.CreateGraphics();
+
+            for (int i = 0; i < lstLat.Count; i++)
+            {
+                lstLon[i] = nWidth * (lstLon[i] - fLonW) / (fLonE - fLonW);
+                lstLat[i] = nHeight - (nHeight * (lstLat[i] - fLatS) / (fLatN - fLatS));
+            }
+            int nPart = 0;
+            int nPartsDone = 0;
+            bool[] bPartsDone = new bool[lstStartIdx.Count-1];
+            nIdx = 0;
+            int nOff = 1;
+            int nStartIdx = 0;
+            int nEndIdx = lstStartIdx[1]-1;
+            Point[] pts = new Point[lstLat.Count-lstStartIdx.Count+1];
+            int nPt = 0;
+            do
+            {
+                nIdx = nStartIdx;
+                while (nIdx != nEndIdx)
+                {
+                    pts[nPt++] = new Point( (int)lstLon[nIdx], (int)lstLat[nIdx] );
+//                    g2.DrawLine(pen, lstLon[nIdx], lstLat[nIdx], lstLon[nIdx + nOff], lstLat[nIdx + nOff]);
+                    nIdx += nOff;
+                }
+                nPartsDone++;
+                bPartsDone[nPart] = true;
+                int nIdxNearest = 0;
+                float fDistMin = nHeight * nHeight + nWidth * nWidth;
+                for (int j = 0; j < lstStartIdx.Count - 1; j++)
+                {
+                    if (!bPartsDone[j])
+                    {
+                        fDist = Math.Abs(lstLon[nIdx] - lstLon[lstStartIdx[j]]) * Math.Abs(lstLon[nIdx] - lstLon[lstStartIdx[j]]) + 
+                                      Math.Abs(lstLat[nIdx] - lstLat[lstStartIdx[j]]) * Math.Abs(lstLat[nIdx] - lstLat[lstStartIdx[j]]);
+                        if (fDist < fDistMin)
+                        {
+                            nIdxNearest = lstStartIdx[j];
+                            fDistMin = fDist;
+                            nOff = 1;
+                            nStartIdx = lstStartIdx[j];
+                            nEndIdx = lstStartIdx[j + 1] - 1;
+                            nPart = j;
+                        }
+                        fDist = Math.Abs(lstLon[nIdx] - lstLon[lstStartIdx[j+1]-1]) * Math.Abs(lstLon[nIdx] - lstLon[lstStartIdx[j+1]-1]) +
+                                    Math.Abs(lstLat[nIdx] - lstLat[lstStartIdx[j+1]-1]) * Math.Abs(lstLat[nIdx] - lstLat[lstStartIdx[j+1]-1]);
+                        if (fDist < fDistMin)
+                        {
+                            nIdxNearest = lstStartIdx[j];
+                            fDistMin = fDist;
+                            nOff = -1;
+                            nStartIdx = lstStartIdx[j+1]-1;
+                            nEndIdx = lstStartIdx[j];
+                            nPart = j;
+                        }
+                    }
+                }
+            } while (nPartsDone != lstStartIdx.Count - 1);
+
+            g.FillPolygon(brush, pts);
+
+            int x1, x2, y1, y2;
+
+            cmd.CommandText = "SELECT Longitude, Latitude, Heading, Length, Width FROM Runways WHERE AirportID=" + unID.ToString();
+            rd = cmd.ExecuteReader();
+            while (rd.Read())
+            {
+                fHead = rd.GetFloat(2);
+                fDist = rd.GetFloat(3) / 2;
+                KmlFactory.MovePoint(rd.GetFloat(0), rd.GetFloat(1), fHead, fDist, ref fLon, ref fLat);
+                x1 = (int)(nWidth * (fLon - fLonW) / (fLonE - fLonW));
+                y1 = nHeight - (int)((nHeight * (fLat - fLatS) / (fLatN - fLatS)));
+                KmlFactory.MovePoint(rd.GetFloat(0), rd.GetFloat(1), fHead >= 180 ? fHead - 180 : fHead + 180, fDist, ref fLon, ref fLat);
+                x2 = (int)(nWidth * (fLon - fLonW) / (fLonE - fLonW));
+                y2 = nHeight - (int)((nHeight * (fLat - fLatS) / (fLatN - fLatS)));
+                g.DrawLine(pen, x1, y1, x2, y2);
+                Application.DoEvents();
+            }
+            rd.Close();
+
+            if (bLocalCon)
+                dbCon.Close();
+
+            return bmp;
+        }
+
         static public String[] strNatoABC = new String[] 
         {
             "Alpha",
