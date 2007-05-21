@@ -196,7 +196,8 @@ namespace Fsxget
 			httpServer.registerFile("/fsxfpu.kml", new ServerFileDynamic(szContentTypeKml, GenFlightplanUpdate));
 			httpServer.registerFile("/fsxnau.kml", new ServerFileDynamic(szContentTypeKml, GenNavAdisUpdate));
 			httpServer.registerFile("/fsxapu.kml", new ServerFileDynamic(szContentTypeKml, GenAirportUpdate));
-			httpServer.registerFile("/fsxsapi", new ServerFileDynamic("image/png", GetAirportIcon));
+			httpServer.registerFile("/fsxsapi", new ServerFileDynamic("image/png", GetSimpleAirportIcon));
+            httpServer.registerFile("/fsxcapi", new ServerFileDynamic("image/png", GetComplexAirportIcon));
             httpServer.registerFile("/fsxts", new ServerFileDynamic("image/png", GetTaxiSign));
             httpServer.registerFile("/fsxtp", new ServerFileDynamic("image/png", GetParkingSign));
 
@@ -952,7 +953,10 @@ namespace Fsxget
             }
             rd.Close();
             strKMLPart = strKMLPart.Replace("%RUNWAYS%", ((String)htKMLParts["fsxaprws"]).Replace("%RUNWAYS%", strRunways));
-            strKMLPart = strKMLPart.Replace("%ICON%", String.Format( "{0}/fsxsapi?head={1}&amp;type={2}&amp;lights={3}", Program.Config.Server, fHeading.ToString(System.Globalization.NumberFormatInfo.InvariantInfo), nType, bLights ? "1" : "0" ) );
+            if( fLength > 3000 )
+                strKMLPart = strKMLPart.Replace("%ICON%", String.Format( "{0}/fsxcapi?id={1}", Program.Config.Server, airport.ObjectID ) );
+            else
+                strKMLPart = strKMLPart.Replace("%ICON%", String.Format("{0}/fsxsapi?head={1}&amp;type={2}&amp;lights={3}", Program.Config.Server, fHeading.ToString(System.Globalization.NumberFormatInfo.InvariantInfo), nType, bLights ? "1" : "0"));
 
             // Boundary-Fences
             cmd.CommandText = "SELECT [Number], Longitude, Latitude FROM AirportBoundary INNER JOIN AirportBoundaryVertex ON AirportBoundary.ID=AirportBoundaryVertex.BoundaryID WHERE AirportID=" + airport.ObjectID.ToString() + " ORDER BY [Number],SortNr";
@@ -978,7 +982,41 @@ namespace Fsxget
             return strKMLPart + "</Folder></Create>";
 		}
 
-		public byte[] GetAirportIcon(System.Collections.Specialized.NameValueCollection values)
+        public byte[] GetComplexAirportIcon(System.Collections.Specialized.NameValueCollection values)
+        {
+            if (values["ident"] != null)
+            {
+                try
+                {
+                    OleDbCommand dbCmd = new OleDbCommand("SELECT ID FROM Airports WHERE Ident='" + values["ident"] + "'", dbCon);
+                    OleDbDataReader rd = dbCmd.ExecuteReader();
+                    if (rd.Read())
+                    {
+                        values.Clear();
+                        values.Add("id", rd.GetInt32(0).ToString());
+                    }
+                    rd.Close();
+                }
+                catch
+                {
+                }
+            }
+            if (values["id"] != null)
+            {
+                try
+                {
+                    Bitmap bmp = FsxConnection.RenderComplexAirportIcon(uint.Parse(values["id"]), dbCon);
+                    if( bmp != null )
+                        return BitmapToPngBytes(bmp);
+                }
+                catch
+                {
+                }
+            }
+            return GetSimpleAirportIcon(values);
+        }
+
+        public byte[] GetSimpleAirportIcon(System.Collections.Specialized.NameValueCollection values)
   		{
             float fHeading = 0;
             bool bLights = false;

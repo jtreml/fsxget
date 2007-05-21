@@ -10,7 +10,7 @@
 				</Icon>
 				<heading>0</heading>
 			</IconStyle>
-			<LabelStyle><scale>0.8</scale></LabelStyle>
+			<LabelStyle><scale>1</scale></LabelStyle>
 		</Style>
 		<Point>
 			<altitudeMode>absolute</altitudeMode>
