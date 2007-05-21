@@ -224,6 +224,16 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HardwareInfo\HardwareInfo.csproj">
+      <Project>{DECBB995-52C4-4126-B534-D8FC44AB6B19}</Project>
+      <Name>HardwareInfo</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WebLoader\WebLoader.csproj">
+      <Project>{D8957863-1918-42CC-856B-77C68BDB3C81}</Project>
+      <Name>WebLoader</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="pub\gfx\scenery\ground\" />
     <Folder Include="pub\gfx\scenery\water\" />
     <Folder Include="User%27s Application Data Folder\" />

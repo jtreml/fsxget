@@ -2362,7 +2362,7 @@ namespace Fsxget
         static public void GetSceneryObjects()
         {
             String strPath = Path.GetDirectoryName(Program.Config.FSXPath);
-            String strBGL2XMLPath = @"C:\Programme\Microsoft Games\Microsoft Flight Simulator X SDK\Tools\BGL2XML_CMD\Bgl2Xml.exe";
+            //String strBGL2XMLPath = @"C:\Programme\Microsoft Games\Microsoft Flight Simulator X SDK\Tools\BGL2XML_CMD\Bgl2Xml.exe";
             strPath += "\\Scenery";
             String strTmpFile = Path.GetTempFileName();
             String[] strFiles = Directory.GetFiles(strPath, "*.xml", SearchOption.AllDirectories);
