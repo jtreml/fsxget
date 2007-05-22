@@ -122,7 +122,7 @@ namespace Fsxget
 			foreach (String szLoop in listCpuIds)
 			{
 				iCount++;
-				listPostData.Add(new WebLoader.PostEntry("CpuId" + iCount, szLoop));
+				listPostData.Add(new WebLoader.PostEntry("CpuId" + iCount, Md5Worker.getMd5Hash(szLoop)));
 			}
 
 			// Send HDD ID's
@@ -133,14 +133,14 @@ namespace Fsxget
 			{
 				iCount1++;
 
-				listPostData.Add(new WebLoader.PostEntry("Hdd" + iCount1, hddLoop.Model));
+				listPostData.Add(new WebLoader.PostEntry("Hdd" + iCount1, Md5Worker.getMd5Hash(hddLoop.Model)));
 
 				int iCount2 = 0;
 				foreach (HardwareInfo.HardwareInfo.Hdd.Drive drvLoop in hddLoop.Drives)
 				{
 					iCount2++;
 
-					listPostData.Add(new WebLoader.PostEntry("Hdd" + iCount1 + "drive" + iCount2, drvLoop.Serial));
+					listPostData.Add(new WebLoader.PostEntry("Hdd" + iCount1 + "drive" + iCount2, Md5Worker.getMd5Hash(drvLoop.Serial)));
 				}
 			}
 
