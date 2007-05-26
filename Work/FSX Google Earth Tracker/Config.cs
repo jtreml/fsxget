@@ -570,7 +570,9 @@ namespace Fsxget
 		private bool bCanRunFSX;
 
 		private String strPathFSX;
-		#endregion
+
+        private String strDBConnectionString;
+        #endregion
 
 		#region Construction
 		public Config()
@@ -649,8 +651,10 @@ namespace Fsxget
 			else
 				bCanRunFSX = false;
 
-			strServer = "http://localhost";
-			#endregion
+			strServer = "http://192.168.3.1";
+//            strServer = "http://localhost";
+            strDBConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + AppPath + "\\data\\fsxget.mdb";
+            #endregion
 
 
 			#region Fill Settings-objects
@@ -865,6 +869,13 @@ namespace Fsxget
 				return this[SETTING.LANGUAGE]["Value"].StringValue;
 			}
 		}
+        public String ConnectionString
+        {
+            get
+            {
+                return strDBConnectionString;
+            }
+        }
 		#endregion
 
 		#region Assembly Attribute Accessors

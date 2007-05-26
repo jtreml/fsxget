@@ -118,7 +118,8 @@ namespace Fsxget
 				}
 			}
 		}
-		public class SceneryObject
+		
+        public class SceneryObject
 		{
 			public enum STATE
 			{
@@ -132,7 +133,7 @@ namespace Fsxget
 			private STATE tState;
 			private DATA_REQUESTS tType;
 			private uint unID;
-			public bool bDataRecieved;
+			private bool bDataRecieved;
 
 			public SceneryObject(uint unID, DATA_REQUESTS tType)
 			{
@@ -142,7 +143,7 @@ namespace Fsxget
 				this.unID = unID;
 			}
 
-			public STATE State
+			public virtual STATE State
 			{
 				get
 				{
@@ -153,22 +154,34 @@ namespace Fsxget
 					tState = value;
 				}
 			}
-			public uint ObjectID
+            public virtual uint ObjectID
 			{
 				get
 				{
 					return unID;
 				}
 			}
-			public DATA_REQUESTS ObjectType
+            public virtual DATA_REQUESTS ObjectType
 			{
 				get
 				{
 					return tType;
 				}
 			}
+            public virtual bool DataRecieved
+            {
+                get
+                {
+                    return bDataRecieved;
+                }
+                set
+                {
+                    bDataRecieved = value;
+                }
+            }
 		}
-		public class SceneryMovingObject : SceneryObject
+		
+        public class SceneryMovingObject : SceneryObject
 		{
 			#region Classes
 			public class ObjectPath
@@ -409,7 +422,7 @@ namespace Fsxget
 					else
 						State = STATE.UNCHANGED;
 				}
-				bDataRecieved = true;
+				DataRecieved = true;
 			}
 
 			public void ConfigChanged()
@@ -599,7 +612,1242 @@ namespace Fsxget
 
 			#endregion
 		}
-		public class FlightPlan : SceneryObject
+
+        public class SceneryStaticObjectData
+        {
+            #region Variables
+            private float fLongitude;
+            private float fLatitude;
+            private float fAltitude;
+            public uint unID;
+            #endregion
+
+            public SceneryStaticObjectData()
+            {
+                unID = 0;
+                fLongitude = 0;
+                fLatitude = 0;
+                fAltitude = 0;
+            }
+
+            #region Accessors
+            public float Longitude
+            {
+                get
+                {
+                    return fLongitude;
+                }
+                set
+                {
+                    fLongitude = value;
+                }
+            }
+
+            public float Latitude
+            {
+                get
+                {
+                    return fLatitude;
+                }
+                set
+                {
+                    fLatitude = value;
+                }
+            }
+
+            public float Altitude
+            {
+                get
+                {
+                    return fAltitude;
+                }
+                set
+                {
+                    fAltitude = value;
+                }
+            }
+
+            public uint ObjectID
+            {
+                get
+                {
+                    return unID;
+                }
+                set
+                {
+                    unID = value;
+                }
+            }
+            #endregion
+        }
+
+        public class SceneryAirportObjectData : SceneryStaticObjectData
+        {
+            #region Classes
+            public class ComFrequency
+            {
+                #region Variables
+                private float fFreq;
+                private COMTYPE tType;
+                #endregion
+
+                public enum COMTYPE
+                {
+                    APPROACH = 1,
+                    ASOS,
+                    ATIS,
+                    AWOS,
+                    CENTER,
+                    CLEARANCE,
+                    CLEARANCE_PRE_TAXI,
+                    CTAF,
+                    DEPARTURE,
+                    FSS,
+                    GROUND,
+                    MULTICOM,
+                    REMOTE_CLEARANCE_DELIVERY,
+                    TOWER,
+                    UNICOM,
+                }
+
+                private ComFrequency()
+                {
+                }
+
+                public static List<ComFrequency> CreateList(uint unAirportID, OleDbConnection dbCon)
+                {
+                    List<ComFrequency> lst = new List<ComFrequency>();
+                    ComFrequency comFrequency = null;
+                    try
+                    {
+                        OleDbCommand cmd = new OleDbCommand("SELECT TypeID, Freq FROM AirportComs WHERE AirportID=" + unAirportID.ToString() + " ORDER BY TypeID", dbCon);
+                        OleDbDataReader rd = cmd.ExecuteReader();
+                        while (rd.Read())
+                        {
+                            comFrequency = new ComFrequency();
+                            comFrequency.fFreq = rd.GetFloat(1);
+                            comFrequency.tType = (COMTYPE)rd.GetInt32(0);
+                            lst.Add(comFrequency);
+                        }
+                        rd.Close();
+                    }
+                    catch
+                    {
+                    }
+                    return lst;
+                }
+
+                #region Accessors
+                public float Frequency
+                {
+                    get
+                    {
+                        return fFreq;
+                    }
+                }
+                public COMTYPE ComType
+                {
+                    get
+                    {
+                        return tType;
+                    }
+                }
+                public String Name
+                {
+                    get
+                    {
+                        return tType.ToString();
+                    }
+                }
+                #endregion
+            }
+            public class Runway : SceneryStaticObjectData
+            {
+                #region Classes
+                public class ILS : SceneryStaticObjectData
+                {
+                    #region Variables
+                    private float fFreq;
+                    private float fRange;
+                    private float fMagVar;
+                    private float fHeading;
+                    private float fWidth;
+                    private bool bBackCourse;
+                    private String strIdent;
+                    private String strName;
+                    #endregion
+
+                    private ILS()
+                    {
+                    }
+
+                    public static ILS Create(uint unID, bool bSecondary)
+                    {
+                        ILS ils = null;
+                        try
+                        {
+                            OleDbConnection dbCon = new OleDbConnection(Program.Config.ConnectionString);
+                            OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, Heading, Freq, Longitude, Latitude, Altitude, Range, MagVar, Width, BackCourse FROM RunwayILS WHERE EndSecondary=" + bSecondary.ToString() + " AND RunwayID=" + unID.ToString(), dbCon);
+                            OleDbDataReader rd = cmd.ExecuteReader();
+                            if (rd.Read())
+                            {
+                                ils = new ILS();
+                                ils.strIdent = rd.GetString(0);
+                                ils.strName = rd.GetString(1);
+                                ils.fHeading = rd.GetFloat(2);
+                                ils.fFreq = rd.GetFloat(3);
+                                ils.Longitude = rd.GetFloat(4);
+                                ils.Latitude = rd.GetFloat(5);
+                                ils.Altitude = rd.GetFloat(6);
+                                ils.fRange = rd.GetFloat(7);
+                                ils.fMagVar = rd.GetFloat(8);
+                                ils.fWidth = rd.GetFloat(9);
+                                ils.bBackCourse = rd.GetBoolean(10);
+                            }
+                            rd.Close();
+                        }
+                        catch
+                        {
+                        }
+                        return ils;
+                    }
+
+                    #region Accessors
+                    public float Heading
+                    {
+                        get
+                        {
+                            return fHeading;
+                        }
+                    }
+                    public float Width
+                    {
+                        get
+                        {
+                            return fWidth;
+                        }
+                    }
+                    public float Range
+                    {
+                        get
+                        {
+                            return fRange;
+                        }
+                    }
+                    public String Name
+                    {
+                        get
+                        {
+                            return strName;
+                        }
+                    }
+                    public String Ident
+                    {
+                        get
+                        {
+                            return strIdent;
+                        }
+                    }
+                    public bool BackCourse
+                    {
+                        get
+                        {
+                            return bBackCourse;
+                        }
+                    }
+                    public float MagVar
+                    {
+                        get
+                        {
+                            return fMagVar;
+                        }
+                    }
+                    public float Frequency
+                    {
+                        get
+                        {
+                            return fFreq;
+                        }
+                    }
+
+                    #endregion
+                }
+                #endregion
+
+                #region Variables
+                private float fHeading;
+                private float fLength;
+                private float fWidth;
+                private String strName;
+                private SURFACETYPE tSurfaceType;
+                private float fPatternAlt;
+                private bool bPatternRight;
+                private bool bHasLights;
+                private ILS ils;
+                private static String[] strRunwayDirections = new String[] 
+                {
+                    "N",
+                    "NE",
+                    "SE",
+                    "S",
+                    "SW",
+                    "W",
+                    "NW"
+                };
+                #endregion
+
+                #region Enums
+                public enum RUNWAYTYPE
+                {
+                    HARDENED,
+                    FASTENED,
+                    WATER,
+                    UNKNOWN,
+                }
+                public enum PATTERTRAFFIC
+                {
+                    LEFT,
+                    RIGHT,
+                }
+                public enum SURFACETYPE
+                {
+                    ASPHALT = 1,
+                    BITUMINOUS,
+                    BRICK,
+                    CLAY,
+                    CEMENT,
+                    CONCRETE,
+                    CORAL,
+                    DIRT,
+                    GRASS,
+                    GRAVEL,
+                    ICE,
+                    MACADAM,
+                    OIL_TREATED,
+                    SAND,
+                    SHALE,
+                    SNOW,
+                    STEEL_MATS,
+                    TARMAC,
+                    UNKNWON,
+                    WATER,
+                    PLANKS,
+                }
+                #endregion
+                
+                private Runway()
+                {
+                }
+
+                public static List<Runway> CreateList(uint unAirportID, OleDbConnection dbCon, ref float fLongestLength, ref float fLongestHeading, ref RUNWAYTYPE tType, ref bool bHasLights)
+                {
+                    List<Runway> lst = new List<Runway>();
+                    tType = RUNWAYTYPE.UNKNOWN;
+                    fLongestLength = 0;
+                    fLongestHeading = 0;
+                    bHasLights = false;
+                    bool bHard = false;
+                    bool bLongestHard = false;
+                    try
+                    {
+                        Runway runway;
+                        OleDbCommand cmd = new OleDbCommand("SELECT [Number], PrimaryDesignator, SecondaryDesignator, Length, SurfaceID, Name, HasLights, Hardened, Heading, PrimaryTakeoff, PrimaryLanding, SecondaryTakeoff, SecondaryLanding, Runways.ID, PatternAltitude, PrimaryPatternRight, SecondaryPatternRight, Longitude, Latitude, Altitude, Width FROM Runways INNER JOIN SurfaceType ON Runways.SurfaceID = SurfaceType.ID WHERE AirportID=" + unAirportID.ToString(), dbCon);
+                        OleDbDataReader rd = cmd.ExecuteReader();
+                        while (rd.Read())
+                        {
+                            String strDes = "";
+                            float fLon = 0;
+                            float fLat = 0;
+                            float fHead = 0;
+                            int nNr = rd.GetInt16(0);
+                            if (rd.GetBoolean(9) || rd.GetBoolean(10) || (!rd.GetBoolean(9) && !rd.GetBoolean(10) && !rd.GetBoolean(11) && !rd.GetBoolean(12)))
+                            {
+                                runway = new Runway();
+                                if (nNr >= 1000)
+                                    runway.strName = strRunwayDirections[(nNr - 1000) / 45];
+                                else
+                                    runway.strName = String.Format("{0:00}", nNr == 0 ? 36 : nNr);
+                                strDes = rd.GetString(1);
+                                if (strDes != "N")
+                                    runway.strName += strDes;
+                                runway.Altitude = rd.GetFloat(19);
+                                runway.fPatternAlt = runway.Altitude + rd.GetFloat(14);
+                                runway.bPatternRight = rd.GetBoolean(15);
+                                runway.fHeading = rd.GetFloat(8);
+                                runway.fLength = rd.GetFloat(3);
+                                runway.fWidth = rd.GetFloat(20);
+                                runway.bHasLights = rd.GetBoolean(6);
+                                runway.tSurfaceType = (SURFACETYPE)rd.GetInt32(4);
+                                fHead = runway.fHeading;
+                                fHead = fHead > 180 ? fHead - 180 : fHead + 180;
+                                KmlFactory.MovePoint(rd.GetFloat(17), rd.GetFloat(18), fHead, rd.GetFloat(3) / 2, ref fLon, ref fLat);
+                                runway.Longitude = fLon;
+                                runway.Latitude = fLat;
+                                runway.ils = ILS.Create((uint)rd.GetInt32(13), false);
+                                bHard = rd.GetBoolean(7);
+                                if (fLongestLength < runway.fLength || (bLongestHard == false && bHard))
+                                {
+                                    fLongestLength = runway.fLength;
+                                    bLongestHard = bHard;
+                                    fLongestHeading = runway.fHeading;
+                                    tType = runway.tSurfaceType == SURFACETYPE.WATER ? RUNWAYTYPE.WATER : (bHard ? RUNWAYTYPE.HARDENED : RUNWAYTYPE.FASTENED);
+                                }
+                                if (!bHasLights && runway.bHasLights)
+                                    bHasLights = true;
+                                lst.Add(runway);
+                            }
+                            if (rd.GetBoolean(11) || rd.GetBoolean(12) || (!rd.GetBoolean(9) && !rd.GetBoolean(10) && !rd.GetBoolean(11) && !rd.GetBoolean(12)))
+                            {
+                                runway = new Runway();
+                                strDes = rd.GetString(2);
+                                if (nNr >= 1000)
+                                {
+                                    nNr -= 1000;
+                                    if (nNr >= 180)
+                                        nNr -= 180;
+                                    else
+                                        nNr += 180;
+                                    runway.strName = strRunwayDirections[nNr / 45];
+                                }
+                                else
+                                {
+                                    if (nNr >= 18)
+                                        nNr -= 18;
+                                    else
+                                        nNr += 18;
+                                    runway.strName = String.Format("{0:00}", nNr == 0 ? 36 : nNr);
+                                }
+                                if (strDes != "N")
+                                    runway.strName += strDes;
+
+                                runway.Altitude = rd.GetFloat(19);
+                                runway.fPatternAlt = runway.Altitude + rd.GetFloat(14);
+                                runway.bPatternRight = rd.GetBoolean(16);
+                                runway.fLength = rd.GetFloat(3);
+                                runway.fWidth = rd.GetFloat(20);
+                                runway.bHasLights = rd.GetBoolean(6);
+                                runway.tSurfaceType = (SURFACETYPE)rd.GetInt32(4);
+                                fHead = rd.GetFloat(8);
+                                runway.fHeading = fHead > 180 ? fHead - 180 : fHead + 180;
+                                KmlFactory.MovePoint(rd.GetFloat(17), rd.GetFloat(18), fHead, rd.GetFloat(3) / 2, ref fLon, ref fLat);
+                                runway.Longitude = fLon;
+                                runway.Latitude = fLat;
+                                runway.ils = ILS.Create((uint)rd.GetInt32(13), true);
+                                bHard = rd.GetBoolean(7);
+                                if (fLongestLength < runway.fLength || (bLongestHard == false && bHard))
+                                {
+                                    fLongestLength = runway.fLength;
+                                    bLongestHard = bHard;
+                                    fLongestHeading = runway.fHeading;
+                                    tType = runway.tSurfaceType == SURFACETYPE.WATER ? RUNWAYTYPE.WATER : (bHard ? RUNWAYTYPE.HARDENED : RUNWAYTYPE.FASTENED);
+                                }
+                                if (!bHasLights && runway.bHasLights)
+                                    bHasLights = true;
+                                lst.Add(runway);
+                            }
+                        }
+                        rd.Close();
+                    }
+                    catch 
+                    {
+                    }
+                    return lst;
+                }
+
+                #region Accessors
+                public float Heading
+                {
+                    get
+                    {
+                        return fHeading;
+                    }
+                }
+                public float Length
+                {
+                    get
+                    {
+                        return fLength;
+                    }
+                }
+                public float Width
+                {
+                    get
+                    {
+                        return fWidth;
+                    }
+                }
+                public String Name
+                {
+                    get
+                    {
+                        return strName;
+                    }
+                }
+                public SURFACETYPE SurfaceType
+                {
+                    get
+                    {
+                        return tSurfaceType;
+                    }
+                }
+                public String SurfaceName
+                {
+                    get
+                    {
+                        return tSurfaceType.ToString();
+                    }
+                }
+                public float PatternAltitude
+                {
+                    get
+                    {
+                        return fPatternAlt;
+                    }
+                }
+                public PATTERTRAFFIC PatternTraffic
+                {
+                    get
+                    {
+                        return bPatternRight ? PATTERTRAFFIC.RIGHT : PATTERTRAFFIC.LEFT;
+                    }
+                }
+                public ILS ILSData
+                {
+                    get
+                    {
+                        return ils;
+                    }
+                }
+                public bool HasLights
+                {
+                    get
+                    {
+                        return bHasLights;
+                    }
+                }
+                #endregion
+            }
+            public class BoundaryFence
+            {
+                public struct Vertex
+                {
+                    public float fLongitude;
+                    public float fLatitude;
+                }
+                private int nNr;
+                private List<Vertex> lstVertexes;
+
+                private BoundaryFence()
+                {
+                    lstVertexes = new List<Vertex>();
+                }
+
+                public static List<BoundaryFence> CreateList(uint unAirportID, OleDbConnection dbCon)
+                {
+                    List<BoundaryFence> lst = new List<BoundaryFence>();
+                    try
+                    {
+                        BoundaryFence boundaryFence = null;
+                        OleDbCommand cmd = new OleDbCommand("SELECT [Number], Longitude, Latitude FROM AirportBoundary INNER JOIN AirportBoundaryVertex ON AirportBoundary.ID=AirportBoundaryVertex.BoundaryID WHERE AirportID=" + unAirportID.ToString() + " ORDER BY [Number],SortNr", dbCon);
+                        OleDbDataReader rd = cmd.ExecuteReader();
+                        int nNumber = -1;
+                        while (rd.Read())
+                        {
+                            if (rd.GetInt32(0) != nNumber)
+                            {
+                                if (boundaryFence != null)
+                                    lst.Add(boundaryFence);
+                                boundaryFence = new BoundaryFence();
+                                nNumber = rd.GetInt32(0);
+                                boundaryFence.nNr = nNumber;
+                            }
+                            Vertex v = new Vertex();
+                            v.fLongitude = rd.GetFloat(1);
+                            v.fLatitude = rd.GetFloat(2);
+                            boundaryFence.lstVertexes.Add(v);
+                        }
+                        if (boundaryFence != null)
+                            lst.Add(boundaryFence);
+                        rd.Close();
+                    }
+                    catch
+                    {
+                    }
+                    return lst;
+                }
+
+                #region Accessors
+                public int Number
+                {
+                    get
+                    {
+                        return nNr;
+                    }
+                }
+                public List<Vertex> Vertexes
+                {
+                    get
+                    {
+                        return lstVertexes;
+                    }
+                }
+                #endregion
+            }
+            #endregion
+
+            #region Variables
+            private float fMagVar;
+            private String strIdent;
+            private String strName;
+            private bool bComplexIcon;
+            private String strIconParams;
+            private List<ComFrequency> lstComFrequencies;
+            private List<Runway> lstRunways;
+            private List<BoundaryFence> lstBoundaryFences;
+            #endregion
+
+            public SceneryAirportObjectData(uint unID, OleDbConnection dbCon) 
+            {
+                ObjectID = unID;
+                // General Airport-Information
+                OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, Longitude, Latitude, Altitude, MagVar FROM airports WHERE ID=" + unID.ToString() + " ORDER BY Ident", dbCon);
+                OleDbDataReader rd = cmd.ExecuteReader();
+                if (rd.Read())
+                {
+                    Altitude = rd.GetFloat(4);
+                    strIdent = rd.GetString(0);
+                    strName = rd.GetString(1);
+                    Longitude = rd.GetFloat(2);
+                    Latitude = rd.GetFloat(3);
+                    fMagVar = rd.GetFloat(5);
+                }
+                rd.Close();
+
+                // Com-Frequencies
+                lstComFrequencies = ComFrequency.CreateList(unID, dbCon);
+
+                // Runways
+                float fLongestLength = 0;
+                float fLongestHeading = 0;
+                bool bHasLights = false;
+                Runway.RUNWAYTYPE tType = Runway.RUNWAYTYPE.UNKNOWN;
+                lstRunways = Runway.CreateList(unID, dbCon, ref fLongestLength, ref fLongestHeading, ref tType, ref bHasLights);
+
+                // BoundaryFences
+                lstBoundaryFences = BoundaryFence.CreateList(unID, dbCon);
+
+
+                if (fLongestLength > 3000 && lstBoundaryFences != null && lstBoundaryFences.Count > 0)
+                {
+                    bComplexIcon = true;
+                    strIconParams = "id=" + unID.ToString();
+                }
+                else
+                {
+                    bComplexIcon = false;
+                    strIconParams = String.Format("head={0}&type={1}&lights={2}", fLongestHeading.ToString(System.Globalization.NumberFormatInfo.InvariantInfo), (int)tType, (bHasLights ? 1 : 0));
+                }
+            }
+
+            #region Accessors
+            public float MagVar
+            {
+                get
+                {
+                    return fMagVar;
+                }
+            }
+            public String Ident
+            {
+                get
+                {
+                    return strIdent;
+                }
+            }
+            public String Name
+            {
+                get
+                {
+                    return strName;
+                }
+            }
+            public List<Runway> Runways
+            {
+                get
+                {
+                    return lstRunways;
+                }
+            }
+            public List<BoundaryFence> BoundaryFences
+            {
+                get
+                {
+                    return lstBoundaryFences;
+                }
+            }
+            public List<ComFrequency> ComFrequencies
+            {
+                get
+                {
+                    return lstComFrequencies;
+                }
+            }
+            public bool ComplexIcon
+            {
+                get
+                {
+                    return bComplexIcon;
+                }
+            }
+            public String IconParams
+            {
+                get
+                {
+                    return strIconParams;
+                }
+            }
+            #endregion
+        }
+        
+        public class SceneryTaxiSignData : SceneryStaticObjectData
+        {
+            #region Classes
+            public class TaxiSign
+            {
+                #region Variables
+                private String strLabel;
+                private float fHeading;
+                private float fLonW;
+                private float fLonE;
+                private float fLatS;
+                private float fLatN;
+                private String strIconParams;
+                #endregion
+
+                private TaxiSign()
+                {
+                }
+
+                public static List<TaxiSign> CreateList(uint unID, OleDbConnection dbCon)
+                {
+                    List<TaxiSign> lst = new List<TaxiSign>();
+                    TaxiSign sign = null;
+                    try
+                    {
+                        OleDbCommand cmd = new OleDbCommand("SELECT Longitude, Latitude, Label, Heading, JustifyRight FROM TaxiwaySigns WHERE AirportID=" + unID.ToString(), dbCon);
+                        OleDbDataReader rd = cmd.ExecuteReader();
+                        while (rd.Read())
+                        {
+                            sign = new TaxiSign();
+                            sign.strLabel = rd.GetString(2);
+                            Bitmap bmp = FsxConnection.RenderTaxiwaySign(sign.strLabel);
+                            int nWidth = bmp.Width / 8;
+                            int nHeigth = bmp.Height / 8;
+                            float fLon = rd.GetFloat(0);
+                            float fLat = rd.GetFloat(1);
+                            float fTmp = 0;
+                            KmlFactory.MovePoint(fLon, fLat, 90, nWidth / 2, ref sign.fLonE, ref fTmp);
+                            KmlFactory.MovePoint(fLon, fLat, 180, nHeigth / 2, ref fTmp, ref sign.fLatS);
+                            KmlFactory.MovePoint(fLon, fLat, 270, nWidth / 2, ref sign.fLonW, ref fTmp);
+                            KmlFactory.MovePoint(fLon, fLat, 0, nHeigth / 2, ref fTmp, ref sign.fLatN);
+                            sign.fHeading = rd.GetFloat(3);
+                            if (rd.GetBoolean(4))
+                                sign.fHeading += 90;
+                            else
+                                sign.fHeading -= 90;
+                            if (sign.fHeading > 360)
+                                sign.fHeading -= 360;
+                            if (sign.fHeading > 180)
+                                sign.fHeading = (360 - sign.fHeading) * -1;
+                            sign.fHeading *= -1;
+                            byte[] bytes = System.Text.Encoding.Default.GetBytes(sign.strLabel);
+                            sign.strIconParams = "label=" + Uri.EscapeDataString(Convert.ToBase64String(bytes));
+                            lst.Add(sign);
+                        }
+                        rd.Close();
+                    }
+                    catch
+                    {
+                    }
+                    return lst;
+                }
+
+                #region Accessors
+                public String Label
+                {
+                    get
+                    {
+                        return strLabel;
+                    }
+                }
+                public float LongitudeEast
+                {
+                    get
+                    {
+                        return fLonE;
+                    }
+                }
+                public float LongitudeWest
+                {
+                    get
+                    {
+                        return fLonW;
+                    }
+                }
+                public float LatitudeSouth
+                {
+                    get
+                    {
+                        return fLatS;
+                    }
+                }
+                public float LatitudeNorth
+                {
+                    get
+                    {
+                        return fLatN;
+                    }
+                }
+                public float Heading
+                {
+                    get
+                    {
+                        return fHeading;
+                    }
+                }
+                public String IconParams
+                {
+                    get
+                    {
+                        return strIconParams;
+                    }
+                }
+                #endregion
+            }
+            public class TaxiParking
+            {
+                #region Variables
+                private NAMES tName;
+                private int nNr;
+                private TYPES tType;
+                private float fHeading;
+                private float fLonW;
+                private float fLonE;
+                private float fLatS;
+                private float fLatN;
+                private float fRadius;
+                private String strIconParams;
+                #endregion
+
+                #region Enums
+                public enum NAMES
+                {
+                    PARKING = 1,
+                    DOCK,
+                    GATE,
+                    GATE_A,
+                    GATE_B,
+                    GATE_C,
+                    GATE_D,
+                    GATE_E,
+                    GATE_F,
+                    GATE_G,
+                    GATE_H,
+                    GATE_I,
+                    GATE_J,
+                    GATE_K,
+                    GATE_L,
+                    GATE_M,
+                    GATE_N,
+                    GATE_O,
+                    GATE_P,
+                    GATE_Q,
+                    GATE_R,
+                    GATE_S,
+                    GATE_T,
+                    GATE_U,
+                    GATE_V,
+                    GATE_W,
+                    GATE_X,
+                    GATE_Y,
+                    GATE_Z,
+                    NONE,
+                    N_PARKING,
+                    NE_PARKING,
+                    NW_PARKING,
+                    SE_PARKING,
+                    S_PARKING,
+                    SW_PARKING,
+                    W_PARKING,
+                    E_PARKING,
+                }
+                public enum TYPES
+                {
+                    NONE = 1,
+                    DOCK_GA,
+                    FUEL,
+                    GATE_HEAVY,
+                    GATE_MEDIUM,
+                    GATE_SMALL,
+                    RAMP_CARGO,
+                    RAMP_GA,
+                    RAMP_GA_LARGE,
+                    RAMP_GA_MEDIUM,
+                    RAMP_GA_SMALL,
+                    RAMP_MIL_CARGO,
+                    RAMP_MIL_COMBAT,
+                    VEHICLE,
+                }
+                #endregion
+
+                private TaxiParking()
+                {
+                }
+
+                public static List<TaxiParking> CreateList(uint unID, OleDbConnection dbCon)
+                {
+                    List<TaxiParking> lst = new List<TaxiParking>();
+                    TaxiParking park = null;
+                    try
+                    {
+                        OleDbCommand cmd = new OleDbCommand("SELECT Longitude, Latitude, Heading, Radius, NameID, [Number], TypeID FROM TaxiwayParking WHERE TypeID <> 14 AND AirportID=" + unID.ToString(), dbCon);
+                        OleDbDataReader rd = cmd.ExecuteReader();
+                        while (rd.Read())
+                        {
+                            park = new TaxiParking();
+                            float fLon = rd.GetFloat(0);
+                            float fLat = rd.GetFloat(1);
+                            park.fHeading = rd.GetFloat(2);
+                            park.fRadius = rd.GetFloat(3);
+                            park.tName = (NAMES)rd.GetInt32(4);
+                            park.tType = (TYPES)rd.GetInt32(6);
+                            park.nNr = rd.GetInt16(5);
+                            float fTmp = 0;
+                            KmlFactory.MovePoint(fLon, fLat, 90, park.fRadius, ref park.fLonE, ref fTmp);
+                            KmlFactory.MovePoint(fLon, fLat, 180, park.fRadius, ref fTmp, ref park.fLatS);
+                            KmlFactory.MovePoint(fLon, fLat, 270, park.fRadius, ref park.fLonW, ref fTmp);
+                            KmlFactory.MovePoint(fLon, fLat, 0, park.fRadius, ref fTmp, ref park.fLatN);
+
+                            if (park.fHeading > 180)
+                                park.fHeading = (360 - park.fHeading) * -1;
+                            park.fHeading *= -1;
+                            park.strIconParams = String.Format("radius={0}&name={1}&nr={2}", XmlConvert.ToString(park.fRadius), Uri.EscapeDataString(park.Name), park.nNr);
+                            lst.Add(park);
+                        }
+                        rd.Close();
+                    }
+                    catch
+                    {
+                    }
+                    return lst;
+                }
+
+                #region Accessors
+                public NAMES NameID
+                {
+                    get
+                    {
+                        return tName;
+                    }
+                }
+                public String Name
+                {
+                    get
+                    {
+                        return tName.ToString();
+                    }
+                }
+                public TYPES TypeID
+                {
+                    get
+                    {
+                        return tType;
+                    }
+                }
+                public String Type
+                {
+                    get
+                    {
+                        return tType.ToString();
+                    }
+                }
+                public int Number
+                {
+                    get
+                    {
+                        return nNr;
+                    }
+                }
+                public float LongitudeEast
+                {
+                    get
+                    {
+                        return fLonE;
+                    }
+                }
+                public float LongitudeWest
+                {
+                    get
+                    {
+                        return fLonW;
+                    }
+                }
+                public float LatitudeSouth
+                {
+                    get
+                    {
+                        return fLatS;
+                    }
+                }
+                public float LatitudeNorth
+                {
+                    get
+                    {
+                        return fLatN;
+                    }
+                }
+                public float Heading
+                {
+                    get
+                    {
+                        return fHeading;
+                    }
+                }
+                public float Radius
+                {
+                    get
+                    {
+                        return fRadius;
+                    }
+                }
+                public String IconParams
+                {
+                    get
+                    {
+                        return strIconParams;
+                    }
+                }
+                #endregion
+            }
+            #endregion
+
+            #region Variables
+            List<TaxiSign> lstTaxiSigns;
+            List<TaxiParking> lstTaxiParkings;
+            #endregion
+
+            public SceneryTaxiSignData(uint unID, OleDbConnection dbCon)
+            {
+                ObjectID = unID;
+                lstTaxiSigns = TaxiSign.CreateList(unID, dbCon);
+                lstTaxiParkings = TaxiParking.CreateList(unID, dbCon);
+            }
+
+            #region Accessors
+            public List<TaxiSign> TaxiSigns
+            {
+                get
+                {
+                    return lstTaxiSigns;
+                }
+            }
+            public List<TaxiParking> TaxiParkings
+            {
+                get
+                {
+                    return lstTaxiParkings;
+                }
+            }
+            #endregion
+        }
+
+        public class SceneryNavaidObjectData : SceneryStaticObjectData
+        {
+            #region Variables
+            private TYPE tType;
+            private String strIdent;
+            private String strName;
+            private float fMagVar;
+            private float fFreq;
+            private float fRange;
+            #endregion
+
+            #region Enums
+            public enum TYPE
+            {
+                DME = 1,
+                VOR,
+                VORDME,
+                NDB,
+            }
+            #endregion
+
+            public SceneryNavaidObjectData(uint unID, OleDbConnection dbCon)
+            {
+                ObjectID = unID;
+                OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, TypeID, Longitude, Latitude, Altitude, MagVar, Range, Freq FROM navaids WHERE ID=" + unID.ToString(), dbCon);
+                OleDbDataReader rd = cmd.ExecuteReader();
+                if (rd.Read())
+                {
+                    strIdent = rd.GetString(0);
+                    strName = rd.GetString(1);
+                    tType = (TYPE)rd.GetInt32(2);
+                    Longitude = rd.GetFloat(3);
+                    Latitude = rd.GetFloat(4);
+                    Altitude = rd.GetFloat(5);
+                    fMagVar = rd.GetFloat(6);
+                    fRange = rd.GetFloat(7);
+                    fFreq = rd.GetFloat(8);
+                }
+                rd.Close();
+            }
+
+            #region Accessors
+            public String Ident
+            {
+                get
+                {
+                    return strIdent;
+                }
+            }
+            public String Name
+            {
+                get
+                {
+                    return strName;
+                }
+            }
+            public float MagVar
+            {
+                get
+                {
+                    return fMagVar;
+                }
+            }
+            public float Frequency
+            {
+                get
+                {
+                    return fFreq;
+                }
+            }
+            public float Range
+            {
+                get
+                {
+                    return fRange;
+                }
+            }
+            public TYPE Type
+            {
+                get
+                {
+                    return tType;
+                }
+            }
+            public String TypeName
+            {
+                get
+                {
+                    return tType.ToString();
+                }
+            }
+            #endregion
+        }
+
+        public class SceneryStaticObject : SceneryObject
+        {
+            private SceneryStaticObjectData data;
+            
+            public SceneryStaticObject(uint unID, DATA_REQUESTS tType, SceneryStaticObjectData data)
+                : base(unID, tType)
+            {
+                this.data = data;
+            }
+
+            public override STATE State
+            {
+                get
+                {
+                    return base.State;
+                }
+                set
+                {
+                    if (value == STATE.DATAREAD)
+                    {
+                        // If the data was sent to GE, its not longer nessesary to hold the data, 
+                        // because they are static, and for deletetion the ID is info enough
+                        data = null;
+                    }
+                    base.State = value;
+                }
+            }
+            public virtual SceneryStaticObjectData Data
+            {
+                get
+                {
+                    return data;
+                }
+            }
+        }
+
+        public class SceneryAirportObject : SceneryStaticObject
+        {
+            #region Variables
+            private STATE tTaxiSignState;
+            private SceneryTaxiSignData dataTaxiSigns;
+            #endregion
+
+            public SceneryAirportObject(uint unID, SceneryAirportObjectData data) 
+                : base(unID, DATA_REQUESTS.AIRPORTS, data)
+            {
+                dataTaxiSigns = null;
+                tTaxiSignState = STATE.UNCHANGED;
+            }
+
+            #region Accessors
+            public STATE TaxiSignsState
+            {
+                get 
+                { 
+                    return tTaxiSignState; 
+                }
+                set
+                {
+                    tTaxiSignState = value;
+                }
+            }
+            public SceneryAirportObjectData AirportData
+            {
+                get
+                {
+                    return (SceneryAirportObjectData)Data;
+                }
+            }
+            public SceneryTaxiSignData TaxiSignData
+            {
+                get
+                {
+                    return dataTaxiSigns;
+                }
+                set
+                {
+                    if (dataTaxiSigns == null && value != null)
+                    {
+                        tTaxiSignState = STATE.NEW;
+                        dataTaxiSigns = value;
+                    }
+                    else if (dataTaxiSigns != null && value == null)
+                    {
+                        tTaxiSignState = STATE.DELETED;
+                        dataTaxiSigns = null;
+                    }
+                }
+            }
+            #endregion
+        }
+
+        public class FlightPlan : SceneryObject
 		{
 			public class Waypoint
 			{
@@ -746,45 +1994,6 @@ namespace Fsxget
 				}
 			}
 		}
-		public class SceneryAirportObject : SceneryObject
-		{
-            private STATE tTaxiSignState;
-            private bool bHasTaxiSigns;
-
-            public SceneryAirportObject(uint unID, DATA_REQUESTS tType)
-				: base(unID, tType)
-			{
-                tTaxiSignState = STATE.UNCHANGED;
-                bHasTaxiSigns = false;
-            }
-
-            public STATE TaxiSignState
-            {
-                get
-                {
-                    return tTaxiSignState;
-                }
-                set
-                {
-                    tTaxiSignState = value;
-                }
-            }
-            public bool HasTaxiSigns
-            {
-                get
-                {
-                    return bHasTaxiSigns;
-                }
-                set
-                {
-                    if (bHasTaxiSigns && value == false)
-                        tTaxiSignState = STATE.DELETED;
-                    else if (!bHasTaxiSigns && value == true)
-                        tTaxiSignState = STATE.NEW;
-                    bHasTaxiSigns = value;
-                }
-            }
-		}
 		#endregion
 
 		#region Variables
@@ -801,7 +2010,6 @@ namespace Fsxget
         public StructObjectContainer[] objects;
         public Hashtable htFlightPlans;
 		private uint unFlightPlanNr;
-		private OleDbConnection dbCon;
 
         #region Morsecodes (0-9 A-Z)
         static String[] strMorseSigns = new String[]
@@ -999,9 +2207,6 @@ namespace Fsxget
             lockSimConnect = new Object();
 
 			htFlightPlans = new Hashtable();
-
-			dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
-			dbCon.Open();
 		}
 
 		#endregion
@@ -1228,11 +2433,11 @@ namespace Fsxget
 		{
 			foreach (DictionaryEntry entry in ht)
 			{
-				if (!((SceneryObject)entry.Value).bDataRecieved)
+				if (!((SceneryObject)entry.Value).DataRecieved)
 				{
 					((SceneryObject)entry.Value).State = SceneryMovingObject.STATE.DELETED;
 				}
-				((SceneryObject)entry.Value).bDataRecieved = false;
+				((SceneryObject)entry.Value).DataRecieved = false;
 			}
 		}
 
@@ -1507,101 +2712,135 @@ namespace Fsxget
 		}
 		private void OnTimerQueryNavAidsElapsed(object sender, ElapsedEventArgs e)
 		{
+            float fUserLon;
+            float fUserLat;
+            float fUserAltAGL;
+            lock (lockUserAircraft)
+            {
+                if (objUserAircraft == null)
+                    return;
+                fUserLon = objUserAircraft.ObjectPosition.Longitude.Value;
+                fUserLat = objUserAircraft.ObjectPosition.Latitude.Value;
+                fUserAltAGL = objUserAircraft.AltitudeAGL;
+            }
+
+            float fNorth = 0;
+            float fEast = 0;
+            float fSouth = 0;
+            float fWest = 0;
+            float fTmp = 0;
+            KmlFactory.MovePoint(fUserLon, fUserLat, 0, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fNorth);
+            KmlFactory.MovePoint(fUserLon, fUserLat, 90, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fEast, ref fTmp);
+            KmlFactory.MovePoint(fUserLon, fUserLat, 180, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fSouth);
+            KmlFactory.MovePoint(fUserLon, fUserLat, 270, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fWest, ref fTmp);
+
+            OleDbConnection dbCon = new OleDbConnection(Program.Config.ConnectionString);
+            dbCon.Open();
+            OleDbCommand cmd = new OleDbCommand("SELECT ID, Longitude, Latitude FROM navaids WHERE " +
+                "Latitude >= " + fSouth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
+                "Latitude <= " + fNorth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
+                "Longitude >= " + fWest.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
+                "Longitude <= " + fEast.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ";", dbCon);
+
+            OleDbDataReader rd = cmd.ExecuteReader();
+            while (rd.Read())
+            {
+                float fDist = 0;
+                float fHead = 0;
+                KmlFactory.GetDistance(fUserLon, fUserLat, rd.GetFloat(1), rd.GetFloat(2), ref fDist, ref fHead);
+                uint unID = (uint)rd.GetInt32(0);
+                if (fDist <= Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue)
+                {
+                    lock (objects[(int)OBJCONTAINER.NAVAIDS].lockObject)
+                    {
+                        if( objects[(int)OBJCONTAINER.NAVAIDS].htObjects.ContainsKey(unID) )
+                            ((SceneryStaticObject)objects[(int)OBJCONTAINER.NAVAIDS].htObjects[unID]).DataRecieved = true;
+                        else
+                            objects[(int)OBJCONTAINER.NAVAIDS].htObjects.Add(unID, new SceneryStaticObject(unID, DATA_REQUESTS.NAVAIDS, new SceneryNavaidObjectData(unID, dbCon)));
+                    }
+                }
+                else
+                    System.Diagnostics.Trace.WriteLine("Out of Range");
+            }
             lock (objects[(int)OBJCONTAINER.NAVAIDS].lockObject)
-			{
-				if (objUserAircraft != null )
-				{
-					float fNorth = 0;
-					float fEast = 0;
-					float fSouth = 0;
-					float fWest = 0;
-					float fTmp = 0;
-                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 0, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fNorth);
-					KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 90, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fEast, ref fTmp);
-					KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 180, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fSouth);
-					KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 270, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fWest, ref fTmp);
-
-					OleDbCommand cmd = new OleDbCommand("SELECT ID, Longitude, Latitude FROM navaids WHERE " +
-						"Latitude >= " + fSouth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
-						"Latitude <= " + fNorth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
-						"Longitude >= " + fWest.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
-						"Longitude <= " + fEast.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ";", dbCon);
-
-					OleDbDataReader rd = cmd.ExecuteReader();
-					while (rd.Read())
-					{
-                        float fDist = 0;
-                        float fHead = 0;
-                        KmlFactory.GetDistance(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, rd.GetFloat(1), rd.GetFloat(2), ref fDist, ref fHead);
-                        if (fDist <= Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue)
-                        {
-                            uint unID = (uint)rd.GetInt32(0);
-                            if (objects[(int)OBJCONTAINER.NAVAIDS].htObjects.ContainsKey(unID))
-                            {
-                                ((SceneryObject)objects[(int)OBJCONTAINER.NAVAIDS].htObjects[unID]).bDataRecieved = true;
-                            }
-                            else
-                            {
-                                objects[(int)OBJCONTAINER.NAVAIDS].htObjects.Add(unID, new SceneryObject(unID, DATA_REQUESTS.NAVAIDS));
-                            }
-                        }
-					}
-                    MarkDeletedObjects(ref objects[(int)OBJCONTAINER.NAVAIDS].htObjects);
-					rd.Close();
-				}
-			}
+            {
+                MarkDeletedObjects(ref objects[(int)OBJCONTAINER.NAVAIDS].htObjects);
+            }
+            rd.Close();
+            dbCon.Close();
 		}
         private void OnTimerQueryAirportsElapsed(object sender, ElapsedEventArgs e)
         {
-            lock (objects[(int)OBJCONTAINER.AIRPORTS].lockObject)
+            float fUserLon;
+            float fUserLat;
+            float fUserAltAGL;
+            lock (lockUserAircraft)
             {
-                if (objUserAircraft != null)
+                if (objUserAircraft == null)
+                    return;
+                fUserLon = objUserAircraft.ObjectPosition.Longitude.Value;
+                fUserLat = objUserAircraft.ObjectPosition.Latitude.Value;
+                fUserAltAGL = objUserAircraft.AltitudeAGL;
+            }
+            
+            float fNorth = 0;
+            float fEast = 0;
+            float fSouth = 0;
+            float fWest = 0;
+            float fTmp = 0;
+            KmlFactory.MovePoint(fUserLon, fUserLat, 0, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fNorth);
+            KmlFactory.MovePoint(fUserLon, fUserLat, 90, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fEast, ref fTmp);
+            KmlFactory.MovePoint(fUserLon, fUserLat, 180, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fSouth);
+            KmlFactory.MovePoint(fUserLon, fUserLat, 270, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fWest, ref fTmp);
+            OleDbConnection dbCon = new OleDbConnection(Program.Config.ConnectionString);
+            dbCon.Open();
+            OleDbCommand cmd = new OleDbCommand("SELECT ID, Longitude, Latitude FROM airports WHERE " +
+                "Latitude >= " + fSouth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
+                "Latitude <= " + fNorth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
+                "Longitude >= " + fWest.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
+                "Longitude <= " + fEast.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ";", dbCon);
+
+            OleDbDataReader rd = cmd.ExecuteReader();
+            while (rd.Read())
+            {
+                float fDist = 0;
+                float fHead = 0;
+                KmlFactory.GetDistance(fUserLon, fUserLat, rd.GetFloat(1), rd.GetFloat(2), ref fDist, ref fHead);
+                uint unID = (uint)rd.GetInt32(0);
+                if (fDist <= Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue)
                 {
-                    float fNorth = 0;
-                    float fEast = 0;
-                    float fSouth = 0;
-                    float fWest = 0;
-                    float fTmp = 0;
-                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 0, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fNorth);
-                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 90, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fEast, ref fTmp);
-                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 180, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fTmp, ref fSouth);
-                    KmlFactory.MovePoint(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, 270, Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue, ref fWest, ref fTmp);
-
-                    OleDbCommand cmd = new OleDbCommand("SELECT ID, Longitude, Latitude FROM airports WHERE " +
-                        "Latitude >= " + fSouth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
-                        "Latitude <= " + fNorth.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
-                        "Longitude >= " + fWest.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + " AND " +
-                        "Longitude <= " + fEast.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + ";", dbCon);
-
-                    OleDbDataReader rd = cmd.ExecuteReader();
-                    while (rd.Read())
+                    lock (objects[(int)OBJCONTAINER.AIRPORTS].lockObject)
                     {
-                        float fDist = 0;
-                        float fHead = 0;
-                        KmlFactory.GetDistance(objUserAircraft.ObjectPosition.Longitude.Value, objUserAircraft.ObjectPosition.Latitude.Value, rd.GetFloat(1), rd.GetFloat(2), ref fDist, ref fHead);
-                        uint unID = (uint)rd.GetInt32(0);
-                        if (fDist <= Program.Config[Config.SETTING.QUERY_NAVAIDS]["Range"].IntValue)
+                        SceneryAirportObject airport;
+                        if (objects[(int)OBJCONTAINER.AIRPORTS].htObjects.ContainsKey(unID))
                         {
-                            if (objects[(int)OBJCONTAINER.AIRPORTS].htObjects.ContainsKey(unID))
-                            {
-                                ((SceneryAirportObject)objects[(int)OBJCONTAINER.AIRPORTS].htObjects[unID]).bDataRecieved = true;
-                            }
-                            else
-                            {
-                                objects[(int)OBJCONTAINER.AIRPORTS].htObjects.Add(unID, new SceneryAirportObject(unID, DATA_REQUESTS.AIRPORTS));
-                            }
-                            if (fDist <= 8000 && objUserAircraft.AltitudeAGL < 300)
-                                ((SceneryAirportObject)objects[(int)OBJCONTAINER.AIRPORTS].htObjects[unID]).HasTaxiSigns = true;
-                            else
-                                ((SceneryAirportObject)objects[(int)OBJCONTAINER.AIRPORTS].htObjects[unID]).HasTaxiSigns = false;
+                            airport = (SceneryAirportObject)objects[(int)OBJCONTAINER.AIRPORTS].htObjects[unID];
+                            airport.DataRecieved = true;
                         }
                         else
-                            System.Diagnostics.Trace.WriteLine("Out of Range");
+                        {
+                            airport = new SceneryAirportObject(unID, new SceneryAirportObjectData(unID, dbCon));
+                            objects[(int)OBJCONTAINER.AIRPORTS].htObjects.Add(unID, airport);
+                        }
+
+                        if (fDist <= 8000 && fUserAltAGL < 300 )
+                        {
+                            if( airport.TaxiSignData == null )
+                                airport.TaxiSignData = new SceneryTaxiSignData(unID, dbCon);
+                        }
+                        else
+                            airport.TaxiSignData = null;
                     }
-                    MarkDeletedObjects(ref objects[(int)OBJCONTAINER.AIRPORTS].htObjects);
-                    rd.Close();
                 }
+                else
+                    System.Diagnostics.Trace.WriteLine("Out of Range");
             }
+            lock (objects[(int)OBJCONTAINER.AIRPORTS].lockObject)
+            {
+                MarkDeletedObjects(ref objects[(int)OBJCONTAINER.AIRPORTS].htObjects);
+            }
+            rd.Close();
+            dbCon.Close();
         }
         #endregion
 
@@ -2026,7 +3265,7 @@ namespace Fsxget
             if (dbCon == null)
             {
                 bLocalCon = true;
-                dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
+                dbCon = new OleDbConnection(Program.Config.ConnectionString);
                 dbCon.Open();
             }
             
@@ -2377,7 +3616,7 @@ namespace Fsxget
             float fAlt = 0.0f;
             float fRange = 0.0f;
 
-            OleDbConnection dbCon = new OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + Program.Config.AppPath + "\\data\\fsxget.mdb");
+            OleDbConnection dbCon = new OleDbConnection(Program.Config.ConnectionString);
             dbCon.Open();
             OleDbCommand cmd = new OleDbCommand("DELETE * FROM navaids", dbCon);
 //            cmd.ExecuteNonQuery();
