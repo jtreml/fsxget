@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <None Include="Config2.cs" />
+    <Compile Include="EarthCalculator.cs" />
     <Compile Include="FsxgetForm.cs">
       <SubType>Form</SubType>
     </Compile>
