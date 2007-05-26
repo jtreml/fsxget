@@ -11,9 +11,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HardwareInfo", "HardwareInf
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebLoader", "WebLoader\WebLoader.csproj", "{D8957863-1918-42CC-856B-77C68BDB3C81}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geometry", "Geometry\Geometry.csproj", "{DDC59271-2752-414D-8DEB-452468257CEB}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
+		SccNumberOfProjects = 7
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccLocalPath0 = .
@@ -32,6 +34,9 @@ Global
 		SccProjectUniqueName5 = WebLoader\\WebLoader.csproj
 		SccProjectName5 = WebLoader
 		SccLocalPath5 = WebLoader
+		SccProjectUniqueName6 = Geometry\\Geometry.csproj
+		SccProjectName6 = Geometry
+		SccLocalPath6 = Geometry
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +61,10 @@ Global
 		{D8957863-1918-42CC-856B-77C68BDB3C81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8957863-1918-42CC-856B-77C68BDB3C81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8957863-1918-42CC-856B-77C68BDB3C81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDC59271-2752-414D-8DEB-452468257CEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDC59271-2752-414D-8DEB-452468257CEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDC59271-2752-414D-8DEB-452468257CEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDC59271-2752-414D-8DEB-452468257CEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
