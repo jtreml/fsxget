@@ -114,7 +114,7 @@ namespace Fsxget
 			{
 				get
 				{
-					return XmlConvert.ToString(fLon.Value) + "," + XmlConvert.ToString(fLat.Value) + "," + XmlConvert.ToString(fAlt.Value);
+					return XmlConvert.ToString(fLon.Value) + "," + XmlConvert.ToString(fLat.Value) + "," + XmlConvert.ToString(fAlt.Value) + " ";
 				}
 			}
 		}
@@ -787,6 +787,7 @@ namespace Fsxget
                         try
                         {
                             OleDbConnection dbCon = new OleDbConnection(Program.Config.ConnectionString);
+                            dbCon.Open();
                             OleDbCommand cmd = new OleDbCommand("SELECT Ident, Name, Heading, Freq, Longitude, Latitude, Altitude, Range, MagVar, Width, BackCourse FROM RunwayILS WHERE EndSecondary=" + bSecondary.ToString() + " AND RunwayID=" + unID.ToString(), dbCon);
                             OleDbDataReader rd = cmd.ExecuteReader();
                             if (rd.Read())
@@ -805,6 +806,7 @@ namespace Fsxget
                                 ils.bBackCourse = rd.GetBoolean(10);
                             }
                             rd.Close();
+                            dbCon.Close();
                         }
                         catch
                         {
@@ -1643,6 +1645,12 @@ namespace Fsxget
                 lstTaxiParkings = TaxiParking.CreateList(unID, dbCon);
             }
 
+            public void Clear()
+            {
+                lstTaxiParkings.Clear();
+                lstTaxiSigns.Clear();
+            }
+
             #region Accessors
             public List<TaxiSign> TaxiSigns
             {
@@ -1815,6 +1823,8 @@ namespace Fsxget
                 set
                 {
                     tTaxiSignState = value;
+                    if (value == STATE.DATAREAD && dataTaxiSigns != null )
+                        dataTaxiSigns.Clear();
                 }
             }
             public SceneryAirportObjectData AirportData
@@ -1855,10 +1865,10 @@ namespace Fsxget
 				private String strName;
 				private float fLon;
 				private float fLat;
-				KmlFactory.KML_ICON_TYPES tIconType;
+				KmlFileFsx.KML_ICON_TYPES tIconType;
 				#endregion
 
-				public Waypoint(String strName, float fLon, float fLat, KmlFactory.KML_ICON_TYPES tIconType)
+                public Waypoint(String strName, float fLon, float fLat, KmlFileFsx.KML_ICON_TYPES tIconType)
 				{
 					this.strName = strName;
 					this.fLon = fLon;
@@ -1888,7 +1898,7 @@ namespace Fsxget
 						return fLat;
 					}
 				}
-				public KmlFactory.KML_ICON_TYPES IconType
+                public KmlFileFsx.KML_ICON_TYPES IconType
 				{
 					get
 					{
@@ -1907,14 +1917,14 @@ namespace Fsxget
 				lstWaypoints = new List<Waypoint>();
 			}
 
-			public void AddWaypoint(String strName, float fLon, float fLat, KmlFactory.KML_ICON_TYPES tIconType)
+            public void AddWaypoint(String strName, float fLon, float fLat, KmlFileFsx.KML_ICON_TYPES tIconType)
 			{
 				lstWaypoints.Add(new Waypoint(String.Format("Waypoint {0}: {1} ", lstWaypoints.Count + 1, strName), fLon, fLat, tIconType));
 			}
 			public void AddWaypoint(XmlNode xmln)
 			{
 				String str;
-				KmlFactory.KML_ICON_TYPES tIconType = KmlFactory.KML_ICON_TYPES.NONE;
+                KmlFileFsx.KML_ICON_TYPES tIconType = KmlFileFsx.KML_ICON_TYPES.NONE;
 				String strName = "";
 				float fLon = 0;
 				float fLat = 0;
@@ -1930,32 +1940,32 @@ namespace Fsxget
 						if (str == "intersection")
 						{
 							strName += "Intersection ";
-							tIconType = KmlFactory.KML_ICON_TYPES.PLAN_INTER;
+                            tIconType = KmlFileFsx.KML_ICON_TYPES.PLAN_INTER;
 						}
 						else if (str == "vor")
 						{
 							strName += "VOR ";
-							tIconType = KmlFactory.KML_ICON_TYPES.VOR;
+                            tIconType = KmlFileFsx.KML_ICON_TYPES.VOR;
 						}
 						else if (str == "airport")
 						{
 							strName += "Airport ";
-							tIconType = KmlFactory.KML_ICON_TYPES.AIRPORT;
+                            tIconType = KmlFileFsx.KML_ICON_TYPES.AIRPORT;
 						}
 						else if (str == "ndb")
 						{
 							strName += "NDB ";
-							tIconType = KmlFactory.KML_ICON_TYPES.NDB;
+                            tIconType = KmlFileFsx.KML_ICON_TYPES.NDB;
 						}
 						else if (str == "user")
 						{
 							strName += "User ";
-							tIconType = KmlFactory.KML_ICON_TYPES.PLAN_USER;
+                            tIconType = KmlFileFsx.KML_ICON_TYPES.PLAN_USER;
 						}
 						else
 						{
 							strName += xmln.InnerText + " ";
-							tIconType = KmlFactory.KML_ICON_TYPES.NONE;
+                            tIconType = KmlFileFsx.KML_ICON_TYPES.NONE;
 						}
 					}
 					else if (node.Name == "WorldPosition")
@@ -2010,7 +2020,37 @@ namespace Fsxget
         public StructObjectContainer[] objects;
         public Hashtable htFlightPlans;
 		private uint unFlightPlanNr;
-
+        #region Natoalphabet
+        static public String[] strNatoABC = new String[] 
+        {
+            "Alpha",
+            "Bravo",
+            "Charlie",
+            "Delta",
+            "Echo",
+            "Foxtrott",
+            "Golf",
+            "Hotel",
+            "India",
+            "Juliett",
+            "Kilo",
+            "Lima",
+            "Mike",
+            "November",
+            "Oscar",
+            "Papa",
+            "Quebec",
+            "Romeo",
+            "Sierra",
+            "Tango",
+            "Uniform",
+            "Victor",
+            "Wiskey",
+            "X-Ray",
+            "Yankee",
+            "Zulu",
+        };
+        #endregion
         #region Morsecodes (0-9 A-Z)
         static String[] strMorseSigns = new String[]
         {
@@ -2097,13 +2137,6 @@ namespace Fsxget
             AI_GROUND,
             NAVAIDS,
             AIRPORTS,
-        }
-
-        public enum RUNWAYTYPE
-        {
-            HARDENED,
-            FASTENED,
-            WATER,
         }
 
 		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
@@ -3009,6 +3042,317 @@ namespace Fsxget
 			return nData;
         }
 
+        static public Bitmap RenderSimpleAirportIcon(uint unID)
+        {
+            return RenderSimpleAirportIcon(unID, null);
+        }
+        static public Bitmap RenderSimpleAirportIcon(uint unID, OleDbConnection dbCon)
+        {
+            bool bLocalCon = false;
+            if (dbCon == null)
+            {
+                bLocalCon = true;
+                dbCon = new OleDbConnection(Program.Config.ConnectionString);
+                dbCon.Open();
+            }
+
+            OleDbCommand dbCmd = new OleDbCommand("SELECT Length, Heading, HasLights, Hardened, SurfaceType.ID FROM Runways INNER JOIN SurfaceType ON Runways.SurfaceID = SurfaceType.ID WHERE AirportID=" + unID.ToString(), dbCon);
+            OleDbDataReader rd = dbCmd.ExecuteReader();
+            float fLength = 0;
+            bool bHardened = false;
+            float fHeading = 0;
+            bool bLights = false;
+            int nType = 1;
+
+            while (rd.Read())
+            {
+                if (fLength < rd.GetFloat(0) || (bHardened == false && rd.GetBoolean(3)))
+                {
+                    fLength = rd.GetFloat(0);
+                    nType = rd.GetInt32(4) == 20 ? 2 : (rd.GetBoolean(3) ? 0 : 1);
+                    bLights = rd.GetBoolean(2);
+                    fHeading = rd.GetFloat(1);
+                    bHardened = rd.GetBoolean(3);
+                }
+            }
+            rd.Close();
+            if (bLocalCon)
+                dbCon.Close();
+            return RenderSimpleAirportIcon(fHeading, (SceneryAirportObjectData.Runway.RUNWAYTYPE)nType, bLights);
+        
+        }
+        static public Bitmap RenderSimpleAirportIcon(String strIdent)
+        {
+            return RenderSimpleAirportIcon(strIdent, null);
+        }
+        static public Bitmap RenderSimpleAirportIcon(String strIdent, OleDbConnection dbCon)
+        {
+            bool bLocalCon = false;
+            if (dbCon == null)
+            {
+                bLocalCon = true;
+                dbCon = new OleDbConnection(Program.Config.ConnectionString);
+                dbCon.Open();
+            }
+
+            OleDbCommand dbCmd = new OleDbCommand("SELECT ID FROM Airports WHERE Ident='" + strIdent + "'", dbCon);
+            OleDbDataReader rd = dbCmd.ExecuteReader();
+            Bitmap bmp = null;
+            if (rd.Read())
+            {
+                bmp = RenderSimpleAirportIcon((uint)rd.GetInt32(0), dbCon);
+            }
+            rd.Close();
+            if (bLocalCon)
+                dbCon.Close();
+            return bmp;
+
+        }
+        static public Bitmap RenderSimpleAirportIcon(float fHeading, SceneryAirportObjectData.Runway.RUNWAYTYPE tType, bool bLights)
+        {
+            Bitmap bmp = null;
+            if (fHeading > 180)
+                fHeading -= 180;
+
+            Stream s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapd.png");
+            bmp = new Bitmap(s);
+
+            Graphics g = Graphics.FromImage(bmp);
+
+            if (tType != SceneryAirportObjectData.Runway.RUNWAYTYPE.WATER) 
+            {
+                Pen pen = new Pen(Color.FromArgb(0, 0, 128));
+                Brush brush = new SolidBrush(tType == SceneryAirportObjectData.Runway.RUNWAYTYPE.HARDENED ? Color.FromArgb(0, 0, 128) : Color.FromArgb(255, 255, 255));
+                // x24, y24
+
+                double dPI180 = Math.PI / 180;
+                int y1 = (int)(Math.Sin((90 - fHeading) * dPI180) * 18);
+                int x1 = (int)(Math.Sin(fHeading * dPI180) * 18);
+
+                Point[] pts = new Point[4];
+                pts[0] = new Point();
+                pts[1] = new Point();
+                pts[2] = new Point();
+                pts[3] = new Point();
+
+                int y2 = (int)(Math.Sin(fHeading * dPI180) * 3);
+                int x2 = (int)(Math.Sin((fHeading + 90) * dPI180) * 3);
+
+                pts[0].X = 24 - x1 - x2;
+                pts[0].Y = 24 + y1 - y2;
+                pts[1].X = 24 - x1 + x2;
+                pts[1].Y = 24 + y1 + y2;
+
+                pts[2].X = 24 + x1 + x2;
+                pts[2].Y = 24 - y1 + y2;
+                pts[3].X = 24 + x1 - x2;
+                pts[3].Y = 24 - y1 - y2;
+
+                g.FillPolygon(brush, pts);
+                g.DrawPolygon(pen, pts);
+
+                if (bLights)
+                {
+                    s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapl.png");
+                    Bitmap bmpLight = new Bitmap(s);
+                    //                    g.FillEllipse(new SolidBrush(Color.White), 18, 5, 12, 12);
+                    g.DrawImage(bmpLight, 17, 5);
+                }
+                bmp.MakeTransparent(Color.White);
+            }
+            else
+            {
+                s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapw.png");
+                Bitmap bmpWater = new Bitmap(s);
+                g.DrawImage(bmpWater, 20, 19);
+            }
+            return bmp;
+        }
+        
+        static public Bitmap RenderComplexAirportIcon(uint unID)
+        {
+            return RenderComplexAirportIcon(unID, null);
+        }
+        static public Bitmap RenderComplexAirportIcon(uint unID, OleDbConnection dbCon)
+        {
+            bool bLocalCon = false;
+            if (dbCon == null)
+            {
+                bLocalCon = true;
+                dbCon = new OleDbConnection(Program.Config.ConnectionString);
+                dbCon.Open();
+            }
+            
+            OleDbCommand cmd = new OleDbCommand("SELECT ID FROM AirportBoundary WHERE AirportID=" + unID.ToString() + " ORDER BY [Number]" , dbCon);
+            String strId = "";
+            OleDbDataReader rd = cmd.ExecuteReader();
+            while (rd.Read())
+            {
+                if (strId.Length > 0)
+                    strId += ",";
+                strId += rd.GetInt32(0).ToString();
+            }
+            rd.Close();
+
+            cmd.CommandText = "SELECT BoundaryID, Longitude, Latitude FROM AirportBoundaryVertex WHERE BoundaryID IN(" + strId + ") ORDER BY BoundaryID, SortNr";
+            rd = cmd.ExecuteReader();
+            List<float> lstLon = new List<float>();
+            List<float> lstLat = new List<float>();
+            List<int> lstStartIdx = new List<int>();
+            int nIdx = 0;
+            int nId = 0;
+            float fLatN = -90;
+            float fLatS = 90;
+            float fLonE = -180;
+            float fLonW = 180;
+            float fLon = 0;
+            float fLat = 0;
+            while (rd.Read())
+            {
+                if (nId != rd.GetInt32(0))
+                {
+                    lstStartIdx.Add(nIdx);
+                    nId = rd.GetInt32(0);
+                }
+                fLon = rd.GetFloat(1);
+                fLat = rd.GetFloat(2);
+                if (fLon > fLonE)
+                    fLonE = fLon;
+                if (fLon < fLonW)
+                    fLonW = fLon;
+                if (fLat > fLatN)
+                    fLatN = fLat;
+                if (fLat < fLatS)
+                    fLatS = fLat;
+                lstLon.Add(fLon);
+                lstLat.Add(fLat);
+                nIdx++;
+            }
+            rd.Close();
+            lstStartIdx.Add(nIdx);
+            float fDist = 0;
+            float fHead = 0;
+            KmlFactory.GetDistance(fLonE, fLatN, fLonW, fLatN, ref fDist, ref fHead);
+            int nWidth = (int)(fDist / 30);
+            KmlFactory.GetDistance(fLonW, fLatN, fLonW, fLatS, ref fDist, ref fHead);
+            int nHeight = (int)(fDist / 30);
+
+            Bitmap bmp = new Bitmap(nWidth, nHeight);
+            Pen pen = new Pen(Color.FromArgb(255, 255, 255), 3);
+            Brush brush = new SolidBrush(Color.FromArgb(0, 0, 128));
+
+            Graphics g = Graphics.FromImage(bmp);
+//            Graphics g2 = frmMain.CreateGraphics();
+
+            for (int i = 0; i < lstLat.Count; i++)
+            {
+                lstLon[i] = nWidth * (lstLon[i] - fLonW) / (fLonE - fLonW);
+                lstLat[i] = nHeight - (nHeight * (lstLat[i] - fLatS) / (fLatN - fLatS));
+            }
+            int nPart = 0;
+            int nPartsDone = 0;
+            bool[] bPartsDone = new bool[lstStartIdx.Count-1];
+            nIdx = 0;
+            int nOff = 1;
+            int nStartIdx = 0;
+            int nEndIdx = lstStartIdx[1]-1;
+            Point[] pts = new Point[lstLat.Count-lstStartIdx.Count+1];
+            int nPt = 0;
+            do
+            {
+                nIdx = nStartIdx;
+                while (nIdx != nEndIdx)
+                {
+                    pts[nPt++] = new Point( (int)lstLon[nIdx], (int)lstLat[nIdx] );
+//                    g2.DrawLine(pen, lstLon[nIdx], lstLat[nIdx], lstLon[nIdx + nOff], lstLat[nIdx + nOff]);
+                    nIdx += nOff;
+                }
+                nPartsDone++;
+                bPartsDone[nPart] = true;
+                int nIdxNearest = 0;
+                float fDistMin = nHeight * nHeight + nWidth * nWidth;
+                for (int j = 0; j < lstStartIdx.Count - 1; j++)
+                {
+                    if (!bPartsDone[j])
+                    {
+                        fDist = Math.Abs(lstLon[nIdx] - lstLon[lstStartIdx[j]]) * Math.Abs(lstLon[nIdx] - lstLon[lstStartIdx[j]]) + 
+                                      Math.Abs(lstLat[nIdx] - lstLat[lstStartIdx[j]]) * Math.Abs(lstLat[nIdx] - lstLat[lstStartIdx[j]]);
+                        if (fDist < fDistMin)
+                        {
+                            nIdxNearest = lstStartIdx[j];
+                            fDistMin = fDist;
+                            nOff = 1;
+                            nStartIdx = lstStartIdx[j];
+                            nEndIdx = lstStartIdx[j + 1] - 1;
+                            nPart = j;
+                        }
+                        fDist = Math.Abs(lstLon[nIdx] - lstLon[lstStartIdx[j+1]-1]) * Math.Abs(lstLon[nIdx] - lstLon[lstStartIdx[j+1]-1]) +
+                                    Math.Abs(lstLat[nIdx] - lstLat[lstStartIdx[j+1]-1]) * Math.Abs(lstLat[nIdx] - lstLat[lstStartIdx[j+1]-1]);
+                        if (fDist < fDistMin)
+                        {
+                            nIdxNearest = lstStartIdx[j];
+                            fDistMin = fDist;
+                            nOff = -1;
+                            nStartIdx = lstStartIdx[j+1]-1;
+                            nEndIdx = lstStartIdx[j];
+                            nPart = j;
+                        }
+                    }
+                }
+            } while (nPartsDone != lstStartIdx.Count - 1);
+
+            g.FillPolygon(brush, pts);
+
+            int x1, x2, y1, y2;
+
+            cmd.CommandText = "SELECT Longitude, Latitude, Heading, Length, Width FROM Runways WHERE AirportID=" + unID.ToString();
+            rd = cmd.ExecuteReader();
+            while (rd.Read())
+            {
+                fHead = rd.GetFloat(2);
+                fDist = rd.GetFloat(3) / 2;
+                KmlFactory.MovePoint(rd.GetFloat(0), rd.GetFloat(1), fHead, fDist, ref fLon, ref fLat);
+                x1 = (int)(nWidth * (fLon - fLonW) / (fLonE - fLonW));
+                y1 = nHeight - (int)((nHeight * (fLat - fLatS) / (fLatN - fLatS)));
+                KmlFactory.MovePoint(rd.GetFloat(0), rd.GetFloat(1), fHead >= 180 ? fHead - 180 : fHead + 180, fDist, ref fLon, ref fLat);
+                x2 = (int)(nWidth * (fLon - fLonW) / (fLonE - fLonW));
+                y2 = nHeight - (int)((nHeight * (fLat - fLatS) / (fLatN - fLatS)));
+                g.DrawLine(pen, x1, y1, x2, y2);
+                Application.DoEvents();
+            }
+            rd.Close();
+
+            if (bLocalCon)
+                dbCon.Close();
+
+            return bmp;
+        }
+        static public Bitmap RenderComplexAirportIcon(String strIdent)
+        {
+            return RenderComplexAirportIcon(strIdent, null);
+        }
+        static public Bitmap RenderComplexAirportIcon(String strIdent, OleDbConnection dbCon)
+        {
+            bool bLocalCon = false;
+            if (dbCon == null)
+            {
+                bLocalCon = true;
+                dbCon = new OleDbConnection(Program.Config.ConnectionString);
+                dbCon.Open();
+            }
+            OleDbCommand dbCmd = new OleDbCommand("SELECT ID FROM Airports WHERE Ident='" + strIdent + "'", dbCon);
+            OleDbDataReader rd = dbCmd.ExecuteReader();
+            Bitmap bmp = null;
+            if (rd.Read())
+            {
+                bmp = RenderComplexAirportIcon( (uint)rd.GetInt32(0), dbCon );
+            }
+            rd.Close();
+            if( bLocalCon )
+                dbCon.Close();
+            return bmp;
+        }
+
         static public Bitmap RenderTaxiwaySign(String strSign)
         {
             List<String> strSegments = new List<String>();
@@ -3199,251 +3543,6 @@ namespace Fsxget
 
             return bmp;
         }
-        static public Bitmap RenderSimpleAirportIcon(float fHeading, RUNWAYTYPE tType, bool bLights)
-        {
-            Bitmap bmp = null;
-            if (fHeading > 180)
-                fHeading -= 180;
-
-            Stream s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapd.png");
-            bmp = new Bitmap(s);
-
-            Graphics g = Graphics.FromImage(bmp);
-
-            if (tType != RUNWAYTYPE.WATER ) 
-            {
-                Pen pen = new Pen(Color.FromArgb(0, 0, 128));
-                Brush brush = new SolidBrush(tType == RUNWAYTYPE.HARDENED ? Color.FromArgb(0, 0, 128) : Color.FromArgb(255, 255, 255));
-                // x24, y24
-
-                double dPI180 = Math.PI / 180;
-                int y1 = (int)(Math.Sin((90 - fHeading) * dPI180) * 18);
-                int x1 = (int)(Math.Sin(fHeading * dPI180) * 18);
-
-                Point[] pts = new Point[4];
-                pts[0] = new Point();
-                pts[1] = new Point();
-                pts[2] = new Point();
-                pts[3] = new Point();
-
-                int y2 = (int)(Math.Sin(fHeading * dPI180) * 3);
-                int x2 = (int)(Math.Sin((fHeading + 90) * dPI180) * 3);
-
-                pts[0].X = 24 - x1 - x2;
-                pts[0].Y = 24 + y1 - y2;
-                pts[1].X = 24 - x1 + x2;
-                pts[1].Y = 24 + y1 + y2;
-
-                pts[2].X = 24 + x1 + x2;
-                pts[2].Y = 24 - y1 + y2;
-                pts[3].X = 24 + x1 - x2;
-                pts[3].Y = 24 - y1 - y2;
-
-                g.FillPolygon(brush, pts);
-                g.DrawPolygon(pen, pts);
-
-                if (bLights)
-                {
-                    s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapl.png");
-                    Bitmap bmpLight = new Bitmap(s);
-                    //                    g.FillEllipse(new SolidBrush(Color.White), 18, 5, 12, 12);
-                    g.DrawImage(bmpLight, 17, 5);
-                }
-                bmp.MakeTransparent(Color.White);
-            }
-            else
-            {
-                s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.ge.icons.fsxapw.png");
-                Bitmap bmpWater = new Bitmap(s);
-                g.DrawImage(bmpWater, 20, 19);
-            }
-            return bmp;
-        }
-        static public Bitmap RenderComplexAirportIcon(uint unID, OleDbConnection dbCon)
-        {
-            bool bLocalCon = false;
-            if (dbCon == null)
-            {
-                bLocalCon = true;
-                dbCon = new OleDbConnection(Program.Config.ConnectionString);
-                dbCon.Open();
-            }
-            
-            OleDbCommand cmd = new OleDbCommand("SELECT ID FROM AirportBoundary WHERE AirportID=" + unID.ToString() + " ORDER BY [Number]" , dbCon);
-            String strId = "";
-            OleDbDataReader rd = cmd.ExecuteReader();
-            while (rd.Read())
-            {
-                if (strId.Length > 0)
-                    strId += ",";
-                strId += rd.GetInt32(0).ToString();
-            }
-            rd.Close();
-
-            cmd.CommandText = "SELECT BoundaryID, Longitude, Latitude FROM AirportBoundaryVertex WHERE BoundaryID IN(" + strId + ") ORDER BY BoundaryID, SortNr";
-            rd = cmd.ExecuteReader();
-            List<float> lstLon = new List<float>();
-            List<float> lstLat = new List<float>();
-            List<int> lstStartIdx = new List<int>();
-            int nIdx = 0;
-            int nId = 0;
-            float fLatN = -90;
-            float fLatS = 90;
-            float fLonE = -180;
-            float fLonW = 180;
-            float fLon = 0;
-            float fLat = 0;
-            while (rd.Read())
-            {
-                if (nId != rd.GetInt32(0))
-                {
-                    lstStartIdx.Add(nIdx);
-                    nId = rd.GetInt32(0);
-                }
-                fLon = rd.GetFloat(1);
-                fLat = rd.GetFloat(2);
-                if (fLon > fLonE)
-                    fLonE = fLon;
-                if (fLon < fLonW)
-                    fLonW = fLon;
-                if (fLat > fLatN)
-                    fLatN = fLat;
-                if (fLat < fLatS)
-                    fLatS = fLat;
-                lstLon.Add(fLon);
-                lstLat.Add(fLat);
-                nIdx++;
-            }
-            rd.Close();
-            lstStartIdx.Add(nIdx);
-            float fDist = 0;
-            float fHead = 0;
-            KmlFactory.GetDistance(fLonE, fLatN, fLonW, fLatN, ref fDist, ref fHead);
-            int nWidth = (int)(fDist / 30);
-            KmlFactory.GetDistance(fLonW, fLatN, fLonW, fLatS, ref fDist, ref fHead);
-            int nHeight = (int)(fDist / 30);
-
-            Bitmap bmp = new Bitmap(nWidth, nHeight);
-            Pen pen = new Pen(Color.FromArgb(255, 255, 255), 3);
-            Brush brush = new SolidBrush(Color.FromArgb(0, 0, 128));
-
-            Graphics g = Graphics.FromImage(bmp);
-//            Graphics g2 = frmMain.CreateGraphics();
-
-            for (int i = 0; i < lstLat.Count; i++)
-            {
-                lstLon[i] = nWidth * (lstLon[i] - fLonW) / (fLonE - fLonW);
-                lstLat[i] = nHeight - (nHeight * (lstLat[i] - fLatS) / (fLatN - fLatS));
-            }
-            int nPart = 0;
-            int nPartsDone = 0;
-            bool[] bPartsDone = new bool[lstStartIdx.Count-1];
-            nIdx = 0;
-            int nOff = 1;
-            int nStartIdx = 0;
-            int nEndIdx = lstStartIdx[1]-1;
-            Point[] pts = new Point[lstLat.Count-lstStartIdx.Count+1];
-            int nPt = 0;
-            do
-            {
-                nIdx = nStartIdx;
-                while (nIdx != nEndIdx)
-                {
-                    pts[nPt++] = new Point( (int)lstLon[nIdx], (int)lstLat[nIdx] );
-//                    g2.DrawLine(pen, lstLon[nIdx], lstLat[nIdx], lstLon[nIdx + nOff], lstLat[nIdx + nOff]);
-                    nIdx += nOff;
-                }
-                nPartsDone++;
-                bPartsDone[nPart] = true;
-                int nIdxNearest = 0;
-                float fDistMin = nHeight * nHeight + nWidth * nWidth;
-                for (int j = 0; j < lstStartIdx.Count - 1; j++)
-                {
-                    if (!bPartsDone[j])
-                    {
-                        fDist = Math.Abs(lstLon[nIdx] - lstLon[lstStartIdx[j]]) * Math.Abs(lstLon[nIdx] - lstLon[lstStartIdx[j]]) + 
-                                      Math.Abs(lstLat[nIdx] - lstLat[lstStartIdx[j]]) * Math.Abs(lstLat[nIdx] - lstLat[lstStartIdx[j]]);
-                        if (fDist < fDistMin)
-                        {
-                            nIdxNearest = lstStartIdx[j];
-                            fDistMin = fDist;
-                            nOff = 1;
-                            nStartIdx = lstStartIdx[j];
-                            nEndIdx = lstStartIdx[j + 1] - 1;
-                            nPart = j;
-                        }
-                        fDist = Math.Abs(lstLon[nIdx] - lstLon[lstStartIdx[j+1]-1]) * Math.Abs(lstLon[nIdx] - lstLon[lstStartIdx[j+1]-1]) +
-                                    Math.Abs(lstLat[nIdx] - lstLat[lstStartIdx[j+1]-1]) * Math.Abs(lstLat[nIdx] - lstLat[lstStartIdx[j+1]-1]);
-                        if (fDist < fDistMin)
-                        {
-                            nIdxNearest = lstStartIdx[j];
-                            fDistMin = fDist;
-                            nOff = -1;
-                            nStartIdx = lstStartIdx[j+1]-1;
-                            nEndIdx = lstStartIdx[j];
-                            nPart = j;
-                        }
-                    }
-                }
-            } while (nPartsDone != lstStartIdx.Count - 1);
-
-            g.FillPolygon(brush, pts);
-
-            int x1, x2, y1, y2;
-
-            cmd.CommandText = "SELECT Longitude, Latitude, Heading, Length, Width FROM Runways WHERE AirportID=" + unID.ToString();
-            rd = cmd.ExecuteReader();
-            while (rd.Read())
-            {
-                fHead = rd.GetFloat(2);
-                fDist = rd.GetFloat(3) / 2;
-                KmlFactory.MovePoint(rd.GetFloat(0), rd.GetFloat(1), fHead, fDist, ref fLon, ref fLat);
-                x1 = (int)(nWidth * (fLon - fLonW) / (fLonE - fLonW));
-                y1 = nHeight - (int)((nHeight * (fLat - fLatS) / (fLatN - fLatS)));
-                KmlFactory.MovePoint(rd.GetFloat(0), rd.GetFloat(1), fHead >= 180 ? fHead - 180 : fHead + 180, fDist, ref fLon, ref fLat);
-                x2 = (int)(nWidth * (fLon - fLonW) / (fLonE - fLonW));
-                y2 = nHeight - (int)((nHeight * (fLat - fLatS) / (fLatN - fLatS)));
-                g.DrawLine(pen, x1, y1, x2, y2);
-                Application.DoEvents();
-            }
-            rd.Close();
-
-            if (bLocalCon)
-                dbCon.Close();
-
-            return bmp;
-        }
-
-        static public String[] strNatoABC = new String[] 
-        {
-            "Alpha",
-            "Bravo",
-            "Charlie",
-            "Delta",
-            "Echo",
-            "Foxtrott",
-            "Golf",
-            "Hotel",
-            "India",
-            "Juliett",
-            "Kilo",
-            "Lima",
-            "Mike",
-            "November",
-            "Oscar",
-            "Papa",
-            "Quebec",
-            "Romeo",
-            "Sierra",
-            "Tango",
-            "Uniform",
-            "Victor",
-            "Wiskey",
-            "X-Ray",
-            "Yankee",
-            "Zulu",
-        };
-        
         static public Bitmap RenderTaxiwayParking(float fRadius, String strName, int nNr)
         {
             Bitmap bmp = new Bitmap((int)(fRadius * 16), (int)(fRadius * 16));
