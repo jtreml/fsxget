@@ -88,7 +88,7 @@
       <DependentUpon>English.resx</DependentUpon>
     </Compile>
     <Compile Include="KmlFactory.cs" />
-    <None Include="KmlFile.cs" />
+    <Compile Include="KmlFile.cs" />
     <Compile Include="Md5Worker.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
