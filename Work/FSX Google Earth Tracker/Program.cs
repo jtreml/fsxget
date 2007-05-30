@@ -19,6 +19,22 @@ namespace Fsxget
 		[STAThread]
 		static void Main()
 		{
+			// Test code for WGS84 calculation functions
+			// --- {
+
+			// TODO: Remove when no longer needed
+
+			//double x = 0, y = 0, z = 0;
+			//double lat = 40.4545435;
+			//double lon = 20.543545;
+			//double h = 1000.34545;
+			//EarthCalculator.geo2xyz(lat, lon, h, ref x, ref y, ref z);
+			//EarthCalculator.xyz2geo(x, y, z, ref lat, ref lon, ref h);
+
+			//Thread.CurrentThread.Abort();
+
+			// ---}
+
 			// Send usage statistics on program start (in separate thread)
 #if !DEBUG
 			Thread thrStatisticsStart = new Thread(new ThreadStart(sendStatisticsOnStart));
