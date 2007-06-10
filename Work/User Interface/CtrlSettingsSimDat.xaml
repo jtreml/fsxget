@@ -1,4 +1,4 @@
-<UserControl x:Class="FSXGET.CtrlSettingsSimDat"
+<UserControl x:Class="Fsxget.CtrlSettingsSimDat"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	Tag="Simulation Data Options"
@@ -71,7 +71,7 @@
 
 			<!--Intro Text-->
 			<TextBlock Style="{StaticResource TextblockInstructions}">
-				Select which objects FSXGET should query from Flight Simulator to
+				Select which objects Fsxget should query from Flight Simulator to
 				display them in Google Earth and at which intervals they will be updated.
 			</TextBlock>
 

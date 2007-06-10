@@ -1,4 +1,4 @@
-<UserControl x:Class="FSXGET.CtrlSettingsFs"
+<UserControl x:Class="Fsxget.CtrlSettingsFs"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	Tag="Flight Simulator Options"
