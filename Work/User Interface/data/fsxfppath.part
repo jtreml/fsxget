@@ -1,0 +1,16 @@
+<Placemark>
+	<name>Path</name>
+	<Style>
+		<LineStyle>
+			<width>5</width>
+			<color>9f1ab6ff</color>
+		</LineStyle>
+	</Style>
+	<LineString>
+		<altitudeMode>clampToGround</altitudeMode>
+		<tessellate>1</tessellate>
+		<coordinates>
+			%COORDINATES%
+		</coordinates>
+	</LineString>
+</Placemark>

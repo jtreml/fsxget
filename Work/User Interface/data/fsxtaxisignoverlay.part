@@ -1,0 +1,12 @@
+<GroundOverlay>
+	<Icon>
+		<href>%ICON%</href>
+	</Icon>
+	<LatLonBox>
+		<north>%NORTH%</north>
+		<south>%SOUTH%</south>
+		<east>%EAST%</east>
+		<west>%WEST%</west>
+		<rotation>%ROTATION%</rotation>
+	</LatLonBox>
+</GroundOverlay>

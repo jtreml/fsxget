@@ -1,0 +1,14 @@
+<Placemark>
+	<name>%NAME%</name>
+	<Style>
+		<IconStyle>
+			<Icon>
+				<href>%ICON%</href>
+			</Icon>
+		</IconStyle>
+	</Style>
+	<Point>
+		<altitudeMode>clampToGround</altitudeMode>
+		<coordinates>%LONGITUDE%,%LATITUDE%</coordinates>
+	</Point>
+</Placemark>

@@ -1,0 +1,10 @@
+﻿<Window x:Class="Fsxget.WindowMain"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Fsxget" Height="300" Width="300"
+	Loaded="WindowMain_FormLoaded" Closing="WindowMain_FormClosing" Closed="WindowMain_FormClosed"
+    >
+    <Grid>
+        
+    </Grid>
+</Window>
