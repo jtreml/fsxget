@@ -127,9 +127,9 @@ namespace Fsxget
             }
 
 			if (bError)
-				return encodeDefault("<html><body>" + System.Web.HttpUtility.HtmlEncode(Program.getText("Kml_SetFreq_Error")) + "</body></html>");
+				return encodeDefault("<html><body>" + System.Web.HttpUtility.HtmlEncode("An error occured while trying to change the frequency! The Frequency has not been changed.") + "</body></html>");
 			else
-				return encodeDefault("<html><body>" + System.Web.HttpUtility.HtmlEncode(Program.getText("Kml_SetFreq_Ok")) + "</body></html>");
+				return encodeDefault("<html><body>" + System.Web.HttpUtility.HtmlEncode("The frequency change has been successfully initiated.") + "</body></html>");
 		}
 
         public byte[] GenGotoHtml(System.Collections.Specialized.NameValueCollection values)

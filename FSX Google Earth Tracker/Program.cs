@@ -11,7 +11,7 @@ namespace Fsxget
 	static class Program
 	{
 		private static Config config;
-		private static ResourceManager resLang;
+		//private static ResourceManager resLang;
 
 		/// <summary>
 		/// The main entry point for the application.
@@ -50,7 +50,7 @@ namespace Fsxget
 			// the exception occured.
 			config = new Config();
 
-			resLang = new ResourceManager("Fsxget.lang." + config.Language, System.Reflection.Assembly.GetExecutingAssembly());
+			//resLang = new ResourceManager("Fsxget.lang." + config.Language, System.Reflection.Assembly.GetExecutingAssembly());
 
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
@@ -84,10 +84,10 @@ namespace Fsxget
 			}
 		}
 
-		public static String getText(String id)
-		{
-			return resLang.GetString(id);
-		}
+		//public static String getText(String id)
+		//{
+		//    return resLang.GetString(id);
+		//}
 
 
 		#region Statistic & Error Collecting

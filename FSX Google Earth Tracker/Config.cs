@@ -651,8 +651,8 @@ namespace Fsxget
 			else
 				bCanRunFSX = false;
 
-			strServer = "http://192.168.3.1";
-//            strServer = "http://localhost";
+//			strServer = "http://192.168.3.1";
+            strServer = "http://localhost";
             strDBConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + AppPath + "\\data\\fsxget.mdb";
             #endregion
 

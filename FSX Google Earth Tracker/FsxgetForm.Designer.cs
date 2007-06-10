@@ -31,26 +31,20 @@ namespace Fsxget
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FsxgetForm));
 			this.notifyIconMain = new System.Windows.Forms.NotifyIcon(this.components);
-			this.contextMenuStripNotifyIcon = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.saveFileDialogKMLFile = new System.Windows.Forms.SaveFileDialog();
 			this.enableTrackerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.test2ToolStripMenuItem = new System.Windows.Forms.ToolStripSeparator();
-			this.runGoogleEarthToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.runMicrosoftFlightSimulatorXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.runGoogleEarthToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
 			this.createGoogleEarthKMLFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
 			this.pauseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.recreateGoogleEarthObjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.clearUserAircraftPathToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
-			this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-			this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.buttonCancel = new System.Windows.Forms.Button();
-			this.buttonOK = new System.Windows.Forms.Button();
-			this.timerIPAddressRefresh = new System.Windows.Forms.Timer(this.components);
-			this.saveFileDialogKMLFile = new System.Windows.Forms.SaveFileDialog();
+			this.contextMenuStripNotifyIcon = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.contextMenuStripNotifyIcon.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -60,27 +54,10 @@ namespace Fsxget
 			this.notifyIconMain.Text = "notifyIcon1";
 			this.notifyIconMain.Visible = true;
 			// 
-			// contextMenuStripNotifyIcon
+			// saveFileDialogKMLFile
 			// 
-			this.contextMenuStripNotifyIcon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.enableTrackerToolStripMenuItem,
-            this.test2ToolStripMenuItem,
-            this.runMicrosoftFlightSimulatorXToolStripMenuItem,
-            this.runGoogleEarthToolStripMenuItem,
-            this.toolStripMenuItem4,
-            this.createGoogleEarthKMLFileToolStripMenuItem,
-            this.toolStripMenuItem3,
-            this.pauseToolStripMenuItem,
-            this.recreateGoogleEarthObjectsToolStripMenuItem,
-            this.clearUserAircraftPathToolStripMenuItem,
-            this.toolStripMenuItem2,
-            this.optionsToolStripMenuItem,
-            this.toolStripMenuItem1,
-            this.aboutToolStripMenuItem,
-            this.exitToolStripMenuItem});
-			this.contextMenuStripNotifyIcon.Name = "contextMenuStrip1";
-			this.contextMenuStripNotifyIcon.Size = new System.Drawing.Size(247, 276);
-			this.contextMenuStripNotifyIcon.Text = "Test";
+			this.saveFileDialogKMLFile.DefaultExt = "kml";
+			this.saveFileDialogKMLFile.Filter = "Google Earth Files|*.kml";
 			// 
 			// enableTrackerToolStripMenuItem
 			// 
@@ -97,19 +74,19 @@ namespace Fsxget
 			this.test2ToolStripMenuItem.Name = "test2ToolStripMenuItem";
 			this.test2ToolStripMenuItem.Size = new System.Drawing.Size(243, 6);
 			// 
-			// runGoogleEarthToolStripMenuItem
-			// 
-			this.runGoogleEarthToolStripMenuItem.Name = "runGoogleEarthToolStripMenuItem";
-			this.runGoogleEarthToolStripMenuItem.Size = new System.Drawing.Size(246, 22);
-			this.runGoogleEarthToolStripMenuItem.Text = "Run Google Earth 4";
-			this.runGoogleEarthToolStripMenuItem.Click += new System.EventHandler(this.runGoogleEarthToolStripMenuItem_Click);
-			// 
 			// runMicrosoftFlightSimulatorXToolStripMenuItem
 			// 
 			this.runMicrosoftFlightSimulatorXToolStripMenuItem.Name = "runMicrosoftFlightSimulatorXToolStripMenuItem";
 			this.runMicrosoftFlightSimulatorXToolStripMenuItem.Size = new System.Drawing.Size(246, 22);
 			this.runMicrosoftFlightSimulatorXToolStripMenuItem.Text = "Run Microsoft Flight Simulator X";
 			this.runMicrosoftFlightSimulatorXToolStripMenuItem.Click += new System.EventHandler(this.runMicrosoftFlightSimulatorXToolStripMenuItem_Click);
+			// 
+			// runGoogleEarthToolStripMenuItem
+			// 
+			this.runGoogleEarthToolStripMenuItem.Name = "runGoogleEarthToolStripMenuItem";
+			this.runGoogleEarthToolStripMenuItem.Size = new System.Drawing.Size(246, 22);
+			this.runGoogleEarthToolStripMenuItem.Text = "Run Google Earth 4";
+			this.runGoogleEarthToolStripMenuItem.Click += new System.EventHandler(this.runGoogleEarthToolStripMenuItem_Click);
 			// 
 			// toolStripMenuItem4
 			// 
@@ -150,29 +127,10 @@ namespace Fsxget
 			this.clearUserAircraftPathToolStripMenuItem.Text = "&Clear User Aircraft Path";
 			this.clearUserAircraftPathToolStripMenuItem.Click += new System.EventHandler(this.clearUserAircraftPathToolStripMenuItem_Click);
 			// 
-			// toolStripMenuItem2
-			// 
-			this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-			this.toolStripMenuItem2.Size = new System.Drawing.Size(243, 6);
-			// 
-			// optionsToolStripMenuItem
-			// 
-			this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-			this.optionsToolStripMenuItem.Size = new System.Drawing.Size(246, 22);
-			this.optionsToolStripMenuItem.Text = "&Options";
-			this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
-			// 
 			// toolStripMenuItem1
 			// 
 			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
 			this.toolStripMenuItem1.Size = new System.Drawing.Size(243, 6);
-			// 
-			// aboutToolStripMenuItem
-			// 
-			this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-			this.aboutToolStripMenuItem.Size = new System.Drawing.Size(246, 22);
-			this.aboutToolStripMenuItem.Text = "&About";
-			this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
 			// 
 			// exitToolStripMenuItem
 			// 
@@ -181,34 +139,26 @@ namespace Fsxget
 			this.exitToolStripMenuItem.Text = "E&xit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
-			// buttonCancel
+			// contextMenuStripNotifyIcon
 			// 
-			this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.buttonCancel.Location = new System.Drawing.Point(375, 466);
-			this.buttonCancel.Name = "buttonCancel";
-			this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-			this.buttonCancel.TabIndex = 2;
-			this.buttonCancel.Text = "Cancel";
-			this.buttonCancel.UseVisualStyleBackColor = true;
-			// 
-			// buttonOK
-			// 
-			this.buttonOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.buttonOK.Location = new System.Drawing.Point(294, 466);
-			this.buttonOK.Name = "buttonOK";
-			this.buttonOK.Size = new System.Drawing.Size(75, 23);
-			this.buttonOK.TabIndex = 1;
-			this.buttonOK.Text = "OK";
-			this.buttonOK.UseVisualStyleBackColor = true;
-			// 
-			// timerIPAddressRefresh
-			// 
-			this.timerIPAddressRefresh.Tick += new System.EventHandler(this.timerIPAddressRefresh_Tick);
-			// 
-			// saveFileDialogKMLFile
-			// 
-			this.saveFileDialogKMLFile.DefaultExt = "kml";
-			this.saveFileDialogKMLFile.Filter = "Google Earth Files|*.kml";
+			this.contextMenuStripNotifyIcon.BindingContext = null;
+			this.contextMenuStripNotifyIcon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.enableTrackerToolStripMenuItem,
+            this.test2ToolStripMenuItem,
+            this.runMicrosoftFlightSimulatorXToolStripMenuItem,
+            this.runGoogleEarthToolStripMenuItem,
+            this.toolStripMenuItem4,
+            this.createGoogleEarthKMLFileToolStripMenuItem,
+            this.toolStripMenuItem3,
+            this.pauseToolStripMenuItem,
+            this.recreateGoogleEarthObjectsToolStripMenuItem,
+            this.clearUserAircraftPathToolStripMenuItem,
+            this.toolStripMenuItem1,
+            this.exitToolStripMenuItem});
+			this.contextMenuStripNotifyIcon.Name = "contextMenuStrip1";
+			this.contextMenuStripNotifyIcon.Region = null;
+			this.contextMenuStripNotifyIcon.Size = new System.Drawing.Size(247, 226);
+			this.contextMenuStripNotifyIcon.Text = "Test";
 			// 
 			// FsxgetForm
 			// 
@@ -216,8 +166,6 @@ namespace Fsxget
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(462, 501);
 			this.ControlBox = false;
-			this.Controls.Add(this.buttonCancel);
-			this.Controls.Add(this.buttonOK);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
@@ -235,27 +183,21 @@ namespace Fsxget
 
 		#endregion
 
-        private System.Windows.Forms.NotifyIcon notifyIconMain;
-		private System.Windows.Forms.Button buttonCancel;
-        private System.Windows.Forms.Button buttonOK;
-        private System.Windows.Forms.Timer timerIPAddressRefresh;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStripNotifyIcon;
-        private System.Windows.Forms.ToolStripMenuItem enableTrackerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator test2ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem runMicrosoftFlightSimulatorXToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem runGoogleEarthToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
-        private System.Windows.Forms.ToolStripMenuItem createGoogleEarthKMLFileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
-        private System.Windows.Forms.ToolStripMenuItem clearUserAircraftPathToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
-        private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.SaveFileDialog saveFileDialogKMLFile;
-        private System.Windows.Forms.ToolStripMenuItem pauseToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem recreateGoogleEarthObjectsToolStripMenuItem;
+		private System.Windows.Forms.NotifyIcon notifyIconMain;
+		private System.Windows.Forms.SaveFileDialog saveFileDialogKMLFile;
+		private System.Windows.Forms.ContextMenuStrip contextMenuStripNotifyIcon;
+		private System.Windows.Forms.ToolStripMenuItem enableTrackerToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator test2ToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem runMicrosoftFlightSimulatorXToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem runGoogleEarthToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
+		private System.Windows.Forms.ToolStripMenuItem createGoogleEarthKMLFileToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+		private System.Windows.Forms.ToolStripMenuItem pauseToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem recreateGoogleEarthObjectsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem clearUserAircraftPathToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+		private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
 	}
 }
 
