@@ -83,6 +83,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config.cs" />
     <Compile Include="ControlTree.cs" />
     <Compile Include="CtrlOverviewHome.xaml.cs">
       <SubType>Code</SubType>
@@ -112,6 +113,13 @@
       <SubType>Code</SubType>
       <DependentUpon>DlgAirports.xaml</DependentUpon>
     </Compile>
+    <Compile Include="EarthCalculator.cs" />
+    <Compile Include="FsxConnection.cs" />
+    <Compile Include="HttpServer.cs" />
+    <Compile Include="HttpServerExample.cs" />
+    <Compile Include="KmlFactory.cs" />
+    <Compile Include="KmlFile.cs" />
+    <Compile Include="Md5Worker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -120,17 +128,23 @@
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.cs</LastGenOutput>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Properties\Settings.cs">
+    <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="ServerFile.cs" />
+    <Compile Include="ServerFileCached.cs" />
+    <Compile Include="ServerFileDisc.cs" />
+    <Compile Include="ServerFileDynamic.cs" />
+    <Compile Include="WindowMain.xaml.cs" />
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -185,6 +199,33 @@
     <Resource Include="app.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="data\fsxapcom.part" />
+    <Resource Include="data\fsxapcoms.part" />
+    <Resource Include="data\fsxapfreq.part" />
+    <Resource Include="data\fsxaprw.part" />
+    <Resource Include="data\fsxaprws.part" />
+    <Resource Include="data\fsxapu.part" />
+    <Resource Include="data\fsxauc.part" />
+    <Resource Include="data\fsxaum.part" />
+    <Resource Include="data\fsxbuc.part" />
+    <Resource Include="data\fsxbum.part" />
+    <Resource Include="data\fsxfppath.part" />
+    <Resource Include="data\fsxfpwp.part" />
+    <Resource Include="data\fsxguc.part" />
+    <Resource Include="data\fsxgum.part" />
+    <Resource Include="data\fsxhuc.part" />
+    <Resource Include="data\fsxhum.part" />
+    <Resource Include="data\fsxils.part" />
+    <Resource Include="data\fsxndb.part" />
+    <Resource Include="data\fsxobjs.part" />
+    <Resource Include="data\fsxpat.part" />
+    <Resource Include="data\fsxtaxisignoverlay.part" />
+    <Resource Include="data\fsxuc.part" />
+    <Resource Include="data\fsxum.part" />
+    <Resource Include="data\fsxview.part" />
+    <Resource Include="data\fsxvor.part" />
+    <Resource Include="data\fsxvoroverlay.part" />
+    <Resource Include="data\settings.default" />
     <None Include="Resources\ui_app.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -231,6 +272,64 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\ui_go.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="data\fsxget.mdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Resource Include="pub\gfx\ge\icons\fsx-p-inter.png" />
+    <Resource Include="pub\gfx\ge\icons\fsx-p-user.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxaib.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxaibpp.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxaig.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxaigpp.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxaih.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxaihpp.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxaip.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxaippp.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxapd.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxapl.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxapw.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxdme.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxndb.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxpm.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxu.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxvor.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxvordme.png" />
+    <Resource Include="pub\gfx\ge\icons\fsxvorov.png" />
+    <Resource Include="pub\gfx\logo.png" />
+    <Resource Include="pub\gfx\noimage.png" />
+    <Resource Include="pub\gfx\scenery\air\Airbus A321.png" />
+    <Resource Include="pub\gfx\scenery\air\Aircreation Ultraligero Trike.png" />
+    <Resource Include="pub\gfx\scenery\air\Beachcraft Baron 58 %28G1000%29.png" />
+    <Resource Include="pub\gfx\scenery\air\Beachcraft Baron 58.png" />
+    <Resource Include="pub\gfx\scenery\air\Beachcraft King Air 350.png" />
+    <Resource Include="pub\gfx\scenery\air\Bell 206B JetRanger.png" />
+    <Resource Include="pub\gfx\scenery\air\Boeing 737-800.png" />
+    <Resource Include="pub\gfx\scenery\air\Boeing 747-400.png" />
+    <Resource Include="pub\gfx\scenery\air\Bombardier CRJ700.png" />
+    <Resource Include="pub\gfx\scenery\air\Bombardier Learjet 45.png" />
+    <Resource Include="pub\gfx\scenery\air\Cessna C172SP Skyhawk %28G1000%29.png" />
+    <Resource Include="pub\gfx\scenery\air\Cessna C172SP Skyhawk.png" />
+    <Resource Include="pub\gfx\scenery\air\Cessna C208B Grand Caravan.png" />
+    <Resource Include="pub\gfx\scenery\air\de Havilland Beaver DHC2.png" />
+    <Resource Include="pub\gfx\scenery\air\DG Flugzeugbau DG-808S.png" />
+    <Resource Include="pub\gfx\scenery\air\Douglas DC-3.png" />
+    <Resource Include="pub\gfx\scenery\air\Extra 300S.png" />
+    <Resource Include="pub\gfx\scenery\air\Grumman Goose G21A.png" />
+    <Resource Include="pub\gfx\scenery\air\Maule Orion sobre esquies.png" />
+    <Resource Include="pub\gfx\scenery\air\Maule Orion.png" />
+    <Resource Include="pub\gfx\scenery\air\Mooney Bravo %28G1000%29.png" />
+    <Resource Include="pub\gfx\scenery\air\Mooney Bravo.png" />
+    <Resource Include="pub\gfx\scenery\air\Piper J-3 Cub.png" />
+    <Resource Include="pub\gfx\scenery\air\Robinson R22 Beta II.png" />
+    <Resource Include="pub\gfx\scenery\logo.png" />
+    <Resource Include="pub\gfx\scenery\noimage.png" />
+    <Resource Include="data\gfx\icons\tbconnected.ico" />
+    <Resource Include="data\gfx\icons\tbdisabled.ico" />
+    <Resource Include="data\gfx\icons\tbenabled.ico" />
+    <Resource Include="data\gfx\icons\tbpaused.ico" />
+    <Resource Include="data\gfx\logo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildBinPath)\Microsoft.WinFX.targets" />
