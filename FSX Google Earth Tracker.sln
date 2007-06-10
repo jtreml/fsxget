@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSX Google Earth Tracker", "FSX Google Earth Tracker\FSX Google Earth Tracker.csproj", "{86BDE965-A297-492B-9604-B4749CA25759}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User Interface", "User Interface\User Interface.csproj", "{8E52181D-AD7C-464A-A54C-92451D93839B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HardwareInfo", "HardwareInfo\HardwareInfo.csproj", "{DECBB995-52C4-4126-B534-D8FC44AB6B19}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebLoader", "WebLoader\WebLoader.csproj", "{D8957863-1918-42CC-856B-77C68BDB3C81}"
@@ -13,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geometry", "Geometry\Geomet
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
+		SccNumberOfProjects = 5
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccLocalPath0 = .
@@ -29,9 +27,6 @@ Global
 		SccProjectUniqueName4 = Geometry\\Geometry.csproj
 		SccProjectName4 = Geometry
 		SccLocalPath4 = Geometry
-		SccProjectUniqueName5 = User\u0020Interface\\User\u0020Interface.csproj
-		SccProjectName5 = User\u0020Interface
-		SccLocalPath5 = User\u0020Interface
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,10 +37,6 @@ Global
 		{86BDE965-A297-492B-9604-B4749CA25759}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86BDE965-A297-492B-9604-B4749CA25759}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86BDE965-A297-492B-9604-B4749CA25759}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8E52181D-AD7C-464A-A54C-92451D93839B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8E52181D-AD7C-464A-A54C-92451D93839B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8E52181D-AD7C-464A-A54C-92451D93839B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8E52181D-AD7C-464A-A54C-92451D93839B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8E52181D-AD7C-464A-A54C-92451D93839B}</ProjectGuid>
+    <ProjectGuid>{86BDE965-A297-492B-9604-B4749CA25759}</ProjectGuid>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <RootNamespace>FSXGET</RootNamespace>
     <AssemblyName>FSXGET</AssemblyName>
