@@ -1,0 +1,25 @@
+<Placemark %ID%>
+	<name></name>
+	<description>
+		<![CDATA[Microsoft Flightsimulator X - AI Ground Unit<br>&nbsp;<br>
+<b>Title:</b>%TITLE%<br>&nbsp;<br>
+<center><img src="%IMAGE%"></center>]]>
+	</description>
+	<Style>
+		<IconStyle>
+			<Icon>
+				<href>%ICON%</href>
+			</Icon>
+			<scale>0.6</scale>
+			<heading>%HEADING%</heading>
+		</IconStyle>
+		<LabelStyle>
+			<scale>0.6</scale>
+		</LabelStyle>
+	</Style>
+	<Point>
+		<altitudeMode>absolute</altitudeMode>
+		<coordinates>%LONGITUDE%,%LATITUDE%,%ALTITUDE%</coordinates>
+		<extrude>1</extrude>
+	</Point>
+</Placemark>

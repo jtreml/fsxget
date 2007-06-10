@@ -1,0 +1,8 @@
+<LookAt>
+	<longitude>%LONGITUDE%</longitude>
+	<latitude>%LATITUDE%</latitude>	
+	<heading>%HEADING%</heading>	
+	<altitude>%ALTITUDE%</altitude>
+	<altitudeMode>absolute</altitudeMode>
+	<range>%RANGE%</range>
+</LookAt>

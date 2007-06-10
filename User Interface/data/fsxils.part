@@ -1,0 +1,1 @@
+<td>%NAME%</td><td>%IDENT%</td><td><a href="%SERVER%/setfreq.html?type=nav1&freq=%FREQ%">%FREQ_UF%</a></td><td>%HEADING%</td>
