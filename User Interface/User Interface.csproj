@@ -42,7 +42,10 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Draft.PresentationDesignMarkup, Version=0.0.4030.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.FlightSimulator.SimConnect, Version=10.0.60905.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files\Microsoft Games\Microsoft Flight Simulator X SDK\SDK\Core Utilities Kit\SimConnect SDK\lib\managed\Microsoft.FlightSimulator.SimConnect.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="PresentationDesignDeveloper, Version=0.0.4030.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -51,6 +54,8 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -72,6 +77,7 @@
     <Page Include="CtrlSettingsLog.xaml" />
     <Page Include="CtrlSettingsFs.xaml" />
     <Page Include="DlgAirports.xaml" />
+    <Page Include="WindowMain.xaml" />
     <Page Include="WindowSettings.xaml" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -116,7 +122,6 @@
     <Compile Include="EarthCalculator.cs" />
     <Compile Include="FsxConnection.cs" />
     <Compile Include="HttpServer.cs" />
-    <Compile Include="HttpServerExample.cs" />
     <Compile Include="KmlFactory.cs" />
     <Compile Include="KmlFile.cs" />
     <Compile Include="Md5Worker.cs" />
@@ -144,7 +149,10 @@
     <Compile Include="ServerFileCached.cs" />
     <Compile Include="ServerFileDisc.cs" />
     <Compile Include="ServerFileDynamic.cs" />
-    <Compile Include="WindowMain.xaml.cs" />
+    <Compile Include="WindowMain.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>WindowMain.xaml</DependentUpon>
+    </Compile>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -330,6 +338,19 @@
     <Resource Include="data\gfx\icons\tbenabled.ico" />
     <Resource Include="data\gfx\icons\tbpaused.ico" />
     <Resource Include="data\gfx\logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HardwareInfo\HardwareInfo.csproj">
+      <Project>{DECBB995-52C4-4126-B534-D8FC44AB6B19}</Project>
+      <Name>HardwareInfo</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WebLoader\WebLoader.csproj">
+      <Project>{D8957863-1918-42CC-856B-77C68BDB3C81}</Project>
+      <Name>WebLoader</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="User%27s Application Data Folder\pub\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildBinPath)\Microsoft.WinFX.targets" />

@@ -66,7 +66,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
-    <None Include="Config2.cs" />
     <Compile Include="EarthCalculator.cs" />
     <Compile Include="FsxgetForm.cs">
       <SubType>Form</SubType>
@@ -76,7 +75,6 @@
     </Compile>
     <Compile Include="FsxConnection.cs" />
     <Compile Include="HttpServer.cs" />
-    <None Include="HttpServerExample.cs" />
     <Compile Include="lang\Deutsch.Designer.cs">
       <DependentUpon>Deutsch.resx</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -238,7 +236,7 @@
   <ItemGroup>
     <Folder Include="pub\gfx\scenery\ground\" />
     <Folder Include="pub\gfx\scenery\water\" />
-    <Folder Include="User%27s Application Data Folder\" />
+    <Folder Include="User%27s Application Data Folder\pub\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,7 +1,7 @@
-﻿<Application x:Class="FSXGET.App"
+﻿<Application x:Class="Fsxget.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    StartupUri="WindowSettings.xaml"
+    Startup="App_Startup"
     >
 	<Application.Resources>
 
@@ -28,12 +28,12 @@
 			<Setter Property="TextBlock.Margin" Value="0,6,0,14" />
 			<Setter Property="TextBlock.HorizontalAlignment" Value="Stretch" />
 		</Style>
-		
+
 		<Style x:Key="TextblockInstructions" BasedOn="{StaticResource TextblockData}">
 			<Setter Property="TextBlock.FontSize" Value="11" />
 			<Setter Property="TextBlock.FontStyle" Value="Italic" />
 		</Style>
-		
+
 		<!--Tables-->
 		<Style x:Key="TableHeaderBackground">
 			<Setter Property="Rectangle.Fill" Value="#f7fbfc" />
