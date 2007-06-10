@@ -153,8 +153,6 @@ namespace Fsxget
 			//As this method doesn't start any other threads we don't need to lock 
 			// anything here (especially not the config file xml document)
 
-			InitializeComponent();
-
 			Title = App.Config.AssemblyTitle;
 
 			fsxCon = new FsxConnection(this, false);
