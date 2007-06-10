@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Controls;
 
-namespace FSXGET
+namespace Fsxget
 {
 	class ControlTree
 	{

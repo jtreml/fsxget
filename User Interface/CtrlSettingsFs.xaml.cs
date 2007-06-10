@@ -11,7 +11,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace FSXGET
+namespace Fsxget
 {
 	/// <summary>
 	/// Interaction logic for CtrlSettingsFs.xaml

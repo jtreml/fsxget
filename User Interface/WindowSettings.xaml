@@ -1,4 +1,4 @@
-﻿<Window x:Class="FSXGET.WindowSettings"
+﻿<Window x:Class="Fsxget.WindowSettings"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Flight Simulator X Google Earth Tracker" Height="600" Width="800"
@@ -38,7 +38,7 @@
 										</MenuItem.Icon>
 									</MenuItem>
 									<Separator />
-									<MenuItem Header="FSXGET Homepage">
+									<MenuItem Header="Fsxget Homepage">
 										<MenuItem.Icon>
 											<Image Source="pack://application:,,,/Resources/ui_web.png"/>
 										</MenuItem.Icon>

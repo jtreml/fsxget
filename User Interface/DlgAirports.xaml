@@ -1,7 +1,7 @@
-﻿<Window x:Class="FSXGET.DlgAirports"
+﻿<Window x:Class="Fsxget.DlgAirports"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="FSXGET" Height="400" Width="700"
+    Title="Fsxget" Height="400" Width="700"
 	ResizeMode="NoResize"
     >
 	<Window.Resources>

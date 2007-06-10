@@ -15,7 +15,7 @@ using System.Web;
 using System.Threading;
 using System.ComponentModel;
 
-namespace FSXGET
+namespace Fsxget
 {
 	/// <summary>
 	/// Interaction logic for DlgAirports.xaml
