@@ -75,16 +75,6 @@
     </Compile>
     <Compile Include="FsxConnection.cs" />
     <Compile Include="HttpServer.cs" />
-    <Compile Include="lang\Deutsch.Designer.cs">
-      <DependentUpon>Deutsch.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="lang\English.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>English.resx</DependentUpon>
-    </Compile>
     <Compile Include="KmlFactory.cs" />
     <Compile Include="KmlFile.cs" />
     <Compile Include="Md5Worker.cs" />
@@ -155,16 +145,6 @@
     <EmbeddedResource Include="data\gfx\icons\tbdisabled.ico" />
     <EmbeddedResource Include="data\gfx\icons\tbenabled.ico" />
     <EmbeddedResource Include="data\gfx\icons\tbpaused.ico" />
-    <None Include="lang\Deutsch.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Deutsch.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="lang\English.resx">
-      <SubType>Designer</SubType>
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>English.Designer.cs</LastGenOutput>
-    </None>
     <EmbeddedResource Include="pub\gfx\logo.png" />
     <Content Include="data\fsxobjs.part" />
     <Content Include="data\gfx\logo.png" />
