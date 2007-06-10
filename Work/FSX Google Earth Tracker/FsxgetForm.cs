@@ -68,11 +68,9 @@ namespace Fsxget
 
 			//            fsxCon.AddFlightPlan(@"D:\Eigene Dateien\Flight Simulator X-Dateien\IFR Frankfurt Main to Stuttgart.PLN");
 
-			timerIPAddressRefresh.Interval = 10000;
-
 			if (!HttpListener.IsSupported)
 			{
-				MessageBox.Show(Program.getText("System_HTTPListenerNotSupported"), Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show("This program requires Windows XP SP2 or Windows Server 2003 with the latest version of the .NET framework installed! The application will exit now.", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
 				bErrorOnLoad = true;
 				return;
 			}
@@ -120,7 +118,6 @@ namespace Fsxget
 			if (!bClose)
 			{
 				e.Cancel = true;
-				safeHideMainDialog();
 			}
 		}
 
@@ -134,7 +131,6 @@ namespace Fsxget
 			lock (lockListenerControl)
 			{
 				httpServer.stop();
-				timerIPAddressRefresh.Stop();
 			}
 		}
 
@@ -155,17 +151,6 @@ namespace Fsxget
 			MessageBox.Show(strError, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
 
-		private void safeShowBalloonTip(int timeout, String tipTitle, String tipText, ToolTipIcon tipIcon)
-		{
-		}
-
-		private void safeShowMainDialog(int iTab)
-		{
-		}
-
-		private void safeHideMainDialog()
-		{
-		}
 
 		private bool IsLocalHostIP(IPAddress ipaRequest)
 		{
@@ -197,11 +182,6 @@ namespace Fsxget
 		{
 			bClose = true;
 			Close();
-		}
-
-		private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			safeShowMainDialog(0);
 		}
 
 		private void runMicrosoftFlightSimulatorXToolStripMenuItem_Click(object sender, EventArgs e)
@@ -258,10 +238,6 @@ namespace Fsxget
 				fsxCon.objUserAircraft.objPath.Clear();
 		}
 
-		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-
-		}
 		#endregion
 
 		private void pauseToolStripMenuItem_Click(object sender, EventArgs e)
@@ -292,28 +268,22 @@ namespace Fsxget
 			}
 		}
 
-		private void timerIPAddressRefresh_Tick(object sender, EventArgs e)
-		{
-
-		}
 
 		public void updateCaptions()
 		{
-			exitToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_Exit");
-			aboutToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_About");
+			exitToolStripMenuItem.Text = "E&xit";
 
-			optionsToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_Options");
+			clearUserAircraftPathToolStripMenuItem.Text = "&Clear User Aircraft Path";
+			recreateGoogleEarthObjectsToolStripMenuItem.Text = "&Recreate Google Earth Objects";
+			pauseToolStripMenuItem.Text = "&Pause";
 
-			clearUserAircraftPathToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_ClearPath");
-			recreateGoogleEarthObjectsToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_RecreateObjects");
-			pauseToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_Pause");
+			createGoogleEarthKMLFileToolStripMenuItem.Text = "Create Google Earth &KML File";
 
-			createGoogleEarthKMLFileToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_CreateKmlFile");
+			runMicrosoftFlightSimulatorXToolStripMenuItem.Text = "Run Microsoft &Flight Simulator X";
+			runGoogleEarthToolStripMenuItem.Text = "Run &Google Earth 4";
 
-			runMicrosoftFlightSimulatorXToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_RunFSX");
-			runGoogleEarthToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_RunGE");
-
-			enableTrackerToolStripMenuItem.Text = Program.getText("Form_Main_ContextMenu_Enable");
+			enableTrackerToolStripMenuItem.Text = "&Enable Tracker";
 		}
+
 	}
 }

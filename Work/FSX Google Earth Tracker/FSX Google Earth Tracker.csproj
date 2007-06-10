@@ -157,16 +157,16 @@
     <EmbeddedResource Include="data\gfx\icons\tbdisabled.ico" />
     <EmbeddedResource Include="data\gfx\icons\tbenabled.ico" />
     <EmbeddedResource Include="data\gfx\icons\tbpaused.ico" />
-    <EmbeddedResource Include="lang\Deutsch.resx">
+    <None Include="lang\Deutsch.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Deutsch.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="lang\English.resx">
+    </None>
+    <None Include="lang\English.resx">
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>English.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    </None>
     <EmbeddedResource Include="pub\gfx\logo.png" />
     <Content Include="data\fsxobjs.part" />
     <Content Include="data\gfx\logo.png" />
