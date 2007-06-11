@@ -85,20 +85,23 @@ namespace Fsxget
 				httpServer.registerFile("/gfx/" + img["Name"].StringValue + ".png", new ServerFileDisc("image/png", App.Config.FilePathPub + img["Img"].StringValue));
 
 			// TODO: GetManifestResourceStream doesn't seem to work like this any longer
-			//Stream s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.logo.png");
-			//byte[] bTemp = new byte[s.Length];
-			//s.Read(bTemp, 0, (int)s.Length);
-			//httpServer.registerFile("/gfx/logo.png", new ServerFileCached("image/png", bTemp));
+            String[] strName = Assembly.GetCallingAssembly().GetManifestResourceNames();
+            
+            
+            Stream s = Assembly.GetCallingAssembly().GetManifestResourceStream("FSXGET.pub.gfx.logo.png");
+			byte[] bTemp = new byte[s.Length];
+			s.Read(bTemp, 0, (int)s.Length);
+			httpServer.registerFile("/gfx/logo.png", new ServerFileCached("image/png", bTemp));
 
 			// TODO: The no image functionality is still missing due to migrating to the 
 			// new HTTP server class. We should consider to drop it anyway and instead, include 
 			// object images in the KML files only if they really exist.
 
 			// TODO: GetManifestResourceStream doesn't seem to work like this any longer
-			//s = Assembly.GetCallingAssembly().GetManifestResourceStream("Fsxget.pub.gfx.noimage.png");
-			//bTemp = new byte[s.Length];
-			//s.Read(bTemp, 0, (int)s.Length);
-			//httpServer.registerFile("/gfx/noimage.png", new ServerFileCached("image/png", bTemp));
+            s = Assembly.GetCallingAssembly().GetManifestResourceStream("FSXGET.pub.gfx.noimage.png");
+			bTemp = new byte[s.Length];
+			s.Read(bTemp, 0, (int)s.Length);
+			httpServer.registerFile("/gfx/noimage.png", new ServerFileCached("image/png", bTemp));
 
 			// Register other documents with the HTTP server
 			httpServer.registerFile("/setfreq.html", new ServerFileDynamic("text/html", GenSetFreqHtml));

@@ -305,8 +305,8 @@
     <Resource Include="pub\gfx\ge\icons\fsxvor.png" />
     <Resource Include="pub\gfx\ge\icons\fsxvordme.png" />
     <Resource Include="pub\gfx\ge\icons\fsxvorov.png" />
-    <Resource Include="pub\gfx\logo.png" />
-    <Resource Include="pub\gfx\noimage.png" />
+    <EmbeddedResource Include="pub\gfx\logo.png" />
+    <EmbeddedResource Include="pub\gfx\noimage.png" />
     <Resource Include="pub\gfx\scenery\air\Airbus A321.png" />
     <Resource Include="pub\gfx\scenery\air\Aircreation Ultraligero Trike.png" />
     <Resource Include="pub\gfx\scenery\air\Beachcraft Baron 58 %28G1000%29.png" />
