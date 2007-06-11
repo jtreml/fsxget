@@ -84,10 +84,6 @@ namespace Fsxget
 			foreach (SettingsObject img in lstImg.listSettings)
 				httpServer.registerFile("/gfx/" + img["Name"].StringValue + ".png", new ServerFileDisc("image/png", App.Config.FilePathPub + img["Img"].StringValue));
 
-			// TODO: GetManifestResourceStream doesn't seem to work like this any longer
-            String[] strName = Assembly.GetCallingAssembly().GetManifestResourceNames();
-            
-            
             Stream s = Assembly.GetCallingAssembly().GetManifestResourceStream("FSXGET.pub.gfx.logo.png");
 			byte[] bTemp = new byte[s.Length];
 			s.Read(bTemp, 0, (int)s.Length);
@@ -97,7 +93,6 @@ namespace Fsxget
 			// new HTTP server class. We should consider to drop it anyway and instead, include 
 			// object images in the KML files only if they really exist.
 
-			// TODO: GetManifestResourceStream doesn't seem to work like this any longer
             s = Assembly.GetCallingAssembly().GetManifestResourceStream("FSXGET.pub.gfx.noimage.png");
 			bTemp = new byte[s.Length];
 			s.Read(bTemp, 0, (int)s.Length);
