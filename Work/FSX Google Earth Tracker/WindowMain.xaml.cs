@@ -12,6 +12,7 @@ using System.Windows.Shapes;
 using System.Windows.Forms;
 using System.Net;
 using System.ComponentModel;
+using System.Reflection;
 
 namespace Fsxget
 {
@@ -180,19 +181,11 @@ namespace Fsxget
 				return;
 			}
 
-			// TODO: This doesn't seem to work any more and has been replaced temporarily...
 
-			//icEnabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbenabled.ico"));
-			//icDisabled = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbdisabled.ico"));
-			//icConnected = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbconnected.ico"));
-			//icPaused = new Icon(Assembly.GetExecutingAssembly().GetManifestResourceStream("Fsxget.data.gfx.icons.tbpaused.ico"));
-
-			// ...by this:
-
-			icEnabled = new System.Drawing.Icon("../../data/gfx/icons/tbenabled.ico");
-			icDisabled = new System.Drawing.Icon("../../data/gfx/icons/tbdisabled.ico");
-			icConnected = new System.Drawing.Icon("../../data/gfx/icons/tbconnected.ico");
-			icPaused = new System.Drawing.Icon("../../data/gfx/icons/tbpaused.ico");
+			icEnabled = new System.Drawing.Icon(Assembly.GetCallingAssembly().GetManifestResourceStream("FSXGET.data.gfx.icons.tbenabled.ico"));
+			icDisabled = new System.Drawing.Icon(Assembly.GetCallingAssembly().GetManifestResourceStream("FSXGET.data.gfx.icons.tbdisabled.ico"));
+			icConnected = new System.Drawing.Icon(Assembly.GetCallingAssembly().GetManifestResourceStream("FSXGET.data.gfx.icons.tbconnected.ico"));
+			icPaused = new System.Drawing.Icon(Assembly.GetCallingAssembly().GetManifestResourceStream("FSXGET.data.gfx.icons.tbpaused.ico"));
 
 
 			notifyIconMain.Icon = icEnabled;
