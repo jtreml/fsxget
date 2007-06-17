@@ -333,10 +333,10 @@
     <Resource Include="pub\gfx\scenery\air\Robinson R22 Beta II.png" />
     <Resource Include="pub\gfx\scenery\logo.png" />
     <Resource Include="pub\gfx\scenery\noimage.png" />
-    <Resource Include="data\gfx\icons\tbconnected.ico" />
-    <Resource Include="data\gfx\icons\tbdisabled.ico" />
-    <Resource Include="data\gfx\icons\tbenabled.ico" />
-    <Resource Include="data\gfx\icons\tbpaused.ico" />
+    <EmbeddedResource Include="data\gfx\icons\tbconnected.ico" />
+    <EmbeddedResource Include="data\gfx\icons\tbdisabled.ico" />
+    <EmbeddedResource Include="data\gfx\icons\tbenabled.ico" />
+    <EmbeddedResource Include="data\gfx\icons\tbpaused.ico" />
     <Resource Include="data\gfx\logo.png" />
   </ItemGroup>
   <ItemGroup>
