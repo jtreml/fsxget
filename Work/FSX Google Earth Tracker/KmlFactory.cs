@@ -28,6 +28,7 @@ namespace Fsxget
 
             lstKmlFiles = new List<KmlFile>();
             lstKmlFiles.Add(new KmlFileObjects(ref httpServer));
+			lstKmlFiles.Add(new KmlFileIls(ref httpServer));
             lstKmlFiles.Add( new KmlFileUserPosition(ref fsxCon, ref httpServer));
             lstKmlFiles.Add(new KmlFileUserPathPrediction(ref fsxCon, ref httpServer));
             lstKmlFiles.Add(new KmlFileUserPath(ref fsxCon, ref httpServer));
