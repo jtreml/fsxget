@@ -340,6 +340,10 @@
     <Resource Include="data\gfx\logo.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Geometry\Geometry.csproj">
+      <Project>{DDC59271-2752-414D-8DEB-452468257CEB}</Project>
+      <Name>Geometry</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HardwareInfo\HardwareInfo.csproj">
       <Project>{DECBB995-52C4-4126-B534-D8FC44AB6B19}</Project>
       <Name>HardwareInfo</Name>
