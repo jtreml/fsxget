@@ -78,26 +78,68 @@ namespace Fsxget
 
 		public override string GetKmlFile()
 		{
-			double dDistance = 10.0;
-			double dAngle = -30.0;
-			
-			// Munich
-			//GeoPoint gpOrig = new GeoPoint(48.3575, 11.78528, 1000.0);
+			// EDDM Runway
+			GeoPoint gpRunwayCenter = new GeoPoint(48.34274, 11.77782, 453.237);
+			double runwayHeading = 83.4;
+			double runwayLength = 3991.97;
+			double runwayWidth = 60.05;
 
-			// Chicago
-			GeoPoint gpOrig = new GeoPoint(41.9903, -87.90417, 1000.0);
-			
+			// Get vector for runway center
+			Geometry.Point pRunwayCenter = EarthCalculator.geo2xyz(gpRunwayCenter);
+			Vector vRunwayCenter = new Vector(pRunwayCenter);
 
-			Geometry.Point ptOrig = EarthCalculator.geo2xyz(gpOrig);
-			Vector vOrig = new Vector(ptOrig);
+			// Some direction vectors for the runway
+			Vector vRunway = EarthCalculator.getTangentialVector(pRunwayCenter, runwayHeading).getNormalized();
+			Vector vRunwayPerp = Vector.crossProduct(vRunwayCenter, vRunway).getNormalized();
 
-			Vector vNew = vOrig + (EarthCalculator.getTangentialVector(ptOrig, dAngle).getNormalized() * dDistance);
-			GeoPoint gpNew = EarthCalculator.xyz2geo(new Geometry.Point(vNew.X, vNew.Y, vNew.Z));
+			// Here's the runway corners
+			Vector vRunwayP1 = vRunwayCenter + (vRunway * runwayLength / 2.0) + (vRunwayPerp * runwayWidth / 2.0);
+			GeoPoint gpRunwayP1 = EarthCalculator.xyz2geo(new Geometry.Point(vRunwayP1));
+			Vector vRunwayP2 = vRunwayCenter + (vRunway * runwayLength / 2.0) - (vRunwayPerp * runwayWidth / 2.0);
+			GeoPoint gpRunwayP2 = EarthCalculator.xyz2geo(new Geometry.Point(vRunwayP2));
+			Vector vRunwayP3 = vRunwayCenter - (vRunway * runwayLength / 2.0) + (vRunwayPerp * runwayWidth / 2.0);
+			GeoPoint gpRunwayP3 = EarthCalculator.xyz2geo(new Geometry.Point(vRunwayP3));
+			Vector vRunwayP4 = vRunwayCenter - (vRunway * runwayLength / 2.0) - (vRunwayPerp * runwayWidth / 2.0);
+			GeoPoint gpRunwayP4 = EarthCalculator.xyz2geo(new Geometry.Point(vRunwayP4));
 
+
+			// EDDM Runway ILS
+			GeoPoint gpIls = new GeoPoint(48.34517, 11.80936, 453.237);
+			double ilsHeading = 83.4;
+			double ilsRange = 50017.0;
+			double ilsWidth = 2.812372;
+			double glideAngle = 3.0 / 180.0 * Math.PI;
+
+			// Get vector for ILS position
+			Geometry.Point pIlsPos = EarthCalculator.geo2xyz(gpIls);
+			Vector vIlsPos = new Vector(pIlsPos);
+
+			// Some direction vectors for the ILS
+			Vector vIls = EarthCalculator.getTangentialVector(pIlsPos, ilsHeading).getNormalized();
+			Vector vIlsPerp = Vector.crossProduct(vIlsPos, vIls).getNormalized();
+
+			// ILS range
+			// (Exact calculation)
+			double ilsL = Math.Cos(glideAngle) * ilsRange;
+			double ilsH = Math.Sin(glideAngle) * ilsRange;
+
+			Vector vIlsRange = vIlsPos + (vIls * ilsL);
+			GeoPoint gpIlsRange = EarthCalculator.xyz2geo(new Geometry.Point(vIlsRange));
+			gpIlsRange.Alt += ilsH;
+
+			// (Fast calculation)
+			//Vector vIlsRange = vIlsPos + (vIls * ilsRange);
+			//GeoPoint gpIlsRange = EarthCalculator.xyz2geo(new Geometry.Point(vIlsRange));
 
 			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Document>" +
-				"<Placemark><name>New Point</name><Point><coordinates>" + gpNew.Lon.ToString().Replace(",", ".") + "," + gpNew.Lat.ToString().Replace(",", ".") + "," + gpNew.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
-				"<Placemark><name>Original Point</name><Point><coordinates>" + gpOrig.Lon.ToString().Replace(",", ".") + "," + gpOrig.Lat.ToString().Replace(",", ".") + "," + gpOrig.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark></Document></kml>";
+				"<Placemark><name>Runway Center</name><Point><coordinates>" + gpRunwayCenter.Lon.ToString().Replace(",", ".") + "," + gpRunwayCenter.Lat.ToString().Replace(",", ".") + "," + gpRunwayCenter.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
+				"<Placemark><name>Runway P1</name><Point><coordinates>" + gpRunwayP1.Lon.ToString().Replace(",", ".") + "," + gpRunwayP1.Lat.ToString().Replace(",", ".") + "," + gpRunwayP1.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
+				"<Placemark><name>Runway P2</name><Point><coordinates>" + gpRunwayP2.Lon.ToString().Replace(",", ".") + "," + gpRunwayP2.Lat.ToString().Replace(",", ".") + "," + gpRunwayP2.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
+				"<Placemark><name>Runway P3</name><Point><coordinates>" + gpRunwayP3.Lon.ToString().Replace(",", ".") + "," + gpRunwayP3.Lat.ToString().Replace(",", ".") + "," + gpRunwayP3.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
+				"<Placemark><name>Runway P4</name><Point><coordinates>" + gpRunwayP4.Lon.ToString().Replace(",", ".") + "," + gpRunwayP4.Lat.ToString().Replace(",", ".") + "," + gpRunwayP4.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
+				"<Placemark><name>ILS Position</name><Point><coordinates>" + gpIls.Lon.ToString().Replace(",", ".") + "," + gpIls.Lat.ToString().Replace(",", ".") + "," + gpIls.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
+				"<Placemark><name>ILS Range</name><Point><coordinates>" + gpIlsRange.Lon.ToString().Replace(",", ".") + "," + gpIlsRange.Lat.ToString().Replace(",", ".") + "," + gpIlsRange.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
+				"</Document></kml>";
 		}
 	}
 
@@ -155,7 +197,7 @@ namespace Fsxget
 		#endregion
 
 		public KmlFileFsx(ref FsxConnection fsxCon, ref HttpServer httpServer, String strName)
-			: base(ref httpServer, strName)
+			: base(ref httpServer , strName)
 		{
 			this.fsxCon = fsxCon;
 		}
@@ -333,7 +375,7 @@ namespace Fsxget
 							strbKml.Append(String.Format("<Delete><Placemark targetId=\"{0}pp\"/></Delete>", fsxCon.objUserAircraft.ObjectID));
 							if (fsxCon.objUserAircraft.pathPrediction.HasPoints)
 							{
-								for (i = 1; i < fsxCon.objUserAircraft.pathPrediction.Positions.Length; i++)
+								for (i = 1; i < fsxCon.objUserAircraft.pathPrediction .Positions.Length; i++)
 								{
 									strbKml.Append(String.Format("<Delete><Placemark targetId=\"{0}pp{1}\"/></Delete>", fsxCon.objUserAircraft.ObjectID, i));
 								}
@@ -532,7 +574,7 @@ namespace Fsxget
 				case FsxConnection.SceneryMovingObject.STATE.DELETED:
 					strbKmlPart.Append("<Delete>");
 					strbKmlPart.AppendFormat("<Placemark targetId=\"{0}\"/>", obj.ObjectID);
-					strbKmlPart.Append("</Delete>");
+					strbKmlPart .Append("</Delete>");
 					if (obj.objPath != null)
 						strbKmlPart.AppendFormat("<Delete><Placemark targetId=\"{0}p\"/></Delete>", obj.ObjectID);
 					if (obj.pathPrediction != null)
@@ -648,7 +690,7 @@ namespace Fsxget
 			strKmlPart = strKmlPart.Replace("%FREQUENCY%", XmlConvert.ToString(navaidData.Frequency));
 			strKmlPart = strKmlPart.Replace("%ALTITUDE%", XmlConvert.ToString(navaidData.Altitude));
 			strKmlPart = strKmlPart.Replace("%ALTITUDE_UF%", String.Format("{0:F2}ft", navaidData.Altitude * 3.28095));
-			strKmlPart = strKmlPart.Replace("%LONGITUDE%", XmlConvert.ToString(navaidData.Longitude));
+			strKmlPart = strKmlPart.Replace("%LONGITUDE%", XmlConvert. ToString(navaidData.Longitude));
 			strKmlPart = strKmlPart.Replace("%LATITUDE%", XmlConvert.ToString(navaidData.Latitude));
 			strKmlPart = strKmlPart.Replace("%SERVER%", App.Config.Server);
 			return strKmlPart + "</Folder></Create>";
@@ -934,7 +976,7 @@ namespace Fsxget
 			StringBuilder strbKml = GetStringBuilder(App.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue);
 			lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].lockObject)
 			{
-				foreach (DictionaryEntry entry in fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].htObjects)
+				foreach ( DictionaryEntry entry in fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].htObjects)
 				{
 					FsxConnection.SceneryAirportObject airport = (FsxConnection.SceneryAirportObject)entry.Value;
 					FsxConnection.SceneryAirportObjectData airportData = airport.AirportData;

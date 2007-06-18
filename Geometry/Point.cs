@@ -13,6 +13,13 @@ namespace Geometry
 			this.Z = Z;
 		}
 
+		public Point(Vector vec)
+		{
+			X = vec.X;
+			Y = vec.Y;
+			Z = vec.Z;
+		}
+
 		public double X;
 		public double Y;
 		public double Z;
