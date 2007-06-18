@@ -54,6 +54,30 @@ namespace Geometry
 				return this / l;
 		}
 
+		/// <summary>
+		/// Rotates the vector around a given axis perpendicular to the vector.
+		/// </summary>
+		/// <remarks>Do not use this function for non-perpendicular axes. The method will not check
+		/// perpendicularity but the results will be wrong.</remarks>
+		/// <param name="Axis"></param>
+		/// <param name="angle">The angle to rotate given in degrees.</param>
+		/// <returns>The rotated vector (not normalized).</returns>
+		public Vector rotateAroundPerpAxis(Vector Axis, double angle)
+		{
+			double theta = angle / 180.0 * Math.PI;
+
+			double c = Math.Cos(theta);
+			double s = Math.Sin(theta);
+			double t = 1 - Math.Cos(theta);
+
+			Matrix mxRotate = new Matrix(
+				t * Math.Pow(Axis.X, 2.0) + c, t * Axis.X * Axis.Y - s * Axis.Z, t * Axis.X * Axis.Z + s * Axis.Y,
+				t * Axis.X * Axis.Y + s * Axis.Z, t * Math.Pow(Axis.Y, 2.0) + c, t * Axis.Y * Axis.Z - s * Axis.X,
+				t * Axis.X * Axis.Z - s * Axis.Y, t * Axis.Y * Axis.Z + s * Axis.X, t * Math.Pow(Axis.Z, 2.0) + c);
+
+			return mxRotate * this;
+		}
+
 		public static Vector operator /(Vector V, double div)
 		{
 			return new Vector(V.X / div, V.Y / div, V.Z / div);

@@ -78,21 +78,26 @@ namespace Fsxget
 
 		public override string GetKmlFile()
 		{
-			double lat = 48.3575;
-			double lon = 11.78528;
-			double alt = 1000.0;
+			double dDistance = 10.0;
+			double dAngle = -30.0;
+			
+			// Munich
+			//GeoPoint gpOrig = new GeoPoint(48.3575, 11.78528, 1000.0);
 
-			Vector vNorth = new Vector(0.0, 0.0, 1.0);
-			Vector vOrig = new Vector(EarthCalculator.geo2xyz(new GeoPoint(lat, lon, alt)));
+			// Chicago
+			GeoPoint gpOrig = new GeoPoint(41.9903, -87.90417, 1000.0);
+			
 
-			Vector vTang = Vector.crossProduct(vOrig, Vector.crossProduct(vNorth, vOrig));
+			Geometry.Point ptOrig = EarthCalculator.geo2xyz(gpOrig);
+			Vector vOrig = new Vector(ptOrig);
 
-			Vector vNew = vOrig + (vTang.getNormalized() * 5.0);
-			//vNew = vOrig;
-
+			Vector vNew = vOrig + (EarthCalculator.getTangentialVector(ptOrig, dAngle).getNormalized() * dDistance);
 			GeoPoint gpNew = EarthCalculator.xyz2geo(new Geometry.Point(vNew.X, vNew.Y, vNew.Z));
 
-			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Placemark><name>Simple placemark</name><Point><coordinates>" + gpNew.Lon.ToString().Replace(",", ".") + "," + gpNew.Lat.ToString().Replace(",", ".") + "," + gpNew.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark></kml>";
+
+			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Document>" +
+				"<Placemark><name>New Point</name><Point><coordinates>" + gpNew.Lon.ToString().Replace(",", ".") + "," + gpNew.Lat.ToString().Replace(",", ".") + "," + gpNew.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
+				"<Placemark><name>Original Point</name><Point><coordinates>" + gpOrig.Lon.ToString().Replace(",", ".") + "," + gpOrig.Lat.ToString().Replace(",", ".") + "," + gpOrig.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark></Document></kml>";
 		}
 	}
 
@@ -130,7 +135,7 @@ namespace Fsxget
                 "fsxpm.png",
                 "fsxaippp.png",
                 "fsxaihpp.png",
-                "fsxaibpp.png",
+				"fsxaibpp.png",
                 "fsxaigpp.png",
                 "fsxaip.png",
                 "fsxaih.png",

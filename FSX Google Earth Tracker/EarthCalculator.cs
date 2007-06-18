@@ -82,9 +82,43 @@ namespace Fsxget
 			double lambda = Math.Acos(ptIn.X * ((double)(1) / Math.Cos(phi)) * ((double)(1) / (n + h)));
 
 			return new GeoPoint(
-				phi * (double)(180) / (double)(Math.PI),
-				lambda * (double)(180) / (double)(Math.PI),
+				Math.Sign(ptIn.Z) * phi * (double)(180) / (double)(Math.PI),
+				Math.Sign(ptIn.Y) * lambda * (double)(180) / (double)(Math.PI),
 				h);
+			
+		}
+
+		/// <summary>
+		/// Returns a vector tangential to the given point, i.e. if the given point is on Earth's 
+		/// surface, tagential to the surface. Furthermore the resulting vector will point North.
+		/// </summary>
+		/// <remarks>For a tangential vector with a specific heading, see 
+		/// getTangentialVector(Point , double).</remarks>
+		/// <seealso cref="getTangentialVector(Point , double)"/>
+		/// <param name="ptTouch"></param>
+		/// <returns>The normalized vector being tangential in the given point and pointing North.</returns>
+		public static Vector getTangentialVector(Point ptTouch)
+		{
+			Vector vNorth = new Vector(0.0, 0.0, 1.0);
+			Vector vTouch = new Vector(ptTouch);
+
+			return Vector.crossProduct(vTouch, Vector.crossProduct(vNorth.getNormalized(), vTouch.getNormalized()).getNormalized()).getNormalized();
+		}
+
+		/// <summary>
+		/// Returns a vector tangential to the given point, i.e. if the given point is on Earth's 
+		/// surface, tagential to the surface. Furthermore the resulting vector will have the specified
+		/// heading.
+		/// </summary>
+		/// <remarks>For a tangential vector with heading North, see 
+		/// getTangentialVector(Point).</remarks>
+		/// <seealso cref="getTangentialVector(Point)"/>
+		/// <param name="ptTouch"></param>
+		/// <param name="heading"></param>
+		/// <returns>The normalized vector with the given heading being tangential in the given point.</returns>
+		public static Vector getTangentialVector(Point ptTouch, double heading)
+		{
+			return getTangentialVector(ptTouch).getNormalized().rotateAroundPerpAxis(new Vector(ptTouch).getNormalized(), -heading).getNormalized();
 		}
 	}
 }
