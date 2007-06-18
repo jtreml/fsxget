@@ -233,6 +233,8 @@ namespace Fsxget
 			{
 				httpServer.stop();
 			}
+
+			notifyIconMain.Visible = false;
 		}
 
 
