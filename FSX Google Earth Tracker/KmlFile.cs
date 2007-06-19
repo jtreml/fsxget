@@ -105,10 +105,10 @@ namespace Fsxget
 
 			// EDDM Runway ILS
 			GeoPoint gpIls = new GeoPoint(48.34517, 11.80936, 453.237);
-			double ilsHeading = 83.4;
+			double ilsHeading = 83.4 + 180.0;
 			double ilsRange = 50017.0;
 			double ilsWidth = 2.812372;
-			double glideAngle = 3.0;
+			double glideAngle = 2.9;
 
 			// Get vector for ILS position
 			Geometry.Point pIlsPos = EarthCalculator.geo2xyz(gpIls);
@@ -127,13 +127,12 @@ namespace Fsxget
 			// Get the ILS signals radius at the given range according to the given width
 			double d = Math.Tan((ilsWidth / 2.0) / 180.0 * Math.PI) * ilsRange;
 
-
 			// ILS center position at given range
 			Vector vIlsCenterPos = vIlsPos + vIlsCenterLine * ilsRange;
 			GeoPoint gpIlsCenterPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsCenterPos));
 
 			// ILS positions at the given range
-			double e = 1.6;
+			double e = 1.5;
 
 			Vector vIlsUpPos = vIlsCenterPos + vIlsCenterLinePerp * d;
 			GeoPoint gpIlsUpPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsUpPos));
@@ -172,7 +171,8 @@ namespace Fsxget
 			GeoPoint gpIlsDownLeftPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsDownLeftPos));
 
 
-			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Document>" +
+			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Document><name>ILS</name>" +
+				"<Folder><name>Points</name>" +
 				"<Placemark><name>Runway Center</name><Point><coordinates>" + gpRunwayCenter + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
 				"<Placemark><name>Runway P1</name><Point><coordinates>" + gpRunwayP1 + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
 				"<Placemark><name>Runway P2</name><Point><coordinates>" + gpRunwayP2 + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
@@ -188,8 +188,11 @@ namespace Fsxget
 				"<Placemark><name>ILS Range Down Right Pos</name><Point><coordinates>" + gpIlsDownRightPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
 				"<Placemark><name>ILS Range Up Right Pos</name><Point><coordinates>" + gpIlsUpRightPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
 				"<Placemark><name>ILS Range Down Left Pos</name><Point><coordinates>" + gpIlsDownLeftPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Style id=\"ilsOuter\"><LineStyle><color>7700ffff</color></LineStyle><PolyStyle><color>5500ffff</color></PolyStyle></Style>" +
+				"</Folder>" +
+				"<Style id=\"ilsOuter\"><LineStyle><color>bb00ffff</color></LineStyle><PolyStyle><color>aa00ffff</color></PolyStyle></Style>" +
 				"<Style id=\"ilsInner\"><LineStyle><color>660000ff</color></LineStyle><PolyStyle><color>880000ff</color></PolyStyle></Style>" +
+				"<Folder><name>Tunnel</name>" +
+				"<Folder><name>Limits</name>" +
 				"<Placemark><name>Poly Side 1</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsUpPos + "\n" + gpIlsUpRightPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
 				"<Placemark><name>Poly Side 2</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsUpRightPos + "\n" + gpIlsRightPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
 				"<Placemark><name>Poly Side 3</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsRightPos + "\n" + gpIlsDownRightPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
@@ -198,8 +201,14 @@ namespace Fsxget
 				"<Placemark><name>Poly Side 6</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsDownLeftPos + "\n" + gpIlsLeftPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
 				"<Placemark><name>Poly Side 7</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsLeftPos + "\n" + gpIlsUpLeftPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
 				"<Placemark><name>Poly Side 8</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsUpLeftPos + "\n" + gpIlsUpPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"<Placemark><name>Poly Cross 1</name><styleUrl>#ilsInner</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsLeftPosExt + "\n" + gpIlsRightPosExt + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"<Placemark><name>Poly Cross 2</name><styleUrl>#ilsInner</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsUpPosExt + "\n" + gpIlsDownPosExt + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"</Folder>" +
+				"<Folder><name>Cross</name>" +
+				"<Placemark><name>Poly Cross 1</name><styleUrl>#ilsInner</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsLeftPosExt + "\n" + gpIlsCenterPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"<Placemark><name>Poly Cross 2</name><styleUrl>#ilsInner</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsCenterPos + "\n" + gpIlsRightPosExt + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"<Placemark><name>Poly Cross 3</name><styleUrl>#ilsInner</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsUpPosExt + "\n" + gpIlsCenterPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"<Placemark><name>Poly Cross 4</name><styleUrl>#ilsInner</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsCenterPos + "\n" + gpIlsDownPosExt + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"</Folder>" +
+				"</Folder>" +
 				"</Document></kml>";
 		}
 	}
