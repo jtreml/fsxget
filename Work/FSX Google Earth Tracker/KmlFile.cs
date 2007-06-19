@@ -108,37 +108,98 @@ namespace Fsxget
 			double ilsHeading = 83.4;
 			double ilsRange = 50017.0;
 			double ilsWidth = 2.812372;
-			double glideAngle = 3.0 / 180.0 * Math.PI;
+			double glideAngle = 3.0;
 
 			// Get vector for ILS position
 			Geometry.Point pIlsPos = EarthCalculator.geo2xyz(gpIls);
 			Vector vIlsPos = new Vector(pIlsPos);
 
 			// Some direction vectors for the ILS
-			Vector vIls = EarthCalculator.getTangentialVector(pIlsPos, ilsHeading).getNormalized();
-			Vector vIlsPerp = Vector.crossProduct(vIlsPos, vIls).getNormalized();
+			Vector vIlsGround = EarthCalculator.getTangentialVector(pIlsPos, ilsHeading).getNormalized();
+			Vector vIlsGroundPerp = Vector.crossProduct(vIlsPos, vIlsGround).getNormalized();
 
-			// ILS range
-			// (Exact calculation)
-			double ilsL = Math.Cos(glideAngle) * ilsRange;
-			double ilsH = Math.Sin(glideAngle) * ilsRange;
+			Vector vIlsCenterLine = vIlsGround.rotateAroundPerpAxis(vIlsGroundPerp, -glideAngle).getNormalized();
+			Vector vIlsCenterLinePerp = Vector.crossProduct(vIlsCenterLine, vIlsGroundPerp).getNormalized();
+			Vector vIlsCenterLinePerp45 = vIlsCenterLinePerp.rotateAroundPerpAxis(vIlsCenterLine, 45.0).getNormalized();
+			Vector vIlsCenterLinePerp45N = vIlsCenterLinePerp.rotateAroundPerpAxis(vIlsCenterLine, -45.0).getNormalized();
+			Vector vIlsCenterLinePerp90 = vIlsCenterLinePerp.rotateAroundPerpAxis(vIlsCenterLine, 90.0).getNormalized();
 
-			Vector vIlsRange = vIlsPos + (vIls * ilsL);
-			GeoPoint gpIlsRange = EarthCalculator.xyz2geo(new Geometry.Point(vIlsRange));
-			gpIlsRange.Alt += ilsH;
+			// Get the ILS signals radius at the given range according to the given width
+			double d = Math.Tan((ilsWidth / 2.0) / 180.0 * Math.PI) * ilsRange;
 
-			// (Fast calculation)
-			//Vector vIlsRange = vIlsPos + (vIls * ilsRange);
-			//GeoPoint gpIlsRange = EarthCalculator.xyz2geo(new Geometry.Point(vIlsRange));
+
+			// ILS center position at given range
+			Vector vIlsCenterPos = vIlsPos + vIlsCenterLine * ilsRange;
+			GeoPoint gpIlsCenterPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsCenterPos));
+
+			// ILS positions at the given range
+			double e = 1.6;
+
+			Vector vIlsUpPos = vIlsCenterPos + vIlsCenterLinePerp * d;
+			GeoPoint gpIlsUpPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsUpPos));
+
+			Vector vIlsUpPosExt = vIlsCenterPos + vIlsCenterLinePerp * d * e;
+			GeoPoint gpIlsUpPosExt = EarthCalculator.xyz2geo(new Geometry.Point(vIlsUpPosExt));
+
+			Vector vIlsLeftPos = vIlsCenterPos + vIlsCenterLinePerp90 * d;
+			GeoPoint gpIlsLeftPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsLeftPos));
+
+			Vector vIlsLeftPosExt = vIlsCenterPos + vIlsCenterLinePerp90 * d * e;
+			GeoPoint gpIlsLeftPosExt = EarthCalculator.xyz2geo(new Geometry.Point(vIlsLeftPosExt));
+
+			Vector vIlsUpLeftPos = vIlsCenterPos + vIlsCenterLinePerp45 * d;
+			GeoPoint gpIlsUpLeftPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsUpLeftPos));
+
+			Vector vIlsUpRightPos = vIlsCenterPos + vIlsCenterLinePerp45N * d;
+			GeoPoint gpIlsUpRightPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsUpRightPos));
+
+			Vector vIlsDownPos = vIlsCenterPos - vIlsCenterLinePerp * d;
+			GeoPoint gpIlsDownPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsDownPos));
+
+			Vector vIlsDownPosExt = vIlsCenterPos - vIlsCenterLinePerp * d * e;
+			GeoPoint gpIlsDownPosExt = EarthCalculator.xyz2geo(new Geometry.Point(vIlsDownPosExt));
+
+			Vector vIlsRightPos = vIlsCenterPos - vIlsCenterLinePerp90 * d;
+			GeoPoint gpIlsRightPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsRightPos));
+
+			Vector vIlsRightPosExt = vIlsCenterPos - vIlsCenterLinePerp90 * d * e;
+			GeoPoint gpIlsRightPosExt = EarthCalculator.xyz2geo(new Geometry.Point(vIlsRightPosExt));
+
+			Vector vIlsDownRightPos = vIlsCenterPos - vIlsCenterLinePerp45 * d;
+			GeoPoint gpIlsDownRightPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsDownRightPos));
+
+			Vector vIlsDownLeftPos = vIlsCenterPos - vIlsCenterLinePerp45N * d;
+			GeoPoint gpIlsDownLeftPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsDownLeftPos));
+
 
 			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Document>" +
-				"<Placemark><name>Runway Center</name><Point><coordinates>" + gpRunwayCenter.Lon.ToString().Replace(",", ".") + "," + gpRunwayCenter.Lat.ToString().Replace(",", ".") + "," + gpRunwayCenter.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
-				"<Placemark><name>Runway P1</name><Point><coordinates>" + gpRunwayP1.Lon.ToString().Replace(",", ".") + "," + gpRunwayP1.Lat.ToString().Replace(",", ".") + "," + gpRunwayP1.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
-				"<Placemark><name>Runway P2</name><Point><coordinates>" + gpRunwayP2.Lon.ToString().Replace(",", ".") + "," + gpRunwayP2.Lat.ToString().Replace(",", ".") + "," + gpRunwayP2.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
-				"<Placemark><name>Runway P3</name><Point><coordinates>" + gpRunwayP3.Lon.ToString().Replace(",", ".") + "," + gpRunwayP3.Lat.ToString().Replace(",", ".") + "," + gpRunwayP3.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
-				"<Placemark><name>Runway P4</name><Point><coordinates>" + gpRunwayP4.Lon.ToString().Replace(",", ".") + "," + gpRunwayP4.Lat.ToString().Replace(",", ".") + "," + gpRunwayP4.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
-				"<Placemark><name>ILS Position</name><Point><coordinates>" + gpIls.Lon.ToString().Replace(",", ".") + "," + gpIls.Lat.ToString().Replace(",", ".") + "," + gpIls.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
-				"<Placemark><name>ILS Range</name><Point><coordinates>" + gpIlsRange.Lon.ToString().Replace(",", ".") + "," + gpIlsRange.Lat.ToString().Replace(",", ".") + "," + gpIlsRange.Alt.ToString().Replace(",", ".") + "</coordinates></Point></Placemark>" +
+				"<Placemark><name>Runway Center</name><Point><coordinates>" + gpRunwayCenter + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>Runway P1</name><Point><coordinates>" + gpRunwayP1 + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>Runway P2</name><Point><coordinates>" + gpRunwayP2 + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>Runway P3</name><Point><coordinates>" + gpRunwayP3 + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>Runway P4</name><Point><coordinates>" + gpRunwayP4 + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>ILS Position</name><Point><coordinates>" + gpIls + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>ILS Range Center Pos</name><Point><coordinates>" + gpIlsCenterPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>ILS Range Upmost Pos</name><Point><coordinates>" + gpIlsUpPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>ILS Range Left Pos</name><Point><coordinates>" + gpIlsLeftPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>ILS Range Up Left Pos</name><Point><coordinates>" + gpIlsUpLeftPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>ILS Range Down Pos</name><Point><coordinates>" + gpIlsDownPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>ILS Range Right Pos</name><Point><coordinates>" + gpIlsRightPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>ILS Range Down Right Pos</name><Point><coordinates>" + gpIlsDownRightPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>ILS Range Up Right Pos</name><Point><coordinates>" + gpIlsUpRightPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Placemark><name>ILS Range Down Left Pos</name><Point><coordinates>" + gpIlsDownLeftPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
+				"<Style id=\"ilsOuter\"><LineStyle><color>7700ffff</color></LineStyle><PolyStyle><color>5500ffff</color></PolyStyle></Style>" +
+				"<Style id=\"ilsInner\"><LineStyle><color>660000ff</color></LineStyle><PolyStyle><color>880000ff</color></PolyStyle></Style>" +
+				"<Placemark><name>Poly Side 1</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsUpPos + "\n" + gpIlsUpRightPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"<Placemark><name>Poly Side 2</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsUpRightPos + "\n" + gpIlsRightPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"<Placemark><name>Poly Side 3</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsRightPos + "\n" + gpIlsDownRightPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"<Placemark><name>Poly Side 4</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsDownRightPos + "\n" + gpIlsDownPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"<Placemark><name>Poly Side 5</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsDownPos + "\n" + gpIlsDownLeftPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"<Placemark><name>Poly Side 6</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsDownLeftPos + "\n" + gpIlsLeftPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"<Placemark><name>Poly Side 7</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsLeftPos + "\n" + gpIlsUpLeftPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"<Placemark><name>Poly Side 8</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsUpLeftPos + "\n" + gpIlsUpPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"<Placemark><name>Poly Cross 1</name><styleUrl>#ilsInner</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsLeftPosExt + "\n" + gpIlsRightPosExt + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
+				"<Placemark><name>Poly Cross 2</name><styleUrl>#ilsInner</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsUpPosExt + "\n" + gpIlsDownPosExt + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
 				"</Document></kml>";
 		}
 	}
@@ -181,7 +242,7 @@ namespace Fsxget
                 "fsxaigpp.png",
                 "fsxaip.png",
                 "fsxaih.png",
-                "fsxaib.png",
+				"fsxaib.png",
                 "fsxaig.png",
                 "fsxvor.png",
                 "fsxvordme.png",
@@ -196,8 +257,8 @@ namespace Fsxget
 		protected FsxConnection fsxCon;
 		#endregion
 
-		public KmlFileFsx(ref FsxConnection fsxCon, ref HttpServer httpServer, String strName)
-			: base(ref httpServer , strName)
+		public KmlFileFsx(ref FsxConnection fsxCon, ref HttpServer httpServer , String strName)
+			: base(ref httpServer, strName)
 		{
 			this.fsxCon = fsxCon;
 		}
@@ -242,7 +303,7 @@ namespace Fsxget
 	public abstract class KmlFileMovingObject : KmlFileFsx
 	{
 		public KmlFileMovingObject(ref FsxConnection fsxCon, ref HttpServer httpServer, String strName)
-			: base(ref fsxCon, ref httpServer, strName)
+			: base(ref fsxCon, ref httpServer , strName)
 		{
 		}
 
@@ -291,7 +352,7 @@ namespace Fsxget
 		protected static float[][] fSpeedAlt;
 
 		public KmlFileUserPosition(ref FsxConnection fsxCon, ref HttpServer httpServer)
-			: base(ref fsxCon, ref httpServer, "fsxuu.kml")
+			: base(ref fsxCon, ref httpServer , "fsxuu.kml")
 		{
 			fSpeedAlt = new float[9][];
 
@@ -375,7 +436,7 @@ namespace Fsxget
 							strbKml.Append(String.Format("<Delete><Placemark targetId=\"{0}pp\"/></Delete>", fsxCon.objUserAircraft.ObjectID));
 							if (fsxCon.objUserAircraft.pathPrediction.HasPoints)
 							{
-								for (i = 1; i < fsxCon.objUserAircraft.pathPrediction .Positions.Length; i++)
+								for (i = 1; i < fsxCon.objUserAircraft.pathPrediction.Positions.Length; i++)
 								{
 									strbKml.Append(String.Format("<Delete><Placemark targetId=\"{0}pp{1}\"/></Delete>", fsxCon.objUserAircraft.ObjectID, i));
 								}
@@ -418,7 +479,7 @@ namespace Fsxget
 	public class KmlFileUserPathPrediction : KmlFileMovingObject
 	{
 		public KmlFileUserPathPrediction(ref FsxConnection fsxCon, ref HttpServer httpServer)
-			: base(ref fsxCon, ref httpServer, "fsxpreu.kml")
+			: base(ref fsxCon, ref httpServer , "fsxpreu.kml")
 		{
 		}
 
@@ -460,7 +521,7 @@ namespace Fsxget
 	public class KmlFileUserPath : KmlFileFsx
 	{
 		public KmlFileUserPath(ref FsxConnection fsxCon, ref HttpServer httpServer)
-			: base(ref fsxCon, ref httpServer, "fsxpu.kml")
+			: base(ref fsxCon, ref httpServer , "fsxpu.kml")
 		{
 		}
 
@@ -508,8 +569,8 @@ namespace Fsxget
 		private int objContainer;
 		private Config.SETTING cfgSetting;
 
-		public KmlFileAIObject(ref FsxConnection fsxCon, ref HttpServer httpServer, String strName, FsxConnection.OBJCONTAINER objContainer, Config.SETTING cfgSetting, String strFolder, String strPartFile, KML_ICON_TYPES tIconObject, KML_ICON_TYPES tIconPPP, String strColor)
-			: base(ref fsxCon, ref httpServer, strName)
+		public KmlFileAIObject(ref FsxConnection fsxCon, ref HttpServer httpServer , String strName, FsxConnection.OBJCONTAINER objContainer, Config.SETTING cfgSetting, String strFolder, String strPartFile, KML_ICON_TYPES tIconObject, KML_ICON_TYPES tIconPPP, String strColor)
+			: base(ref fsxCon, ref httpServer , strName)
 		{
 			this.strFolder = strFolder;
 			this.strPartFile = strPartFile;
@@ -574,7 +635,7 @@ namespace Fsxget
 				case FsxConnection.SceneryMovingObject.STATE.DELETED:
 					strbKmlPart.Append("<Delete>");
 					strbKmlPart.AppendFormat("<Placemark targetId=\"{0}\"/>", obj.ObjectID);
-					strbKmlPart .Append("</Delete>");
+					strbKmlPart.Append("</Delete>");
 					if (obj.objPath != null)
 						strbKmlPart.AppendFormat("<Delete><Placemark targetId=\"{0}p\"/></Delete>", obj.ObjectID);
 					if (obj.pathPrediction != null)
@@ -619,7 +680,7 @@ namespace Fsxget
 	public class KmlFileNavaid : KmlFileFsx
 	{
 		public KmlFileNavaid(ref FsxConnection fsxCon, ref HttpServer httpServer)
-			: base(ref fsxCon, ref httpServer, "fsxnau.kml")
+			: base(ref fsxCon, ref httpServer , "fsxnau.kml")
 		{
 			LoadKmlPart("fsxvor");
 			LoadKmlPart("fsxndb");
@@ -690,7 +751,7 @@ namespace Fsxget
 			strKmlPart = strKmlPart.Replace("%FREQUENCY%", XmlConvert.ToString(navaidData.Frequency));
 			strKmlPart = strKmlPart.Replace("%ALTITUDE%", XmlConvert.ToString(navaidData.Altitude));
 			strKmlPart = strKmlPart.Replace("%ALTITUDE_UF%", String.Format("{0:F2}ft", navaidData.Altitude * 3.28095));
-			strKmlPart = strKmlPart.Replace("%LONGITUDE%", XmlConvert. ToString(navaidData.Longitude));
+			strKmlPart = strKmlPart.Replace("%LONGITUDE%", XmlConvert.ToString(navaidData.Longitude));
 			strKmlPart = strKmlPart.Replace("%LATITUDE%", XmlConvert.ToString(navaidData.Latitude));
 			strKmlPart = strKmlPart.Replace("%SERVER%", App.Config.Server);
 			return strKmlPart + "</Folder></Create>";
@@ -727,7 +788,7 @@ namespace Fsxget
 	public class KmlFileAirport : KmlFileFsx
 	{
 		public KmlFileAirport(ref FsxConnection fsxCon, ref HttpServer httpServer)
-			: base(ref fsxCon, ref httpServer, "fsxapu.kml")
+			: base(ref fsxCon, ref httpServer , "fsxapu.kml")
 		{
 			httpServer.registerFile("/fsxsapi", new ServerFileDynamic("image/png", GetSimpleAirportIcon));
 			httpServer.registerFile("/fsxcapi", new ServerFileDynamic("image/png", GetComplexAirportIcon));
@@ -976,7 +1037,7 @@ namespace Fsxget
 			StringBuilder strbKml = GetStringBuilder(App.Config[Config.SETTING.QUERY_NAVAIDS]["Interval"].IntValue);
 			lock (fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].lockObject)
 			{
-				foreach ( DictionaryEntry entry in fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].htObjects)
+				foreach (DictionaryEntry entry in fsxCon.objects[(int)FsxConnection.OBJCONTAINER.AIRPORTS].htObjects)
 				{
 					FsxConnection.SceneryAirportObject airport = (FsxConnection.SceneryAirportObject)entry.Value;
 					FsxConnection.SceneryAirportObjectData airportData = airport.AirportData;
@@ -1013,7 +1074,7 @@ namespace Fsxget
 	public class KmlFileFlightPlan : KmlFileFsx
 	{
 		public KmlFileFlightPlan(ref FsxConnection fsxCon, ref HttpServer httpServer)
-			: base(ref fsxCon, ref httpServer, "fsxfpu.kml")
+			: base(ref fsxCon, ref httpServer , "fsxfpu.kml")
 		{
 			LoadKmlPart("fsxfpwp");
 			LoadKmlPart("fsxfppath");
