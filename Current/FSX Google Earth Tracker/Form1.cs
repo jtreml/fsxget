@@ -38,7 +38,7 @@ namespace FSX_Google_Earth_Tracker
 		IPAddress[] ipalLocal2 = null;
 		System.Object lockIPAddressList = new System.Object();
 
-		string szPathGE, szPathFSX;
+		string /* szPathGE , */ szPathFSX;
 		const string szRegKeyRun = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 
 
@@ -593,25 +593,27 @@ namespace FSX_Google_Earth_Tracker
 
 			// Load FSX and Google Earth path from registry
 			const string szRegKeyFSX = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft Games\\flight simulator\\10.0";
-			const string szRegKeyGE = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Google\\Google Earth Plus";
-			const string szRegKeyGE2 = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Google\\Google Earth Pro";
+			//const string szRegKeyGE = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Google\\Google Earth Plus";
+			//const string szRegKeyGE2 = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Google\\Google Earth Pro";
 
-			szPathGE = (string)Registry.GetValue(szRegKeyGE, "InstallDir", "");
-			if (szPathGE == "")
-				szPathGE = (string)Registry.GetValue(szRegKeyGE2, "InstallDir", "");
+			//szPathGE = (string)Registry.GetValue(szRegKeyGE, "InstallDir", "");
+			//if (szPathGE == "")
+			//    szPathGE = (string)Registry.GetValue(szRegKeyGE2, "InstallDir", "");
 
 			szPathFSX = (string)Registry.GetValue(szRegKeyFSX, "SetupPath", "");
 
-			if (szPathGE != "")
-			{
-				szPathGE += "\\googleearth.exe";
-				if (File.Exists(szPathGE))
-					runGoogleEarthToolStripMenuItem.Enabled = true;
-				else
-					runGoogleEarthToolStripMenuItem.Enabled = false;
-			}
-			else
-				runGoogleEarthToolStripMenuItem.Enabled = false;
+			//if (szPathGE != "")
+			//{
+			//    szPathGE += "\\googleearth.exe";
+			//    if (File.Exists(szPathGE))
+			//        runGoogleEarthToolStripMenuItem.Enabled = true;
+			//    else
+			//        runGoogleEarthToolStripMenuItem.Enabled = false;
+			//}
+			//else
+			//    runGoogleEarthToolStripMenuItem.Enabled = false;
+
+			runGoogleEarthToolStripMenuItem.Enabled = true;
 
 			if (szPathFSX != "")
 			{
