@@ -30,4 +30,10 @@
 			%BOUNDARIES%
 		</MultiGeometry>
 	</Placemark>
+	<Document>
+		<name>ILS</name>
+		<Style id="ilsOuter"><LineStyle><color>bb00ffff</color></LineStyle><PolyStyle><color>aa00ffff</color></PolyStyle></Style>
+		<Style id="ilsInner"><LineStyle><color>660000ff</color></LineStyle><PolyStyle><color>880000ff</color></PolyStyle></Style>
+		%ILSTUNNELS%
+	</Document>
 </Folder>

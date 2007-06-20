@@ -1,0 +1,11 @@
+<Folder>
+	<name>%NAME% (%IDENT%)</name>
+	<Folder>
+		<name>Cross</name>
+		%POLYGONS1%
+	</Folder>
+	<Folder>
+		<name>Tunnel</name>
+		%POLYGONS2%
+	</Folder>
+</Folder>
