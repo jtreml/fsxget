@@ -234,6 +234,9 @@
     <Resource Include="data\fsxvor.part" />
     <Resource Include="data\fsxvoroverlay.part" />
     <Resource Include="data\settings.default" />
+    <Resource Include="data\fsxilst.part" />
+    <Resource Include="data\fsxilstp1.part" />
+    <Resource Include="data\fsxilstp2.part" />
     <None Include="Resources\ui_app.ico" />
   </ItemGroup>
   <ItemGroup>

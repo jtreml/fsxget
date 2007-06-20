@@ -71,148 +71,6 @@ namespace Fsxget
 		}
 	}
 
-	public class KmlFileIls : KmlFile
-	{
-		public KmlFileIls(ref HttpServer httpServer)
-			: base(ref httpServer, "fsxils.kml") { }
-
-		public override string GetKmlFile()
-		{
-			// EDDM Runway
-			GeoPoint gpRunwayCenter = new GeoPoint(48.34274, 11.77782, 453.237);
-			double runwayHeading = 83.4;
-			double runwayLength = 3991.97;
-			double runwayWidth = 60.05;
-
-			// Get vector for runway center
-			Geometry.Point pRunwayCenter = EarthCalculator.geo2xyz(gpRunwayCenter);
-			Vector vRunwayCenter = new Vector(pRunwayCenter);
-
-			// Some direction vectors for the runway
-			Vector vRunway = EarthCalculator.getTangentialVector(pRunwayCenter, runwayHeading).getNormalized();
-			Vector vRunwayPerp = Vector.crossProduct(vRunwayCenter, vRunway).getNormalized();
-
-			// Here's the runway corners
-			Vector vRunwayP1 = vRunwayCenter + (vRunway * runwayLength / 2.0) + (vRunwayPerp * runwayWidth / 2.0);
-			GeoPoint gpRunwayP1 = EarthCalculator.xyz2geo(new Geometry.Point(vRunwayP1));
-			Vector vRunwayP2 = vRunwayCenter + (vRunway * runwayLength / 2.0) - (vRunwayPerp * runwayWidth / 2.0);
-			GeoPoint gpRunwayP2 = EarthCalculator.xyz2geo(new Geometry.Point(vRunwayP2));
-			Vector vRunwayP3 = vRunwayCenter - (vRunway * runwayLength / 2.0) + (vRunwayPerp * runwayWidth / 2.0);
-			GeoPoint gpRunwayP3 = EarthCalculator.xyz2geo(new Geometry.Point(vRunwayP3));
-			Vector vRunwayP4 = vRunwayCenter - (vRunway * runwayLength / 2.0) - (vRunwayPerp * runwayWidth / 2.0);
-			GeoPoint gpRunwayP4 = EarthCalculator.xyz2geo(new Geometry.Point(vRunwayP4));
-
-
-			// EDDM Runway ILS
-			GeoPoint gpIls = new GeoPoint(48.34517, 11.80936, 453.237);
-			double ilsHeading = 83.4 + 180.0;
-			double ilsRange = 50017.0;
-			double ilsWidth = 2.812372;
-			double glideAngle = 2.9;
-
-			// Get vector for ILS position
-			Geometry.Point pIlsPos = EarthCalculator.geo2xyz(gpIls);
-			Vector vIlsPos = new Vector(pIlsPos);
-
-			// Some direction vectors for the ILS
-			Vector vIlsGround = EarthCalculator.getTangentialVector(pIlsPos, ilsHeading).getNormalized();
-			Vector vIlsGroundPerp = Vector.crossProduct(vIlsPos, vIlsGround).getNormalized();
-
-			Vector vIlsCenterLine = vIlsGround.rotateAroundPerpAxis(vIlsGroundPerp, -glideAngle).getNormalized();
-			Vector vIlsCenterLinePerp = Vector.crossProduct(vIlsCenterLine, vIlsGroundPerp).getNormalized();
-			Vector vIlsCenterLinePerp45 = vIlsCenterLinePerp.rotateAroundPerpAxis(vIlsCenterLine, 45.0).getNormalized();
-			Vector vIlsCenterLinePerp45N = vIlsCenterLinePerp.rotateAroundPerpAxis(vIlsCenterLine, -45.0).getNormalized();
-			Vector vIlsCenterLinePerp90 = vIlsCenterLinePerp.rotateAroundPerpAxis(vIlsCenterLine, 90.0).getNormalized();
-
-			// Get the ILS signals radius at the given range according to the given width
-			double d = Math.Tan((ilsWidth / 2.0) / 180.0 * Math.PI) * ilsRange;
-
-			// ILS center position at given range
-			Vector vIlsCenterPos = vIlsPos + vIlsCenterLine * ilsRange;
-			GeoPoint gpIlsCenterPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsCenterPos));
-
-			// ILS positions at the given range
-			double e = 1.5;
-
-			Vector vIlsUpPos = vIlsCenterPos + vIlsCenterLinePerp * d;
-			GeoPoint gpIlsUpPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsUpPos));
-
-			Vector vIlsUpPosExt = vIlsCenterPos + vIlsCenterLinePerp * d * e;
-			GeoPoint gpIlsUpPosExt = EarthCalculator.xyz2geo(new Geometry.Point(vIlsUpPosExt));
-
-			Vector vIlsLeftPos = vIlsCenterPos + vIlsCenterLinePerp90 * d;
-			GeoPoint gpIlsLeftPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsLeftPos));
-
-			Vector vIlsLeftPosExt = vIlsCenterPos + vIlsCenterLinePerp90 * d * e;
-			GeoPoint gpIlsLeftPosExt = EarthCalculator.xyz2geo(new Geometry.Point(vIlsLeftPosExt));
-
-			Vector vIlsUpLeftPos = vIlsCenterPos + vIlsCenterLinePerp45 * d;
-			GeoPoint gpIlsUpLeftPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsUpLeftPos));
-
-			Vector vIlsUpRightPos = vIlsCenterPos + vIlsCenterLinePerp45N * d;
-			GeoPoint gpIlsUpRightPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsUpRightPos));
-
-			Vector vIlsDownPos = vIlsCenterPos - vIlsCenterLinePerp * d;
-			GeoPoint gpIlsDownPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsDownPos));
-
-			Vector vIlsDownPosExt = vIlsCenterPos - vIlsCenterLinePerp * d * e;
-			GeoPoint gpIlsDownPosExt = EarthCalculator.xyz2geo(new Geometry.Point(vIlsDownPosExt));
-
-			Vector vIlsRightPos = vIlsCenterPos - vIlsCenterLinePerp90 * d;
-			GeoPoint gpIlsRightPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsRightPos));
-
-			Vector vIlsRightPosExt = vIlsCenterPos - vIlsCenterLinePerp90 * d * e;
-			GeoPoint gpIlsRightPosExt = EarthCalculator.xyz2geo(new Geometry.Point(vIlsRightPosExt));
-
-			Vector vIlsDownRightPos = vIlsCenterPos - vIlsCenterLinePerp45 * d;
-			GeoPoint gpIlsDownRightPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsDownRightPos));
-
-			Vector vIlsDownLeftPos = vIlsCenterPos - vIlsCenterLinePerp45N * d;
-			GeoPoint gpIlsDownLeftPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsDownLeftPos));
-
-
-			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://earth.google.com/kml/2.1\"><Document><name>ILS</name>" +
-				"<Folder><name>Points</name>" +
-				"<Placemark><name>Runway Center</name><Point><coordinates>" + gpRunwayCenter + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>Runway P1</name><Point><coordinates>" + gpRunwayP1 + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>Runway P2</name><Point><coordinates>" + gpRunwayP2 + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>Runway P3</name><Point><coordinates>" + gpRunwayP3 + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>Runway P4</name><Point><coordinates>" + gpRunwayP4 + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>ILS Position</name><Point><coordinates>" + gpIls + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>ILS Range Center Pos</name><Point><coordinates>" + gpIlsCenterPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>ILS Range Upmost Pos</name><Point><coordinates>" + gpIlsUpPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>ILS Range Left Pos</name><Point><coordinates>" + gpIlsLeftPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>ILS Range Up Left Pos</name><Point><coordinates>" + gpIlsUpLeftPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>ILS Range Down Pos</name><Point><coordinates>" + gpIlsDownPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>ILS Range Right Pos</name><Point><coordinates>" + gpIlsRightPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>ILS Range Down Right Pos</name><Point><coordinates>" + gpIlsDownRightPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>ILS Range Up Right Pos</name><Point><coordinates>" + gpIlsUpRightPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"<Placemark><name>ILS Range Down Left Pos</name><Point><coordinates>" + gpIlsDownLeftPos + "</coordinates><altitudeMode>absolute</altitudeMode></Point><visibility>0</visibility></Placemark>" +
-				"</Folder>" +
-				"<Style id=\"ilsOuter\"><LineStyle><color>bb00ffff</color></LineStyle><PolyStyle><color>aa00ffff</color></PolyStyle></Style>" +
-				"<Style id=\"ilsInner\"><LineStyle><color>660000ff</color></LineStyle><PolyStyle><color>880000ff</color></PolyStyle></Style>" +
-				"<Folder><name>Tunnel</name>" +
-				"<Folder><name>Limits</name>" +
-				"<Placemark><name>Poly Side 1</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsUpPos + "\n" + gpIlsUpRightPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"<Placemark><name>Poly Side 2</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsUpRightPos + "\n" + gpIlsRightPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"<Placemark><name>Poly Side 3</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsRightPos + "\n" + gpIlsDownRightPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"<Placemark><name>Poly Side 4</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsDownRightPos + "\n" + gpIlsDownPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"<Placemark><name>Poly Side 5</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsDownPos + "\n" + gpIlsDownLeftPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"<Placemark><name>Poly Side 6</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsDownLeftPos + "\n" + gpIlsLeftPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"<Placemark><name>Poly Side 7</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsLeftPos + "\n" + gpIlsUpLeftPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"<Placemark><name>Poly Side 8</name><styleUrl>#ilsOuter</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsUpLeftPos + "\n" + gpIlsUpPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"</Folder>" +
-				"<Folder><name>Cross</name>" +
-				"<Placemark><name>Poly Cross 1</name><styleUrl>#ilsInner</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsLeftPosExt + "\n" + gpIlsCenterPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"<Placemark><name>Poly Cross 2</name><styleUrl>#ilsInner</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsCenterPos + "\n" + gpIlsRightPosExt + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"<Placemark><name>Poly Cross 3</name><styleUrl>#ilsInner</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsUpPosExt + "\n" + gpIlsCenterPos + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"<Placemark><name>Poly Cross 4</name><styleUrl>#ilsInner</styleUrl><Polygon><altitudeMode>absolute</altitudeMode><outerBoundaryIs><LinearRing><coordinates>" + gpIls + "\n" + gpIlsCenterPos + "\n" + gpIlsDownPosExt + "\n" + gpIls + "\n" + "</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>" +
-				"</Folder>" +
-				"</Folder>" +
-				"</Document></kml>";
-		}
-	}
-
 	public abstract class KmlFileFsx : KmlFile
 	{
 		#region Structs and Enums
@@ -812,6 +670,9 @@ namespace Fsxget
 			LoadKmlPart("fsxaprws");
 			LoadKmlPart("fsxpat");
 			LoadKmlPart("fsxils");
+			LoadKmlPart("fsxilst");
+			LoadKmlPart("fsxilstp1");
+			LoadKmlPart("fsxilstp2");
 		}
 
 		public byte[] GetComplexAirportIcon(System.Collections.Specialized.NameValueCollection values)
@@ -930,6 +791,7 @@ namespace Fsxget
 			String strPattern = "";
 			strIlsTmpl = strIlsTmpl.Replace("%SERVER%", App.Config.Server);
 			String strRunwayTmpl = GetKmlPart("fsxaprw");
+			String strIlsTunnels = "";
 			foreach (FsxConnection.SceneryAirportObjectData.Runway runway in airportData.Runways)
 			{
 				String strRunway = strRunwayTmpl;
@@ -951,6 +813,8 @@ namespace Fsxget
 					strIls = strIls.Replace("%FREQ_UF%", runway.ILSData.Frequency.ToString());
 					strIls = strIls.Replace("%FREQ%", XmlConvert.ToString(runway.ILSData.Frequency));
 					strIls = strIls.Replace("%HEADING%", runway.ILSData.Heading.ToString());
+
+					strIlsTunnels += GenIlsTunnels(runway.ILSData);
 				}
 				else
 				{
@@ -989,6 +853,9 @@ namespace Fsxget
 				strbBoundary.Append("</coordinates></LineString>");
 			}
 			strKmlPart = strKmlPart.Replace("%BOUNDARIES%", strbBoundary.ToString());
+
+			strKmlPart = strKmlPart.Replace("%ILSTUNNELS%", strIlsTunnels);
+			
 			strbKmlPart.Append(strKmlPart);
 			strbKmlPart.Append("</Folder></Create>");
 			return strbKmlPart.ToString();
@@ -1039,6 +906,104 @@ namespace Fsxget
 				strKmlPart += "</LatLonAltBox><Lod><minLodPixels>" + (int)(park.Radius * park.Radius) / 10 + "</minLodPixels></Lod></Region></GroundOverlay>";
 			}
 			return strKmlPart + "</Folder></Folder></Create>";
+		}
+
+		private String GenIlsTunnels(FsxConnection.SceneryAirportObjectData.Runway.ILS Ils)
+		{
+			// Ils gilde angle
+			const double glideAngle = 2.9;
+
+			// Ils cross width and height
+			const double e = 1.5;
+
+			
+			// EDDM Runway ILS
+			GeoPoint gpIls = new GeoPoint(Ils.Latitude, Ils.Longitude, Ils.Altitude);
+			double ilsHeading = Ils.Heading + 180.0;
+			double ilsRange = Ils.Range;
+			double ilsWidth = Ils.Width;
+			
+			// Get vector for ILS position
+			Geometry.Point pIlsPos = EarthCalculator.geo2xyz(gpIls);
+			Vector vIlsPos = new Vector(pIlsPos);
+
+			// Some direction vectors for the ILS
+			Vector vIlsGround = EarthCalculator.getTangentialVector(pIlsPos, ilsHeading).getNormalized();
+			Vector vIlsGroundPerp = Vector.crossProduct(vIlsPos, vIlsGround).getNormalized();
+
+			Vector vIlsCenterLine = vIlsGround.rotateAroundPerpAxis(vIlsGroundPerp, -glideAngle).getNormalized();
+			Vector vIlsCenterLinePerp = Vector.crossProduct(vIlsCenterLine, vIlsGroundPerp).getNormalized();
+			Vector vIlsCenterLinePerp45 = vIlsCenterLinePerp.rotateAroundPerpAxis(vIlsCenterLine, 45.0).getNormalized();
+			Vector vIlsCenterLinePerp45N = vIlsCenterLinePerp.rotateAroundPerpAxis(vIlsCenterLine, -45.0).getNormalized();
+			Vector vIlsCenterLinePerp90 = vIlsCenterLinePerp.rotateAroundPerpAxis(vIlsCenterLine, 90.0).getNormalized();
+
+			// Get the ILS signals radius at the given range according to the given width
+			double d = Math.Tan((ilsWidth / 2.0) / 180.0 * Math.PI) * ilsRange;
+
+			// ILS center position at given range
+			Vector vIlsCenterPos = vIlsPos + vIlsCenterLine * ilsRange;
+			GeoPoint gpIlsCenterPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsCenterPos));
+
+			// Various ILS positions at given range
+			Vector vIlsUpPos = vIlsCenterPos + vIlsCenterLinePerp * d;
+			GeoPoint gpIlsUpPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsUpPos));
+
+			Vector vIlsUpPosExt = vIlsCenterPos + vIlsCenterLinePerp * d * e;
+			GeoPoint gpIlsUpPosExt = EarthCalculator.xyz2geo(new Geometry.Point(vIlsUpPosExt));
+
+			Vector vIlsLeftPos = vIlsCenterPos + vIlsCenterLinePerp90 * d;
+			GeoPoint gpIlsLeftPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsLeftPos));
+
+			Vector vIlsLeftPosExt = vIlsCenterPos + vIlsCenterLinePerp90 * d * e;
+			GeoPoint gpIlsLeftPosExt = EarthCalculator.xyz2geo(new Geometry.Point(vIlsLeftPosExt));
+
+			Vector vIlsUpLeftPos = vIlsCenterPos + vIlsCenterLinePerp45 * d;
+			GeoPoint gpIlsUpLeftPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsUpLeftPos));
+
+			Vector vIlsUpRightPos = vIlsCenterPos + vIlsCenterLinePerp45N * d;
+			GeoPoint gpIlsUpRightPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsUpRightPos));
+
+			Vector vIlsDownPos = vIlsCenterPos - vIlsCenterLinePerp * d;
+			GeoPoint gpIlsDownPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsDownPos));
+
+			Vector vIlsDownPosExt = vIlsCenterPos - vIlsCenterLinePerp * d * e;
+			GeoPoint gpIlsDownPosExt = EarthCalculator.xyz2geo(new Geometry.Point(vIlsDownPosExt));
+
+			Vector vIlsRightPos = vIlsCenterPos - vIlsCenterLinePerp90 * d;
+			GeoPoint gpIlsRightPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsRightPos));
+
+			Vector vIlsRightPosExt = vIlsCenterPos - vIlsCenterLinePerp90 * d * e;
+			GeoPoint gpIlsRightPosExt = EarthCalculator.xyz2geo(new Geometry.Point(vIlsRightPosExt));
+
+			Vector vIlsDownRightPos = vIlsCenterPos - vIlsCenterLinePerp45 * d;
+			GeoPoint gpIlsDownRightPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsDownRightPos));
+
+			Vector vIlsDownLeftPos = vIlsCenterPos - vIlsCenterLinePerp45N * d;
+			GeoPoint gpIlsDownLeftPos = EarthCalculator.xyz2geo(new Geometry.Point(vIlsDownLeftPos));
+
+
+			String strKmlIlsTunnelPolygon1 = GetKmlPart("fsxilstp1");
+			String strKmlPolygons1 = "";
+			strKmlPolygons1 += strKmlIlsTunnelPolygon1.Replace("%SIDE%", "HL").Replace("%COORDINATES%", gpIls + "\n" + gpIlsLeftPosExt + "\n" + gpIlsCenterPos + "\n" + gpIls);
+			strKmlPolygons1 += strKmlIlsTunnelPolygon1.Replace("%SIDE%", "HR").Replace("%COORDINATES%", gpIls + "\n" + gpIlsCenterPos + "\n" + gpIlsRightPosExt + "\n" + gpIls);
+			strKmlPolygons1 += strKmlIlsTunnelPolygon1.Replace("%SIDE%", "VT").Replace("%COORDINATES%", gpIls + "\n" + gpIlsUpPosExt + "\n" + gpIlsCenterPos + "\n" + gpIls);
+			strKmlPolygons1 += strKmlIlsTunnelPolygon1.Replace("%SIDE%", "VD").Replace("%COORDINATES%", gpIls + "\n" + gpIlsCenterPos + "\n" + gpIlsDownPosExt + "\n" + gpIls);
+
+			String strKmlIlsTunnelPolygon2 = GetKmlPart("fsxilstp2");
+			String strKmlPolygons2 = "";
+			strKmlPolygons2 += strKmlIlsTunnelPolygon2.Replace("%SIDE%", "1").Replace("%COORDINATES%", gpIls + "\n" + gpIlsUpPos + "\n" + gpIlsUpRightPos + "\n" + gpIls);
+			strKmlPolygons2 += strKmlIlsTunnelPolygon2.Replace("%SIDE%", "2").Replace("%COORDINATES%", gpIls + "\n" + gpIlsUpRightPos + "\n" + gpIlsRightPos + "\n" + gpIls);
+			strKmlPolygons2 += strKmlIlsTunnelPolygon2.Replace("%SIDE%", "3").Replace("%COORDINATES%", gpIls + "\n" + gpIlsRightPos + "\n" + gpIlsDownRightPos + "\n" + gpIls);
+			strKmlPolygons2 += strKmlIlsTunnelPolygon2.Replace("%SIDE%", "4").Replace("%COORDINATES%", gpIls + "\n" + gpIlsDownRightPos + "\n" + gpIlsDownPos + "\n" + gpIls);
+			strKmlPolygons2 += strKmlIlsTunnelPolygon2.Replace("%SIDE%", "5").Replace("%COORDINATES%", gpIls + "\n" + gpIlsDownPos + "\n" + gpIlsDownLeftPos + "\n" + gpIls);
+			strKmlPolygons2 += strKmlIlsTunnelPolygon2.Replace("%SIDE%", "6").Replace("%COORDINATES%", gpIls + "\n" + gpIlsDownLeftPos + "\n" + gpIlsLeftPos + "\n" + gpIls);
+			strKmlPolygons2 += strKmlIlsTunnelPolygon2.Replace("%SIDE%", "7").Replace("%COORDINATES%", gpIls + "\n" + gpIlsLeftPos + "\n" + gpIlsUpLeftPos + "\n" + gpIls);
+			strKmlPolygons2 += strKmlIlsTunnelPolygon2.Replace("%SIDE%", "8").Replace("%COORDINATES%", gpIls + "\n" + gpIlsUpLeftPos + "\n" + gpIlsUpPos + "\n" + gpIls);
+
+			String strKmlIlsTunnel = GetKmlPart("fsxilst");
+
+
+			return strKmlIlsTunnel.Replace("%NAME%", Ils.Name).Replace("%IDENT%", Ils.Ident).Replace("%POLYGONS1%", strKmlPolygons1).Replace("%POLYGONS2%", strKmlPolygons2);
 		}
 
 		public override String GetKmlFile()
