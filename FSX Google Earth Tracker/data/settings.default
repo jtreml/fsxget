@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <fsxget>
-	<settings version="0.0.3.1 RC3">
+	<settings version="0.0.3.1 RC4">
 		<options>
 			<general>
 				<enable-on-startup Enabled="1" />
