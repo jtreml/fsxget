@@ -2720,7 +2720,8 @@ namespace Fsxget
 				}
 				catch (COMException ex)
 				{
-					frmMain.NotifyError(ex.Message);
+                    // TODO: jtr: I commented out the following line cause it created an error. Didn't know why it exists anyway.
+					//frmMain.NotifyError(ex.Message);
 				}
 			}
 		}

@@ -7,31 +7,31 @@
 	<UserControl.Resources>
 
 		<!--SimData Table Specials-->
-		<Style x:Key="TableHeaderLabelColEnable" BasedOn="{StaticResource TableHeaderLabelCenter}">
+		<Style x:Key="TableHeaderLabelColEnable" BasedOn="{StaticResource TableHeaderLabelCenter}" TargetType="Label">
 			<Setter Property="Label.ToolTip" Value="Show or hides the selected object type in Google Earth" />
 			<Setter Property="Label.Content" Value="Enable" />
 		</Style>
-		<Style x:Key="TableHeaderLabelColType" BasedOn="{StaticResource TableHeaderLabelLeft}">
+		<Style x:Key="TableHeaderLabelColType" BasedOn="{StaticResource TableHeaderLabelLeft}" TargetType="Label">
 			<Setter Property="Label.ToolTip" Value="Type of vehicle / aircraft" />
 			<Setter Property="Label.Content" Value="Object Type" />
 		</Style>
-		<Style x:Key="TableHeaderLabelColUpdateInt" BasedOn="{StaticResource TableHeaderLabelCenter}">
+		<Style x:Key="TableHeaderLabelColUpdateInt" BasedOn="{StaticResource TableHeaderLabelCenter}" TargetType="Label">
 			<Setter Property="Label.ToolTip" Value="Interval (in seconds) at which the selected objects will be updated" />
 			<Setter Property="Label.Content" Value="Update Interval" />
 		</Style>
-		<Style x:Key="TableHeaderLabelColPath" BasedOn="{StaticResource TableHeaderLabelCenter}">
+		<Style x:Key="TableHeaderLabelColPath" BasedOn="{StaticResource TableHeaderLabelCenter}" TargetType="Label">
 			<Setter Property="Label.ToolTip" Value="Record and display the path which the object drove / flew (For detailed settings click the path button on the right)" />
 			<Setter Property="Label.Content" Value="Path" />
 		</Style>
-		<Style x:Key="TableHeaderLabelColPrediction" BasedOn="{StaticResource TableHeaderLabelCenter}">
+		<Style x:Key="TableHeaderLabelColPrediction" BasedOn="{StaticResource TableHeaderLabelCenter}" TargetType="Label">
 			<Setter Property="Label.ToolTip" Value="Show a course prediction for this object type (For detailed settings click the prediction button on the right)" />
 			<Setter Property="Label.Content" Value="Prediction" />
 		</Style>
-		<Style x:Key="TableHeaderLabelColSeparation" BasedOn="{StaticResource TableHeaderLabelCenter}">
+		<Style x:Key="TableHeaderLabelColSeparation" BasedOn="{StaticResource TableHeaderLabelCenter}" TargetType="Label">
 			<Setter Property="Label.ToolTip" Value="Show alarm if object gets to close to another object (For detailed settings click the separation alarm button on the right)" />
 			<Setter Property="Label.Content" Value="Separation" />
 		</Style>
-		<Style x:Key="TableHeaderLabelColSettings" BasedOn="{StaticResource TableHeaderLabelCenter}">
+		<Style x:Key="TableHeaderLabelColSettings" BasedOn="{StaticResource TableHeaderLabelCenter}" TargetType="Label">
 			<Setter Property="Label.ToolTip" Value="Set details for path recording, course prediction and separation alarms" />
 			<Setter Property="Label.Content" Value="Settings" />
 		</Style>
@@ -40,24 +40,24 @@
 			<Setter Property="Label.Content" Value="sec." />
 		</Style>
 
-		<Style x:Key="TableImageButtonPath" BasedOn="{StaticResource TableImageButtonInContainerCenter}">
+		<Style x:Key="TableImageButtonPath" BasedOn="{StaticResource TableImageButtonInContainerCenter}" TargetType="Button">
 			<Setter Property="Button.ToolTip" Value="Path recording options" />
 		</Style>
-		<Style x:Key="TableImageButtonPathImage" BasedOn="{StaticResource TableImageButtonInContainerImage}">
+		<Style x:Key="TableImageButtonPathImage" BasedOn="{StaticResource TableImageButtonInContainerImage}" TargetType="Image">
 			<Setter Property="Image.Source" Value="pack://application:,,,/Resources/ui_path.png" />
 		</Style>
 
-		<Style x:Key="TableImageButtonPrediction" BasedOn="{StaticResource TableImageButtonInContainerCenter}">
+		<Style x:Key="TableImageButtonPrediction" BasedOn="{StaticResource TableImageButtonInContainerCenter}" TargetType="Button">
 			<Setter Property="Button.ToolTip" Value="Course prediction options" />
 		</Style>
-		<Style x:Key="TableImageButtonPredictionImage" BasedOn="{StaticResource TableImageButtonInContainerImage}">
+		<Style x:Key="TableImageButtonPredictionImage" BasedOn="{StaticResource TableImageButtonInContainerImage}" TargetType="Image">
 			<Setter Property="Image.Source" Value="pack://application:,,,/Resources/ui_pre.png" />
 		</Style>
 
-		<Style x:Key="TableImageButtonAlarm" BasedOn="{StaticResource TableImageButtonInContainerCenter}">
+		<Style x:Key="TableImageButtonAlarm" BasedOn="{StaticResource TableImageButtonInContainerCenter}" TargetType="Button">
 			<Setter Property="Button.ToolTip" Value="Separation alarm settings" />
 		</Style>
-		<Style x:Key="TableImageButtonAlarmImage" BasedOn="{StaticResource TableImageButtonInContainerImage}">
+		<Style x:Key="TableImageButtonAlarmImage" BasedOn="{StaticResource TableImageButtonInContainerImage}" TargetType="Image">
 			<Setter Property="Image.Source" Value="pack://application:,,,/Resources/ui_alarm.png" />
 		</Style>
 

@@ -47,7 +47,7 @@ namespace Fsxget
 			date = date.AddSeconds(uiSeconds);
 			date = date.ToUniversalTime();
 
-			return "<expires>" + date.ToString("yyyy-MM-ddTHH:mm:ssZ") + "</expires>";
+            return "<expires>" + date.ToString("yyyy") + "-" + date.ToString("MM") + "-" + date.ToString("dd") + "T" + date.ToString("HH") + ":" + date.ToString("mm") + ":" + date.ToString("ss") + "Z" + "</expires>";
 		}
 
 		public byte[] GetKmlFileEncoded(System.Collections.Specialized.NameValueCollection values)
