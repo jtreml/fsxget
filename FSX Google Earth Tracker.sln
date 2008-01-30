@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSX Google Earth Tracker", "FSX Google Earth Tracker\FSX Google Earth Tracker.csproj", "{86BDE965-A297-492B-9604-B4749CA25759}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer", "Installer\Installer.vdproj", "{E082F38D-02EC-4BE8-BE75-19C277EB0930}"

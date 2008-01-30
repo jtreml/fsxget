@@ -1842,7 +1842,7 @@ namespace FSX_Google_Earth_Tracker
 			date = date.AddSeconds(uiSeconds);
 			date = date.ToUniversalTime();
 
-			return "<NetworkLinkControl><expires>" + date.ToString("yyyy-MM-ddTHH:mm:ssZ") + "</expires></NetworkLinkControl>";
+			return "<NetworkLinkControl><expires>" + date.ToString("yyyy") + "-" + date.ToString("MM") + "-" + date.ToString("dd") + "T" + date.ToString("HH") + ":" + date.ToString("mm") + ":" + date.ToString("ss") + "Z" + "</expires></NetworkLinkControl>";
 		}
 
 		private String KmlGetImageLink(KML_ACCESS_MODES AccessMode, KML_IMAGE_TYPES ImageType, String szTitle, String szServer)
