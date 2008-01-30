@@ -54,6 +54,9 @@ namespace Fsxget
 			WindowMain windowMain = new WindowMain();
 			windowMain.Show();
 
+            //WindowSettings windowSettings = new WindowSettings();
+            //windowSettings.Show();
+
 #if !DEBUG
 			}
 			catch

@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSX Google Earth Tracker", "FSX Google Earth Tracker\FSX Google Earth Tracker.csproj", "{86BDE965-A297-492B-9604-B4749CA25759}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HardwareInfo", "HardwareInfo\HardwareInfo.csproj", "{DECBB995-52C4-4126-B534-D8FC44AB6B19}"
@@ -29,26 +29,26 @@ Global
 		SccLocalPath4 = Geometry
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{86BDE965-A297-492B-9604-B4749CA25759}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{86BDE965-A297-492B-9604-B4749CA25759}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{86BDE965-A297-492B-9604-B4749CA25759}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{86BDE965-A297-492B-9604-B4749CA25759}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D8957863-1918-42CC-856B-77C68BDB3C81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8957863-1918-42CC-856B-77C68BDB3C81}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8957863-1918-42CC-856B-77C68BDB3C81}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8957863-1918-42CC-856B-77C68BDB3C81}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DDC59271-2752-414D-8DEB-452468257CEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DDC59271-2752-414D-8DEB-452468257CEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DDC59271-2752-414D-8DEB-452468257CEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DDC59271-2752-414D-8DEB-452468257CEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86BDE965-A297-492B-9604-B4749CA25759}.Debug|x86.ActiveCfg = Debug|x86
+		{86BDE965-A297-492B-9604-B4749CA25759}.Debug|x86.Build.0 = Debug|x86
+		{86BDE965-A297-492B-9604-B4749CA25759}.Release|x86.ActiveCfg = Release|x86
+		{86BDE965-A297-492B-9604-B4749CA25759}.Release|x86.Build.0 = Release|x86
+		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Debug|x86.ActiveCfg = Debug|x86
+		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Debug|x86.Build.0 = Debug|x86
+		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Release|x86.ActiveCfg = Release|x86
+		{DECBB995-52C4-4126-B534-D8FC44AB6B19}.Release|x86.Build.0 = Release|x86
+		{D8957863-1918-42CC-856B-77C68BDB3C81}.Debug|x86.ActiveCfg = Debug|x86
+		{D8957863-1918-42CC-856B-77C68BDB3C81}.Debug|x86.Build.0 = Debug|x86
+		{D8957863-1918-42CC-856B-77C68BDB3C81}.Release|x86.ActiveCfg = Release|x86
+		{D8957863-1918-42CC-856B-77C68BDB3C81}.Release|x86.Build.0 = Release|x86
+		{DDC59271-2752-414D-8DEB-452468257CEB}.Debug|x86.ActiveCfg = Debug|x86
+		{DDC59271-2752-414D-8DEB-452468257CEB}.Debug|x86.Build.0 = Debug|x86
+		{DDC59271-2752-414D-8DEB-452468257CEB}.Release|x86.ActiveCfg = Release|x86
+		{DDC59271-2752-414D-8DEB-452468257CEB}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
