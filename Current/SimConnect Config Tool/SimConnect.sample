@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+
+<SimBase.Document Type="SimConnect" version="1,0">
+	<Descr>SimConnect Server Configuration</Descr>
+	<Filename>SimConnect.xml</Filename>
+	<Disabled>False</Disabled>
+</SimBase.Document>
