@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <fsxget>
-	<settings version="0.0.3.1 RC4">
+	<settings version="0.0.3.2 Beta 1">
 		<options>
 			<general>
+				<application-startup Exit="False" />
 				<enable-on-startup Enabled="1" />
 				<show-balloon-tips Enabled="1" />
 				<load-kml-file Enabled="1" />
@@ -23,6 +24,7 @@
 					<query-ai-boats Enabled="1" Interval="5000" Range="100000" Prediction="0" PredictionPoints="0" />
 					<query-ai-ground-units Enabled="1" Interval="5000" Range="100000" Prediction="0" PredictionPoints="0" />
 				</query-ai-objects>
+				<connection Local="True" Protocol="IPv4" Host="192.168.0.1" Port="8097" />
 			</fsx>
 			<ge>
 				<refresh-rates>

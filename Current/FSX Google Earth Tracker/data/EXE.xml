@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+
+<SimBase.Document Type="Launch" version="1,0">
+	<Descr>Launch</Descr>
+	<Filename>EXE.xml</Filename>
+	<Disabled>False</Disabled>
+	<Launch.ManualLoad>False</Launch.ManualLoad>
+	<Launch.Addon>
+		<Disabled>False</Disabled>
+		<ManualLoad>False</ManualLoad>
+		<Name>FSX Google Earth Tracker</Name>
+		<Path>%PATH%</Path>
+		<CommandLine></CommandLine>
+		<NewConsole>True</NewConsole>
+	</Launch.Addon>
+</SimBase.Document>

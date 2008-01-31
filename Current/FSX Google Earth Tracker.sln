@@ -4,10 +4,18 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FSX Google Earth Tracker", "FSX Google Earth Tracker\FSX Google Earth Tracker.csproj", "{86BDE965-A297-492B-9604-B4749CA25759}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Installer", "Installer\Installer.vdproj", "{E082F38D-02EC-4BE8-BE75-19C277EB0930}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F787206D-EDE2-4D33-AAA4-491A630D138A} = {F787206D-EDE2-4D33-AAA4-491A630D138A}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Starter App", "Starter App\Starter App.csproj", "{F787206D-EDE2-4D33-AAA4-491A630D138A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{86BDE965-A297-492B-9604-B4749CA25759} = {86BDE965-A297-492B-9604-B4749CA25759}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 3
+		SccNumberOfProjects = 4
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccLocalPath0 = .
@@ -17,19 +25,38 @@ Global
 		SccProjectUniqueName2 = Installer\\Installer.vdproj
 		SccProjectName2 = Installer
 		SccLocalPath2 = Installer
+		SccProjectUniqueName3 = Starter\u0020App\\Starter\u0020App.csproj
+		SccProjectName3 = Starter\u0020App
+		SccLocalPath3 = Starter\u0020App
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{86BDE965-A297-492B-9604-B4749CA25759}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86BDE965-A297-492B-9604-B4749CA25759}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86BDE965-A297-492B-9604-B4749CA25759}.Debug|x86.ActiveCfg = Debug|x86
 		{86BDE965-A297-492B-9604-B4749CA25759}.Debug|x86.Build.0 = Debug|x86
+		{86BDE965-A297-492B-9604-B4749CA25759}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86BDE965-A297-492B-9604-B4749CA25759}.Release|Any CPU.Build.0 = Release|Any CPU
 		{86BDE965-A297-492B-9604-B4749CA25759}.Release|x86.ActiveCfg = Release|x86
 		{86BDE965-A297-492B-9604-B4749CA25759}.Release|x86.Build.0 = Release|x86
+		{E082F38D-02EC-4BE8-BE75-19C277EB0930}.Debug|Any CPU.ActiveCfg = Debug
+		{E082F38D-02EC-4BE8-BE75-19C277EB0930}.Debug|Any CPU.Build.0 = Debug
 		{E082F38D-02EC-4BE8-BE75-19C277EB0930}.Debug|x86.ActiveCfg = Debug
+		{E082F38D-02EC-4BE8-BE75-19C277EB0930}.Release|Any CPU.ActiveCfg = Release
+		{E082F38D-02EC-4BE8-BE75-19C277EB0930}.Release|Any CPU.Build.0 = Release
 		{E082F38D-02EC-4BE8-BE75-19C277EB0930}.Release|x86.ActiveCfg = Release
 		{E082F38D-02EC-4BE8-BE75-19C277EB0930}.Release|x86.Build.0 = Release
+		{F787206D-EDE2-4D33-AAA4-491A630D138A}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{F787206D-EDE2-4D33-AAA4-491A630D138A}.Debug|x86.ActiveCfg = Debug|x86
+		{F787206D-EDE2-4D33-AAA4-491A630D138A}.Debug|x86.Build.0 = Debug|x86
+		{F787206D-EDE2-4D33-AAA4-491A630D138A}.Release|Any CPU.ActiveCfg = Release|x86
+		{F787206D-EDE2-4D33-AAA4-491A630D138A}.Release|x86.ActiveCfg = Release|x86
+		{F787206D-EDE2-4D33-AAA4-491A630D138A}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

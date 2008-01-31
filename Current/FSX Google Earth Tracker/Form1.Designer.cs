@@ -60,7 +60,10 @@ namespace FSX_Google_Earth_Tracker
 			this.checkShowInfoBalloons = new System.Windows.Forms.CheckBox();
 			this.checkEnableOnStartup = new System.Windows.Forms.CheckBox();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
-			this.checkBoxAutostart = new System.Windows.Forms.CheckBox();
+			this.radioButton10 = new System.Windows.Forms.RadioButton();
+			this.checkBox1 = new System.Windows.Forms.CheckBox();
+			this.radioButton9 = new System.Windows.Forms.RadioButton();
+			this.radioButton8 = new System.Windows.Forms.RadioButton();
 			this.tabPage3 = new System.Windows.Forms.TabPage();
 			this.tabControl2 = new System.Windows.Forms.TabControl();
 			this.tabPage6 = new System.Windows.Forms.TabPage();
@@ -109,6 +112,18 @@ namespace FSX_Google_Earth_Tracker
 			this.checkBoxQueryAIHelicopters = new System.Windows.Forms.CheckBox();
 			this.checkBoxQueryAIAircrafts = new System.Windows.Forms.CheckBox();
 			this.checkBoxQueryAIObjects = new System.Windows.Forms.CheckBox();
+			this.tabPage9 = new System.Windows.Forms.TabPage();
+			this.groupBox10 = new System.Windows.Forms.GroupBox();
+			this.textBox3 = new System.Windows.Forms.TextBox();
+			this.label33 = new System.Windows.Forms.Label();
+			this.textBox1 = new System.Windows.Forms.TextBox();
+			this.label32 = new System.Windows.Forms.Label();
+			this.label31 = new System.Windows.Forms.Label();
+			this.comboBox1 = new System.Windows.Forms.ComboBox();
+			this.label30 = new System.Windows.Forms.Label();
+			this.radioButton7 = new System.Windows.Forms.RadioButton();
+			this.label29 = new System.Windows.Forms.Label();
+			this.radioButton6 = new System.Windows.Forms.RadioButton();
 			this.tabPage4 = new System.Windows.Forms.TabPage();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.label20 = new System.Windows.Forms.Label();
@@ -194,6 +209,8 @@ namespace FSX_Google_Earth_Tracker
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownQueryAIBoatsInterval)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownQueryAIHelicoptersInterval)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownQueryAIAircraftsInterval)).BeginInit();
+			this.tabPage9.SuspendLayout();
+			this.groupBox10.SuspendLayout();
 			this.tabPage4.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownRefreshUserPrediction)).BeginInit();
@@ -242,7 +259,7 @@ namespace FSX_Google_Earth_Tracker
             this.aboutToolStripMenuItem,
             this.exitToolStripMenuItem});
 			this.contextMenuStripNotifyIcon.Name = "contextMenuStrip1";
-			this.contextMenuStripNotifyIcon.Size = new System.Drawing.Size(247, 276);
+			this.contextMenuStripNotifyIcon.Size = new System.Drawing.Size(247, 254);
 			this.contextMenuStripNotifyIcon.Text = "Test";
 			this.contextMenuStripNotifyIcon.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripNotifyIcon_Opening);
 			// 
@@ -407,7 +424,7 @@ namespace FSX_Google_Earth_Tracker
 			// groupBox8
 			// 
 			this.groupBox8.Controls.Add(this.checkBoxLoadKMLFile);
-			this.groupBox8.Location = new System.Drawing.Point(12, 249);
+			this.groupBox8.Location = new System.Drawing.Point(12, 325);
 			this.groupBox8.Name = "groupBox8";
 			this.groupBox8.Size = new System.Drawing.Size(402, 67);
 			this.groupBox8.TabIndex = 3;
@@ -432,7 +449,7 @@ namespace FSX_Google_Earth_Tracker
 			this.groupBox4.Controls.Add(this.checkBoxUpdateCheck);
 			this.groupBox4.Controls.Add(this.checkShowInfoBalloons);
 			this.groupBox4.Controls.Add(this.checkEnableOnStartup);
-			this.groupBox4.Location = new System.Drawing.Point(12, 98);
+			this.groupBox4.Location = new System.Drawing.Point(12, 177);
 			this.groupBox4.Name = "groupBox4";
 			this.groupBox4.Size = new System.Drawing.Size(402, 132);
 			this.groupBox4.TabIndex = 2;
@@ -461,6 +478,7 @@ namespace FSX_Google_Earth_Tracker
 			this.checkShowInfoBalloons.TabIndex = 1;
 			this.checkShowInfoBalloons.Text = "Show information balloons on FSX connect / disconnect";
 			this.checkShowInfoBalloons.UseVisualStyleBackColor = true;
+			this.checkShowInfoBalloons.CheckedChanged += new System.EventHandler(this.checkShowInfoBalloons_CheckedChanged);
 			// 
 			// checkEnableOnStartup
 			// 
@@ -473,26 +491,67 @@ namespace FSX_Google_Earth_Tracker
 			this.checkEnableOnStartup.TabIndex = 0;
 			this.checkEnableOnStartup.Text = "Enable on startup";
 			this.checkEnableOnStartup.UseVisualStyleBackColor = true;
+			this.checkEnableOnStartup.CheckedChanged += new System.EventHandler(this.checkEnableOnStartup_CheckedChanged);
 			// 
 			// groupBox3
 			// 
-			this.groupBox3.Controls.Add(this.checkBoxAutostart);
+			this.groupBox3.Controls.Add(this.radioButton10);
+			this.groupBox3.Controls.Add(this.checkBox1);
+			this.groupBox3.Controls.Add(this.radioButton9);
+			this.groupBox3.Controls.Add(this.radioButton8);
 			this.groupBox3.Location = new System.Drawing.Point(12, 15);
 			this.groupBox3.Name = "groupBox3";
-			this.groupBox3.Size = new System.Drawing.Size(402, 64);
+			this.groupBox3.Size = new System.Drawing.Size(402, 146);
 			this.groupBox3.TabIndex = 1;
 			this.groupBox3.TabStop = false;
-			this.groupBox3.Text = "System";
+			this.groupBox3.Text = "StartUp Options";
 			// 
-			// checkBoxAutostart
+			// radioButton10
 			// 
-			this.checkBoxAutostart.AutoSize = true;
-			this.checkBoxAutostart.Location = new System.Drawing.Point(16, 29);
-			this.checkBoxAutostart.Name = "checkBoxAutostart";
-			this.checkBoxAutostart.Size = new System.Drawing.Size(117, 17);
-			this.checkBoxAutostart.TabIndex = 0;
-			this.checkBoxAutostart.Text = "Start with Windows";
-			this.checkBoxAutostart.UseVisualStyleBackColor = true;
+			this.radioButton10.AutoSize = true;
+			this.radioButton10.Checked = true;
+			this.radioButton10.Location = new System.Drawing.Point(16, 112);
+			this.radioButton10.Name = "radioButton10";
+			this.radioButton10.Size = new System.Drawing.Size(91, 17);
+			this.radioButton10.TabIndex = 4;
+			this.radioButton10.TabStop = true;
+			this.radioButton10.Text = "Start manually";
+			this.radioButton10.UseVisualStyleBackColor = true;
+			this.radioButton10.CheckedChanged += new System.EventHandler(this.radioButton10_CheckedChanged);
+			// 
+			// checkBox1
+			// 
+			this.checkBox1.AutoSize = true;
+			this.checkBox1.Location = new System.Drawing.Point(36, 89);
+			this.checkBox1.Name = "checkBox1";
+			this.checkBox1.Size = new System.Drawing.Size(182, 17);
+			this.checkBox1.TabIndex = 3;
+			this.checkBox1.Text = "Close FSXGET when exiting FSX";
+			this.checkBox1.UseVisualStyleBackColor = true;
+			this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+			// 
+			// radioButton9
+			// 
+			this.radioButton9.AutoSize = true;
+			this.radioButton9.Location = new System.Drawing.Point(16, 52);
+			this.radioButton9.Name = "radioButton9";
+			this.radioButton9.Size = new System.Drawing.Size(296, 30);
+			this.radioButton9.TabIndex = 2;
+			this.radioButton9.Text = "Start when Flight Simulator starts\r\n(only when running FSX and FSXGET on same com" +
+				"puter)";
+			this.radioButton9.UseVisualStyleBackColor = true;
+			this.radioButton9.CheckedChanged += new System.EventHandler(this.radioButton9_CheckedChanged);
+			// 
+			// radioButton8
+			// 
+			this.radioButton8.AutoSize = true;
+			this.radioButton8.Location = new System.Drawing.Point(16, 29);
+			this.radioButton8.Name = "radioButton8";
+			this.radioButton8.Size = new System.Drawing.Size(151, 17);
+			this.radioButton8.TabIndex = 1;
+			this.radioButton8.Text = "Start when Windows starts";
+			this.radioButton8.UseVisualStyleBackColor = true;
+			this.radioButton8.CheckedChanged += new System.EventHandler(this.radioButton8_CheckedChanged);
 			// 
 			// tabPage3
 			// 
@@ -508,6 +567,7 @@ namespace FSX_Google_Earth_Tracker
 			// 
 			this.tabControl2.Controls.Add(this.tabPage6);
 			this.tabControl2.Controls.Add(this.tabPage7);
+			this.tabControl2.Controls.Add(this.tabPage9);
 			this.tabControl2.Location = new System.Drawing.Point(12, 12);
 			this.tabControl2.Name = "tabControl2";
 			this.tabControl2.SelectedIndex = 0;
@@ -532,16 +592,16 @@ namespace FSX_Google_Earth_Tracker
 			this.groupBoxUserAircraftPathPrediction.Controls.Add(this.button1);
 			this.groupBoxUserAircraftPathPrediction.Controls.Add(this.listBoxPathPrediction);
 			this.groupBoxUserAircraftPathPrediction.Enabled = false;
-			this.groupBoxUserAircraftPathPrediction.Location = new System.Drawing.Point(0, 156);
+			this.groupBoxUserAircraftPathPrediction.Location = new System.Drawing.Point(14, 155);
 			this.groupBoxUserAircraftPathPrediction.Name = "groupBoxUserAircraftPathPrediction";
-			this.groupBoxUserAircraftPathPrediction.Size = new System.Drawing.Size(397, 144);
+			this.groupBoxUserAircraftPathPrediction.Size = new System.Drawing.Size(367, 144);
 			this.groupBoxUserAircraftPathPrediction.TabIndex = 8;
 			this.groupBoxUserAircraftPathPrediction.TabStop = false;
 			this.groupBoxUserAircraftPathPrediction.Text = "Course Prediction Settings";
 			// 
 			// button2
 			// 
-			this.button2.Location = new System.Drawing.Point(307, 57);
+			this.button2.Location = new System.Drawing.Point(271, 57);
 			this.button2.Name = "button2";
 			this.button2.Size = new System.Drawing.Size(75, 23);
 			this.button2.TabIndex = 2;
@@ -550,7 +610,7 @@ namespace FSX_Google_Earth_Tracker
 			// 
 			// button1
 			// 
-			this.button1.Location = new System.Drawing.Point(307, 28);
+			this.button1.Location = new System.Drawing.Point(271, 28);
 			this.button1.Name = "button1";
 			this.button1.Size = new System.Drawing.Size(75, 23);
 			this.button1.TabIndex = 1;
@@ -562,7 +622,7 @@ namespace FSX_Google_Earth_Tracker
 			this.listBoxPathPrediction.FormattingEnabled = true;
 			this.listBoxPathPrediction.Location = new System.Drawing.Point(15, 28);
 			this.listBoxPathPrediction.Name = "listBoxPathPrediction";
-			this.listBoxPathPrediction.Size = new System.Drawing.Size(286, 95);
+			this.listBoxPathPrediction.Size = new System.Drawing.Size(250, 95);
 			this.listBoxPathPrediction.TabIndex = 0;
 			// 
 			// groupBox5
@@ -576,9 +636,9 @@ namespace FSX_Google_Earth_Tracker
 			this.groupBox5.Controls.Add(this.numericUpDownQueryUserAircraft);
 			this.groupBox5.Controls.Add(this.checkQueryUserPath);
 			this.groupBox5.Controls.Add(this.checkQueryUserAircraft);
-			this.groupBox5.Location = new System.Drawing.Point(0, 15);
+			this.groupBox5.Location = new System.Drawing.Point(14, 15);
 			this.groupBox5.Name = "groupBox5";
-			this.groupBox5.Size = new System.Drawing.Size(397, 125);
+			this.groupBox5.Size = new System.Drawing.Size(367, 125);
 			this.groupBox5.TabIndex = 7;
 			this.groupBox5.TabStop = false;
 			this.groupBox5.Text = "Query Settings";
@@ -586,7 +646,7 @@ namespace FSX_Google_Earth_Tracker
 			// label26
 			// 
 			this.label26.AutoSize = true;
-			this.label26.Location = new System.Drawing.Point(366, 87);
+			this.label26.Location = new System.Drawing.Point(326, 86);
 			this.label26.Name = "label26";
 			this.label26.Size = new System.Drawing.Size(20, 13);
 			this.label26.TabIndex = 21;
@@ -599,7 +659,7 @@ namespace FSX_Google_Earth_Tracker
             0,
             0,
             0});
-			this.numericUpDownUserPathPrediction.Location = new System.Drawing.Point(307, 85);
+			this.numericUpDownUserPathPrediction.Location = new System.Drawing.Point(267, 84);
 			this.numericUpDownUserPathPrediction.Maximum = new decimal(new int[] {
             3600000,
             0,
@@ -636,7 +696,7 @@ namespace FSX_Google_Earth_Tracker
 			// label10
 			// 
 			this.label10.AutoSize = true;
-			this.label10.Location = new System.Drawing.Point(366, 64);
+			this.label10.Location = new System.Drawing.Point(326, 63);
 			this.label10.Name = "label10";
 			this.label10.Size = new System.Drawing.Size(20, 13);
 			this.label10.TabIndex = 18;
@@ -645,7 +705,7 @@ namespace FSX_Google_Earth_Tracker
 			// label9
 			// 
 			this.label9.AutoSize = true;
-			this.label9.Location = new System.Drawing.Point(366, 30);
+			this.label9.Location = new System.Drawing.Point(326, 29);
 			this.label9.Name = "label9";
 			this.label9.Size = new System.Drawing.Size(20, 13);
 			this.label9.TabIndex = 17;
@@ -658,7 +718,7 @@ namespace FSX_Google_Earth_Tracker
             0,
             0,
             0});
-			this.numericUpDownQueryUserPath.Location = new System.Drawing.Point(307, 62);
+			this.numericUpDownQueryUserPath.Location = new System.Drawing.Point(267, 61);
 			this.numericUpDownQueryUserPath.Maximum = new decimal(new int[] {
             3600000,
             0,
@@ -686,7 +746,7 @@ namespace FSX_Google_Earth_Tracker
             0,
             0,
             0});
-			this.numericUpDownQueryUserAircraft.Location = new System.Drawing.Point(307, 25);
+			this.numericUpDownQueryUserAircraft.Location = new System.Drawing.Point(267, 24);
 			this.numericUpDownQueryUserAircraft.Maximum = new decimal(new int[] {
             3600000,
             0,
@@ -775,9 +835,9 @@ namespace FSX_Google_Earth_Tracker
 			this.groupBox9.Controls.Add(this.checkBoxQueryAIHelicopters);
 			this.groupBox9.Controls.Add(this.checkBoxQueryAIAircrafts);
 			this.groupBox9.Controls.Add(this.checkBoxQueryAIObjects);
-			this.groupBox9.Location = new System.Drawing.Point(0, 15);
+			this.groupBox9.Location = new System.Drawing.Point(14, 12);
 			this.groupBox9.Name = "groupBox9";
-			this.groupBox9.Size = new System.Drawing.Size(397, 354);
+			this.groupBox9.Size = new System.Drawing.Size(367, 354);
 			this.groupBox9.TabIndex = 0;
 			this.groupBox9.TabStop = false;
 			this.groupBox9.Text = "Query Settings";
@@ -785,7 +845,7 @@ namespace FSX_Google_Earth_Tracker
 			// checkBoxAIGroundPredictPoints
 			// 
 			this.checkBoxAIGroundPredictPoints.AutoSize = true;
-			this.checkBoxAIGroundPredictPoints.Location = new System.Drawing.Point(76, 318);
+			this.checkBoxAIGroundPredictPoints.Location = new System.Drawing.Point(55, 321);
 			this.checkBoxAIGroundPredictPoints.Name = "checkBoxAIGroundPredictPoints";
 			this.checkBoxAIGroundPredictPoints.Size = new System.Drawing.Size(133, 17);
 			this.checkBoxAIGroundPredictPoints.TabIndex = 65;
@@ -796,7 +856,7 @@ namespace FSX_Google_Earth_Tracker
 			// checkBoxAIGroundPredict
 			// 
 			this.checkBoxAIGroundPredict.AutoSize = true;
-			this.checkBoxAIGroundPredict.Location = new System.Drawing.Point(55, 295);
+			this.checkBoxAIGroundPredict.Location = new System.Drawing.Point(34, 298);
 			this.checkBoxAIGroundPredict.Name = "checkBoxAIGroundPredict";
 			this.checkBoxAIGroundPredict.Size = new System.Drawing.Size(154, 17);
 			this.checkBoxAIGroundPredict.TabIndex = 64;
@@ -808,7 +868,7 @@ namespace FSX_Google_Earth_Tracker
 			// checkBoxAIBoatsPredictPoints
 			// 
 			this.checkBoxAIBoatsPredictPoints.AutoSize = true;
-			this.checkBoxAIBoatsPredictPoints.Location = new System.Drawing.Point(76, 247);
+			this.checkBoxAIBoatsPredictPoints.Location = new System.Drawing.Point(55, 250);
 			this.checkBoxAIBoatsPredictPoints.Name = "checkBoxAIBoatsPredictPoints";
 			this.checkBoxAIBoatsPredictPoints.Size = new System.Drawing.Size(133, 17);
 			this.checkBoxAIBoatsPredictPoints.TabIndex = 63;
@@ -819,7 +879,7 @@ namespace FSX_Google_Earth_Tracker
 			// checkBoxAIBoatsPredict
 			// 
 			this.checkBoxAIBoatsPredict.AutoSize = true;
-			this.checkBoxAIBoatsPredict.Location = new System.Drawing.Point(55, 224);
+			this.checkBoxAIBoatsPredict.Location = new System.Drawing.Point(34, 227);
 			this.checkBoxAIBoatsPredict.Name = "checkBoxAIBoatsPredict";
 			this.checkBoxAIBoatsPredict.Size = new System.Drawing.Size(154, 17);
 			this.checkBoxAIBoatsPredict.TabIndex = 62;
@@ -831,7 +891,7 @@ namespace FSX_Google_Earth_Tracker
 			// checkBoxAIHelicoptersPredictPoints
 			// 
 			this.checkBoxAIHelicoptersPredictPoints.AutoSize = true;
-			this.checkBoxAIHelicoptersPredictPoints.Location = new System.Drawing.Point(76, 176);
+			this.checkBoxAIHelicoptersPredictPoints.Location = new System.Drawing.Point(55, 179);
 			this.checkBoxAIHelicoptersPredictPoints.Name = "checkBoxAIHelicoptersPredictPoints";
 			this.checkBoxAIHelicoptersPredictPoints.Size = new System.Drawing.Size(133, 17);
 			this.checkBoxAIHelicoptersPredictPoints.TabIndex = 61;
@@ -842,7 +902,7 @@ namespace FSX_Google_Earth_Tracker
 			// checkBoxAIHelicoptersPredict
 			// 
 			this.checkBoxAIHelicoptersPredict.AutoSize = true;
-			this.checkBoxAIHelicoptersPredict.Location = new System.Drawing.Point(55, 153);
+			this.checkBoxAIHelicoptersPredict.Location = new System.Drawing.Point(34, 156);
 			this.checkBoxAIHelicoptersPredict.Name = "checkBoxAIHelicoptersPredict";
 			this.checkBoxAIHelicoptersPredict.Size = new System.Drawing.Size(154, 17);
 			this.checkBoxAIHelicoptersPredict.TabIndex = 60;
@@ -854,7 +914,7 @@ namespace FSX_Google_Earth_Tracker
 			// checkBoxAIAircraftsPredictPoints
 			// 
 			this.checkBoxAIAircraftsPredictPoints.AutoSize = true;
-			this.checkBoxAIAircraftsPredictPoints.Location = new System.Drawing.Point(76, 105);
+			this.checkBoxAIAircraftsPredictPoints.Location = new System.Drawing.Point(55, 108);
 			this.checkBoxAIAircraftsPredictPoints.Name = "checkBoxAIAircraftsPredictPoints";
 			this.checkBoxAIAircraftsPredictPoints.Size = new System.Drawing.Size(133, 17);
 			this.checkBoxAIAircraftsPredictPoints.TabIndex = 59;
@@ -865,7 +925,7 @@ namespace FSX_Google_Earth_Tracker
 			// checkBoxAIAircraftsPredict
 			// 
 			this.checkBoxAIAircraftsPredict.AutoSize = true;
-			this.checkBoxAIAircraftsPredict.Location = new System.Drawing.Point(55, 82);
+			this.checkBoxAIAircraftsPredict.Location = new System.Drawing.Point(34, 85);
 			this.checkBoxAIAircraftsPredict.Name = "checkBoxAIAircraftsPredict";
 			this.checkBoxAIAircraftsPredict.Size = new System.Drawing.Size(154, 17);
 			this.checkBoxAIAircraftsPredict.TabIndex = 58;
@@ -877,7 +937,7 @@ namespace FSX_Google_Earth_Tracker
 			// label22
 			// 
 			this.label22.AutoSize = true;
-			this.label22.Location = new System.Drawing.Point(326, 271);
+			this.label22.Location = new System.Drawing.Point(300, 274);
 			this.label22.Name = "label22";
 			this.label22.Size = new System.Drawing.Size(49, 13);
 			this.label22.TabIndex = 57;
@@ -885,7 +945,7 @@ namespace FSX_Google_Earth_Tracker
 			// 
 			// numericUpDownQueryAIGroudUnitsRadius
 			// 
-			this.numericUpDownQueryAIGroudUnitsRadius.Location = new System.Drawing.Point(257, 269);
+			this.numericUpDownQueryAIGroudUnitsRadius.Location = new System.Drawing.Point(231, 272);
 			this.numericUpDownQueryAIGroudUnitsRadius.Maximum = new decimal(new int[] {
             200000,
             0,
@@ -904,7 +964,7 @@ namespace FSX_Google_Earth_Tracker
 			// label23
 			// 
 			this.label23.AutoSize = true;
-			this.label23.Location = new System.Drawing.Point(326, 200);
+			this.label23.Location = new System.Drawing.Point(300, 203);
 			this.label23.Name = "label23";
 			this.label23.Size = new System.Drawing.Size(49, 13);
 			this.label23.TabIndex = 55;
@@ -913,7 +973,7 @@ namespace FSX_Google_Earth_Tracker
 			// label24
 			// 
 			this.label24.AutoSize = true;
-			this.label24.Location = new System.Drawing.Point(327, 129);
+			this.label24.Location = new System.Drawing.Point(301, 132);
 			this.label24.Name = "label24";
 			this.label24.Size = new System.Drawing.Size(49, 13);
 			this.label24.TabIndex = 54;
@@ -922,7 +982,7 @@ namespace FSX_Google_Earth_Tracker
 			// label25
 			// 
 			this.label25.AutoSize = true;
-			this.label25.Location = new System.Drawing.Point(327, 58);
+			this.label25.Location = new System.Drawing.Point(301, 61);
 			this.label25.Name = "label25";
 			this.label25.Size = new System.Drawing.Size(49, 13);
 			this.label25.TabIndex = 53;
@@ -930,7 +990,7 @@ namespace FSX_Google_Earth_Tracker
 			// 
 			// numericUpDownQueryAIBoatsRadius
 			// 
-			this.numericUpDownQueryAIBoatsRadius.Location = new System.Drawing.Point(257, 198);
+			this.numericUpDownQueryAIBoatsRadius.Location = new System.Drawing.Point(231, 201);
 			this.numericUpDownQueryAIBoatsRadius.Maximum = new decimal(new int[] {
             200000,
             0,
@@ -948,7 +1008,7 @@ namespace FSX_Google_Earth_Tracker
 			// 
 			// numericUpDownQueryAIHelicoptersRadius
 			// 
-			this.numericUpDownQueryAIHelicoptersRadius.Location = new System.Drawing.Point(258, 127);
+			this.numericUpDownQueryAIHelicoptersRadius.Location = new System.Drawing.Point(232, 130);
 			this.numericUpDownQueryAIHelicoptersRadius.Maximum = new decimal(new int[] {
             200000,
             0,
@@ -966,7 +1026,7 @@ namespace FSX_Google_Earth_Tracker
 			// 
 			// numericUpDownQueryAIAircraftsRadius
 			// 
-			this.numericUpDownQueryAIAircraftsRadius.Location = new System.Drawing.Point(258, 56);
+			this.numericUpDownQueryAIAircraftsRadius.Location = new System.Drawing.Point(232, 59);
 			this.numericUpDownQueryAIAircraftsRadius.Maximum = new decimal(new int[] {
             200000,
             0,
@@ -985,7 +1045,7 @@ namespace FSX_Google_Earth_Tracker
 			// label21
 			// 
 			this.label21.AutoSize = true;
-			this.label21.Location = new System.Drawing.Point(219, 271);
+			this.label21.Location = new System.Drawing.Point(193, 274);
 			this.label21.Name = "label21";
 			this.label21.Size = new System.Drawing.Size(34, 13);
 			this.label21.TabIndex = 49;
@@ -998,7 +1058,7 @@ namespace FSX_Google_Earth_Tracker
             0,
             0,
             0});
-			this.numericUpDownQueryAIGroudUnitsInterval.Location = new System.Drawing.Point(160, 269);
+			this.numericUpDownQueryAIGroudUnitsInterval.Location = new System.Drawing.Point(134, 272);
 			this.numericUpDownQueryAIGroudUnitsInterval.Maximum = new decimal(new int[] {
             3600000,
             0,
@@ -1024,7 +1084,7 @@ namespace FSX_Google_Earth_Tracker
 			this.checkBoxQueryAIGroudUnits.AutoSize = true;
 			this.checkBoxQueryAIGroudUnits.Checked = true;
 			this.checkBoxQueryAIGroudUnits.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.checkBoxQueryAIGroudUnits.Location = new System.Drawing.Point(34, 270);
+			this.checkBoxQueryAIGroudUnits.Location = new System.Drawing.Point(13, 273);
 			this.checkBoxQueryAIGroudUnits.Name = "checkBoxQueryAIGroudUnits";
 			this.checkBoxQueryAIGroudUnits.Size = new System.Drawing.Size(120, 17);
 			this.checkBoxQueryAIGroudUnits.TabIndex = 47;
@@ -1036,7 +1096,7 @@ namespace FSX_Google_Earth_Tracker
 			// label13
 			// 
 			this.label13.AutoSize = true;
-			this.label13.Location = new System.Drawing.Point(219, 200);
+			this.label13.Location = new System.Drawing.Point(193, 203);
 			this.label13.Name = "label13";
 			this.label13.Size = new System.Drawing.Size(34, 13);
 			this.label13.TabIndex = 46;
@@ -1045,7 +1105,7 @@ namespace FSX_Google_Earth_Tracker
 			// label12
 			// 
 			this.label12.AutoSize = true;
-			this.label12.Location = new System.Drawing.Point(220, 129);
+			this.label12.Location = new System.Drawing.Point(194, 132);
 			this.label12.Name = "label12";
 			this.label12.Size = new System.Drawing.Size(34, 13);
 			this.label12.TabIndex = 45;
@@ -1054,7 +1114,7 @@ namespace FSX_Google_Earth_Tracker
 			// label11
 			// 
 			this.label11.AutoSize = true;
-			this.label11.Location = new System.Drawing.Point(220, 58);
+			this.label11.Location = new System.Drawing.Point(194, 61);
 			this.label11.Name = "label11";
 			this.label11.Size = new System.Drawing.Size(34, 13);
 			this.label11.TabIndex = 44;
@@ -1067,7 +1127,7 @@ namespace FSX_Google_Earth_Tracker
             0,
             0,
             0});
-			this.numericUpDownQueryAIBoatsInterval.Location = new System.Drawing.Point(160, 198);
+			this.numericUpDownQueryAIBoatsInterval.Location = new System.Drawing.Point(134, 201);
 			this.numericUpDownQueryAIBoatsInterval.Maximum = new decimal(new int[] {
             3600000,
             0,
@@ -1095,7 +1155,7 @@ namespace FSX_Google_Earth_Tracker
             0,
             0,
             0});
-			this.numericUpDownQueryAIHelicoptersInterval.Location = new System.Drawing.Point(161, 127);
+			this.numericUpDownQueryAIHelicoptersInterval.Location = new System.Drawing.Point(135, 130);
 			this.numericUpDownQueryAIHelicoptersInterval.Maximum = new decimal(new int[] {
             3600000,
             0,
@@ -1123,7 +1183,7 @@ namespace FSX_Google_Earth_Tracker
             0,
             0,
             0});
-			this.numericUpDownQueryAIAircraftsInterval.Location = new System.Drawing.Point(161, 56);
+			this.numericUpDownQueryAIAircraftsInterval.Location = new System.Drawing.Point(135, 59);
 			this.numericUpDownQueryAIAircraftsInterval.Maximum = new decimal(new int[] {
             3600000,
             0,
@@ -1149,7 +1209,7 @@ namespace FSX_Google_Earth_Tracker
 			this.checkBoxQueryAIBoats.AutoSize = true;
 			this.checkBoxQueryAIBoats.Checked = true;
 			this.checkBoxQueryAIBoats.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.checkBoxQueryAIBoats.Location = new System.Drawing.Point(34, 199);
+			this.checkBoxQueryAIBoats.Location = new System.Drawing.Point(13, 202);
 			this.checkBoxQueryAIBoats.Name = "checkBoxQueryAIBoats";
 			this.checkBoxQueryAIBoats.Size = new System.Drawing.Size(85, 17);
 			this.checkBoxQueryAIBoats.TabIndex = 40;
@@ -1163,7 +1223,7 @@ namespace FSX_Google_Earth_Tracker
 			this.checkBoxQueryAIHelicopters.AutoSize = true;
 			this.checkBoxQueryAIHelicopters.Checked = true;
 			this.checkBoxQueryAIHelicopters.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.checkBoxQueryAIHelicopters.Location = new System.Drawing.Point(35, 128);
+			this.checkBoxQueryAIHelicopters.Location = new System.Drawing.Point(14, 131);
 			this.checkBoxQueryAIHelicopters.Name = "checkBoxQueryAIHelicopters";
 			this.checkBoxQueryAIHelicopters.Size = new System.Drawing.Size(111, 17);
 			this.checkBoxQueryAIHelicopters.TabIndex = 39;
@@ -1177,7 +1237,7 @@ namespace FSX_Google_Earth_Tracker
 			this.checkBoxQueryAIAircrafts.AutoSize = true;
 			this.checkBoxQueryAIAircrafts.Checked = true;
 			this.checkBoxQueryAIAircrafts.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.checkBoxQueryAIAircrafts.Location = new System.Drawing.Point(35, 57);
+			this.checkBoxQueryAIAircrafts.Location = new System.Drawing.Point(14, 60);
 			this.checkBoxQueryAIAircrafts.Name = "checkBoxQueryAIAircrafts";
 			this.checkBoxQueryAIAircrafts.Size = new System.Drawing.Size(96, 17);
 			this.checkBoxQueryAIAircrafts.TabIndex = 38;
@@ -1198,6 +1258,137 @@ namespace FSX_Google_Earth_Tracker
 			this.checkBoxQueryAIObjects.Text = "Query AI objects";
 			this.checkBoxQueryAIObjects.UseVisualStyleBackColor = true;
 			this.checkBoxQueryAIObjects.CheckedChanged += new System.EventHandler(this.checkBoxQueryAIObjects_CheckedChanged);
+			// 
+			// tabPage9
+			// 
+			this.tabPage9.Controls.Add(this.groupBox10);
+			this.tabPage9.Location = new System.Drawing.Point(4, 22);
+			this.tabPage9.Name = "tabPage9";
+			this.tabPage9.Size = new System.Drawing.Size(397, 372);
+			this.tabPage9.TabIndex = 2;
+			this.tabPage9.Text = "Connection";
+			this.tabPage9.UseVisualStyleBackColor = true;
+			// 
+			// groupBox10
+			// 
+			this.groupBox10.Controls.Add(this.textBox3);
+			this.groupBox10.Controls.Add(this.label33);
+			this.groupBox10.Controls.Add(this.textBox1);
+			this.groupBox10.Controls.Add(this.label32);
+			this.groupBox10.Controls.Add(this.label31);
+			this.groupBox10.Controls.Add(this.comboBox1);
+			this.groupBox10.Controls.Add(this.label30);
+			this.groupBox10.Controls.Add(this.radioButton7);
+			this.groupBox10.Controls.Add(this.label29);
+			this.groupBox10.Controls.Add(this.radioButton6);
+			this.groupBox10.Location = new System.Drawing.Point(12, 12);
+			this.groupBox10.Name = "groupBox10";
+			this.groupBox10.Size = new System.Drawing.Size(367, 349);
+			this.groupBox10.TabIndex = 8;
+			this.groupBox10.TabStop = false;
+			this.groupBox10.Text = "FSX Connection Settings";
+			// 
+			// textBox3
+			// 
+			this.textBox3.Location = new System.Drawing.Point(30, 272);
+			this.textBox3.Name = "textBox3";
+			this.textBox3.Size = new System.Drawing.Size(298, 20);
+			this.textBox3.TabIndex = 13;
+			this.textBox3.Text = "9017";
+			this.textBox3.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
+			// 
+			// label33
+			// 
+			this.label33.AutoSize = true;
+			this.label33.Location = new System.Drawing.Point(27, 255);
+			this.label33.Name = "label33";
+			this.label33.Size = new System.Drawing.Size(195, 13);
+			this.label33.TabIndex = 12;
+			this.label33.Text = "Port the remote computer is listening on:";
+			// 
+			// textBox1
+			// 
+			this.textBox1.Location = new System.Drawing.Point(30, 221);
+			this.textBox1.Name = "textBox1";
+			this.textBox1.Size = new System.Drawing.Size(298, 20);
+			this.textBox1.TabIndex = 11;
+			this.textBox1.Text = "192.168.0.1";
+			this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+			// 
+			// label32
+			// 
+			this.label32.AutoSize = true;
+			this.label32.Location = new System.Drawing.Point(27, 204);
+			this.label32.Name = "label32";
+			this.label32.Size = new System.Drawing.Size(301, 13);
+			this.label32.TabIndex = 10;
+			this.label32.Text = "Address or host name of the computer running Flight Simulator:";
+			// 
+			// label31
+			// 
+			this.label31.AutoSize = true;
+			this.label31.Location = new System.Drawing.Point(27, 155);
+			this.label31.Name = "label31";
+			this.label31.Size = new System.Drawing.Size(49, 13);
+			this.label31.TabIndex = 9;
+			this.label31.Text = "Protocol:";
+			// 
+			// comboBox1
+			// 
+			this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.comboBox1.FormattingEnabled = true;
+			this.comboBox1.Items.AddRange(new object[] {
+            "IPv4",
+            "IPv6",
+            "Pipe"});
+			this.comboBox1.Location = new System.Drawing.Point(30, 171);
+			this.comboBox1.Name = "comboBox1";
+			this.comboBox1.Size = new System.Drawing.Size(298, 21);
+			this.comboBox1.TabIndex = 8;
+			this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+			// 
+			// label30
+			// 
+			this.label30.AutoSize = true;
+			this.label30.Location = new System.Drawing.Point(16, 132);
+			this.label30.Name = "label30";
+			this.label30.Size = new System.Drawing.Size(163, 13);
+			this.label30.TabIndex = 7;
+			this.label30.Text = "Specify your connection settings:";
+			// 
+			// radioButton7
+			// 
+			this.radioButton7.AutoSize = true;
+			this.radioButton7.Checked = true;
+			this.radioButton7.Location = new System.Drawing.Point(30, 51);
+			this.radioButton7.Name = "radioButton7";
+			this.radioButton7.Size = new System.Drawing.Size(245, 30);
+			this.radioButton7.TabIndex = 6;
+			this.radioButton7.TabStop = true;
+			this.radioButton7.Text = "FSXGET and Flight Simulator will BOTH run on\r\nTHIS COMPUTER";
+			this.radioButton7.UseVisualStyleBackColor = true;
+			this.radioButton7.CheckedChanged += new System.EventHandler(this.radioButton7_CheckedChanged);
+			// 
+			// label29
+			// 
+			this.label29.AutoSize = true;
+			this.label29.Location = new System.Drawing.Point(16, 26);
+			this.label29.Name = "label29";
+			this.label29.Size = new System.Drawing.Size(127, 13);
+			this.label29.TabIndex = 5;
+			this.label29.Text = "Select your configuration:";
+			// 
+			// radioButton6
+			// 
+			this.radioButton6.AutoSize = true;
+			this.radioButton6.Location = new System.Drawing.Point(30, 87);
+			this.radioButton6.Name = "radioButton6";
+			this.radioButton6.Size = new System.Drawing.Size(272, 30);
+			this.radioButton6.TabIndex = 0;
+			this.radioButton6.Text = "FSXGET and Google Earth will run on this computer,\r\nFlight Simulator will run on " +
+				"ANOTHER COMPUTER";
+			this.radioButton6.UseVisualStyleBackColor = true;
+			this.radioButton6.CheckedChanged += new System.EventHandler(this.radioButton6_CheckedChanged);
 			// 
 			// tabPage4
 			// 
@@ -1879,10 +2070,10 @@ namespace FSX_Google_Earth_Tracker
 			this.MinimizeBox = false;
 			this.Name = "Form1";
 			this.Text = "FSX Google Earth Tracker";
-			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
-			this.Shown += new System.EventHandler(this.Form1_Shown);
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 			this.Load += new System.EventHandler(this.Form1_Load);
+			this.Shown += new System.EventHandler(this.Form1_Shown);
+			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 			this.contextMenuStripNotifyIcon.ResumeLayout(false);
 			this.tabControl1.ResumeLayout(false);
 			this.tabPage1.ResumeLayout(false);
@@ -1912,6 +2103,9 @@ namespace FSX_Google_Earth_Tracker
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownQueryAIBoatsInterval)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownQueryAIHelicoptersInterval)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownQueryAIAircraftsInterval)).EndInit();
+			this.tabPage9.ResumeLayout(false);
+			this.groupBox10.ResumeLayout(false);
+			this.groupBox10.PerformLayout();
 			this.tabPage4.ResumeLayout(false);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
@@ -1985,7 +2179,6 @@ namespace FSX_Google_Earth_Tracker
 		private System.Windows.Forms.CheckBox checkShowInfoBalloons;
 		private System.Windows.Forms.CheckBox checkEnableOnStartup;
 		private System.Windows.Forms.GroupBox groupBox3;
-		private System.Windows.Forms.CheckBox checkBoxAutostart;
 		private System.Windows.Forms.Label label19;
 		private System.Windows.Forms.Label label18;
 		private System.Windows.Forms.Label label17;
@@ -2084,7 +2277,23 @@ namespace FSX_Google_Earth_Tracker
 		private System.Windows.Forms.Timer timerIPAddressRefresh;
 		private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
 		private System.Windows.Forms.ToolStripMenuItem createGoogleEarthKMLFileToolStripMenuItem;
-		private System.Windows.Forms.SaveFileDialog saveFileDialogKMLFile;
+        private System.Windows.Forms.SaveFileDialog saveFileDialogKMLFile;
+        private System.Windows.Forms.TabPage tabPage9;
+        private System.Windows.Forms.GroupBox groupBox10;
+        private System.Windows.Forms.Label label29;
+        private System.Windows.Forms.RadioButton radioButton6;
+        private System.Windows.Forms.Label label31;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.Label label30;
+        private System.Windows.Forms.RadioButton radioButton7;
+        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.Label label33;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label32;
+        private System.Windows.Forms.RadioButton radioButton9;
+        private System.Windows.Forms.RadioButton radioButton8;
+        private System.Windows.Forms.RadioButton radioButton10;
+        private System.Windows.Forms.CheckBox checkBox1;
 	}
 }
 
