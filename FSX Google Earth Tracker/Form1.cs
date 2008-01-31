@@ -302,6 +302,13 @@ namespace FSX_Google_Earth_Tracker
 			public long iUpdateGEAIBoats;
 			public long iUpdateGEAIGroundUnits;
 
+			public bool bFsxConnectionIsLocal;
+			public String szFsxConnectionProtocol;
+			public String szFsxConnectionHost;
+			public String szFsxConnectionPort;
+
+			public bool bExitOnFsxExit;
+
 			//public bool bLoadFlightPlans;
 		};
 
@@ -455,6 +462,34 @@ namespace FSX_Google_Earth_Tracker
 				return;
 			}
 
+
+			// Write SimConnect configuration file
+			try { File.Delete(szAppPath + "\\SimConnect.cfg"); }
+			catch { }
+
+			if (!gconffixCurrent.bFsxConnectionIsLocal)
+			{
+				try
+				{
+					StreamWriter swSimConnectCfg = File.CreateText(szAppPath + "\\SimConnect.cfg");
+					swSimConnectCfg.WriteLine("; FSXGET SimConnect client configuration");
+					swSimConnectCfg.WriteLine();
+					swSimConnectCfg.WriteLine("[SimConnect]");
+					swSimConnectCfg.WriteLine("Protocol=" + gconffixCurrent.szFsxConnectionProtocol);
+					swSimConnectCfg.WriteLine("Address=" + gconffixCurrent.szFsxConnectionHost);
+					swSimConnectCfg.WriteLine("Port=" + gconffixCurrent.szFsxConnectionPort);
+					swSimConnectCfg.WriteLine();
+					swSimConnectCfg.Flush();
+					swSimConnectCfg.Close();
+					swSimConnectCfg.Dispose();
+				}
+				catch
+				{
+					MessageBox.Show("The SimConnect client configuration file could not be written. Aborting!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					bErrorOnLoad = true;
+					return;
+				}
+			}
 
 			// Update the notification icon context menu
 			lock (lockChConf)
@@ -882,6 +917,12 @@ namespace FSX_Google_Earth_Tracker
 		void simconnect_OnRecvQuit(SimConnect sender, SIMCONNECT_RECV data)
 		{
 			globalDisconnect();
+
+			if (gconffixCurrent.bExitOnFsxExit && isFsxStartActivated())
+			{
+				bClose = true;
+				Close();
+			}
 		}
 
 		void simconnect_OnRecvException(SimConnect sender, SIMCONNECT_RECV_EXCEPTION data)
@@ -1282,10 +1323,16 @@ namespace FSX_Google_Earth_Tracker
 
 			ConfigMirrorToForm();
 
-			// Check if autostart is set
-			string szRun = (string)Registry.GetValue(szRegKeyRun, AssemblyTitle, "");
-			if (szRun != Application.ExecutablePath)
-				checkBoxAutostart.Checked = false;
+			// Check startup options
+			if (isAutoStartActivated())
+				radioButton8.Checked = true;
+			else if (isFsxStartActivated() && szPathFSX != "")
+				radioButton9.Checked = true;
+			else
+				radioButton10.Checked = true;
+
+			if (szPathFSX == "")
+				radioButton9.Enabled = false;
 
 			bRestartRequired = false;
 
@@ -1409,6 +1456,14 @@ namespace FSX_Google_Earth_Tracker
 
 		private void UpdateCheckBoxStates()
 		{
+			checkBoxQueryAIObjects_CheckedChanged(null, null);
+
+			radioButton7_CheckedChanged(null, null);
+			radioButton6_CheckedChanged(null, null);
+
+			radioButton8_CheckedChanged(null, null);
+			radioButton9_CheckedChanged(null, null);
+			radioButton10_CheckedChanged(null, null);
 		}
 
 
@@ -1446,6 +1501,242 @@ namespace FSX_Google_Earth_Tracker
 			return iSign * (d1 + (d2 * 60.0 + d3) / 3600.0);
 		}
 
+
+
+		private bool isAutoStartActivated()
+		{
+			string szRun = (string)Registry.GetValue(szRegKeyRun, AssemblyTitle, "");
+			return (szRun.ToLower() == Application.ExecutablePath.ToLower());
+		}
+
+		private bool AutoStartActivate()
+		{
+			try
+			{
+				Registry.SetValue(szRegKeyRun, AssemblyTitle, Application.ExecutablePath);
+			}
+			catch
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool AutoStartDeactivate()
+		{
+			try
+			{
+				RegistryKey regkTemp = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+				regkTemp.DeleteValue(AssemblyTitle);
+			}
+			catch
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool isFsxStartActivated()
+		{
+			String szAppDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Microsoft\\FSX";
+			if (File.Exists(szAppDataFolder + "\\EXE.xml"))
+			{
+				XmlTextReader xmlrFsxFile = new XmlTextReader(szAppDataFolder + "\\EXE.xml");
+				XmlDocument xmldSettings = new XmlDocument();
+				try
+				{
+					xmldSettings.Load(xmlrFsxFile);
+				}
+				catch
+				{
+					xmlrFsxFile.Close();
+					xmlrFsxFile = null;
+
+					return false;
+				}
+				xmlrFsxFile.Close();
+				xmlrFsxFile = null;
+
+				try
+				{
+					for (XmlNode xmlnTemp = xmldSettings["SimBase.Document"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
+					{
+						if (xmlnTemp.Name.ToLower() == "launch.addon")
+						{
+							try
+							{
+								if (Path.GetFullPath(xmlnTemp["Path"].InnerText).ToLower() == (Path.GetFullPath(szAppPath) + "\\starter.exe").ToLower())
+									return true;
+							}
+							catch { }
+						}
+					}
+
+					return false;
+				}
+				catch
+				{
+					return false;
+				}
+			}
+			else
+				return false;
+		}
+
+		private bool FsxStartActivate()
+		{
+			String szAppDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Microsoft\\FSX";
+			if (File.Exists(szAppDataFolder + "\\EXE.xml"))
+			{
+				bool bLoadError = false;
+
+				XmlTextReader xmlrFsxFile = new XmlTextReader(szAppDataFolder + "\\EXE.xml");
+				XmlDocument xmldSettings = new XmlDocument();
+				try
+				{
+					xmldSettings.Load(xmlrFsxFile);
+				}
+				catch
+				{
+					bLoadError = true;
+				}
+
+				xmlrFsxFile.Close();
+				xmlrFsxFile = null;
+
+				// TODO: One could improve this function not just replacing the document if ["SimBase.Document"] doesn't exist, 
+				// but just find and use the document's root element whatever it may be called. This would increase compatibility 
+				// with future FS version. (Same should be done for other functions dealing with this document)
+
+				if (bLoadError || xmldSettings["SimBase.Document"] == null)
+				{
+					try
+					{
+						File.Delete(szAppDataFolder + "\\EXE.xml");
+						return FsxStartActivate();
+					}
+					catch
+					{
+						return false;
+					}
+				}
+				else
+				{
+					if (xmldSettings["SimBase.Document"]["Disabled"] == null)
+					{
+						XmlNode nodeTemp = xmldSettings.CreateElement("Disabled");
+						nodeTemp.InnerText = "False";
+						xmldSettings["SimBase.Document"].AppendChild(nodeTemp);
+					}
+					else if (xmldSettings["SimBase.Document"]["Disabled"].InnerText.ToLower() == "true")
+						xmldSettings["SimBase.Document"]["Disabled"].InnerText = "False";
+
+					xmlrFsxFile = new XmlTextReader(szAppPath + "\\data\\EXE.xml");
+					XmlDocument xmldTemplate = new XmlDocument();
+					xmldTemplate.Load(xmlrFsxFile);
+					xmlrFsxFile.Close();
+					xmlrFsxFile = null;
+
+					XmlNode nodeFsxget = xmldTemplate["SimBase.Document"]["Launch.Addon"];
+					
+					XmlNode nodeTemp2 = xmldSettings.CreateElement(nodeFsxget.Name);
+					nodeTemp2.InnerXml = nodeFsxget.InnerXml.Replace("%PATH%", Path.GetFullPath(szAppPath) + "\\starter.exe");
+
+					xmldSettings["SimBase.Document"].AppendChild(nodeTemp2);
+
+					try
+					{
+						File.Delete(szAppDataFolder + "\\EXE.xml");
+						xmldSettings.Save(szAppDataFolder + "\\EXE.xml");
+
+						return true;
+					}
+					catch
+					{
+						return false;
+					}
+				}
+			}
+			else
+			{
+				try
+				{
+					StreamWriter swFsxFile = File.CreateText(szAppDataFolder + "\\EXE.xml");
+					StreamReader srFsxFileTemplate = File.OpenText(szAppPath + "\\data\\EXE.xml");
+
+					swFsxFile.Write(srFsxFileTemplate.ReadToEnd().Replace("%PATH%", Path.GetFullPath(szAppPath) + "\\starter.exe"));
+
+					swFsxFile.Flush();
+					swFsxFile.Close();
+					swFsxFile.Dispose();
+
+					srFsxFileTemplate.Close();
+					srFsxFileTemplate.Dispose();
+
+					return true;
+				}
+				catch
+				{
+					return false;
+				}
+			}
+		}
+
+		private bool FsxStartDeactivate()
+		{
+			String szAppDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Microsoft\\FSX";
+			if (File.Exists(szAppDataFolder + "\\EXE.xml"))
+			{
+				XmlTextReader xmlrFsxFile = new XmlTextReader(szAppDataFolder + "\\EXE.xml");
+				XmlDocument xmldSettings = new XmlDocument();
+				xmldSettings.Load(xmlrFsxFile);
+				xmlrFsxFile.Close();
+				xmlrFsxFile = null;
+
+				try
+				{
+					bool bChanges = false;
+
+					for (XmlNode xmlnTemp = xmldSettings["SimBase.Document"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
+					{
+						if (xmlnTemp.Name.ToLower() == "launch.addon")
+						{
+							if (xmlnTemp["Path"] != null)
+							{
+								if (Path.GetFullPath(xmlnTemp["Path"].InnerText).ToLower() == (Path.GetFullPath(szAppPath) + "\\starter.exe").ToLower())
+								{
+									xmldSettings["SimBase.Document"].RemoveChild(xmlnTemp);
+									bChanges = true;
+								}
+							}
+						}
+					}
+
+					if (bChanges)
+					{
+						try
+						{
+							File.Delete(szAppDataFolder + "\\EXE.xml");
+							xmldSettings.Save(szAppDataFolder + "\\EXE.xml");
+						}
+						catch
+						{
+							return false;
+						}
+					}
+
+					return true;
+				}
+				catch
+				{
+					return true;
+				}
+			}
+			else
+				return true;
+		}
 
 		#endregion
 
@@ -2530,6 +2821,8 @@ namespace FSX_Google_Earth_Tracker
 
 		private void ConfigMirrorToVariables()
 		{
+			gconffixCurrent.bExitOnFsxExit = (xmldSettings["fsxget"]["settings"]["options"]["general"]["application-startup"].Attributes["Exit"].Value.ToLower() == "true");
+
 			lock (lockChConf)
 			{
 				gconfchCurrent.bEnabled = (xmldSettings["fsxget"]["settings"]["options"]["general"]["enable-on-startup"].Attributes["Enabled"].Value == "1");
@@ -2606,6 +2899,12 @@ namespace FSX_Google_Earth_Tracker
 			gconffixCurrent.iServerPort = System.Int64.Parse(xmldSettings["fsxget"]["settings"]["options"]["ge"]["server-settings"]["port"].Attributes["Value"].Value);
 			gconffixCurrent.uiServerAccessLevel = (uint)System.Int64.Parse(xmldSettings["fsxget"]["settings"]["options"]["ge"]["server-settings"]["access-level"].Attributes["Value"].Value);
 
+			gconffixCurrent.bFsxConnectionIsLocal = (xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Local"].Value.ToLower() == "true");
+
+			gconffixCurrent.szFsxConnectionHost = xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Host"].Value;
+			gconffixCurrent.szFsxConnectionPort = xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Port"].Value;
+
+			gconffixCurrent.szFsxConnectionProtocol = xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Protocol"].Value;
 
 			//gconffixCurrent.bLoadFlightPlans = (xmldSettings["fsxget"]["settings"]["options"]["flightplans"].Attributes["Enabled"].Value == "1");
 
@@ -2615,7 +2914,10 @@ namespace FSX_Google_Earth_Tracker
 
 		private void ConfigMirrorToForm()
 		{
+			checkBox1.Checked = (xmldSettings["fsxget"]["settings"]["options"]["general"]["application-startup"].Attributes["Exit"].Value.ToLower() == "true");
+
 			checkEnableOnStartup.Checked = (xmldSettings["fsxget"]["settings"]["options"]["general"]["enable-on-startup"].Attributes["Enabled"].Value == "1");
+
 			checkShowInfoBalloons.Checked = (xmldSettings["fsxget"]["settings"]["options"]["general"]["show-balloon-tips"].Attributes["Enabled"].Value == "1");
 			checkBoxLoadKMLFile.Checked = (xmldSettings["fsxget"]["settings"]["options"]["general"]["load-kml-file"].Attributes["Enabled"].Value == "1");
 			//checkBoxUpdateCheck.Checked = (xmldSettings["fsxget"]["settings"]["options"]["general"]["update-check"].Attributes["Enabled"].Value == "1");
@@ -2685,8 +2987,6 @@ namespace FSX_Google_Earth_Tracker
 			checkBoxQueryAIGroudUnits_CheckedChanged(null, null);
 
 			checkBoxQueryAIObjects.Checked = (xmldSettings["fsxget"]["settings"]["options"]["fsx"]["query-ai-objects"].Attributes["Enabled"].Value == "1");
-			checkBoxQueryAIObjects_CheckedChanged(null, null);
-
 
 			numericUpDownRefreshUserAircraft.Value = System.Int64.Parse(xmldSettings["fsxget"]["settings"]["options"]["ge"]["refresh-rates"]["user-aircraft"].Attributes["Interval"].Value);
 			numericUpDownRefreshUserPath.Value = System.Int64.Parse(xmldSettings["fsxget"]["settings"]["options"]["ge"]["refresh-rates"]["user-path"].Attributes["Interval"].Value);
@@ -2717,12 +3017,21 @@ namespace FSX_Google_Earth_Tracker
 			//    iCount++;
 			//}
 
+			radioButton7.Checked = (xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Local"].Value.ToLower() == "true");
+			radioButton6.Checked = !radioButton7.Checked;
+
+			textBox1.Text = xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Host"].Value;
+			textBox3.Text = xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Port"].Value;
+
+			comboBox1.SelectedIndex = comboBox1.FindString(xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Protocol"].Value);
 
 			UpdateCheckBoxStates();
 		}
 
 		private void ConfigRetrieveFromForm()
 		{
+			xmldSettings["fsxget"]["settings"]["options"]["general"]["application-startup"].Attributes["Exit"].Value = checkBox1.Checked ? "True" : "False";
+
 			xmldSettings["fsxget"]["settings"]["options"]["general"]["enable-on-startup"].Attributes["Enabled"].Value = checkEnableOnStartup.Checked ? "1" : "0";
 			xmldSettings["fsxget"]["settings"]["options"]["general"]["show-balloon-tips"].Attributes["Enabled"].Value = checkShowInfoBalloons.Checked ? "1" : "0";
 			xmldSettings["fsxget"]["settings"]["options"]["general"]["load-kml-file"].Attributes["Enabled"].Value = checkBoxLoadKMLFile.Checked ? "1" : "0";
@@ -2803,6 +3112,10 @@ namespace FSX_Google_Earth_Tracker
 			else
 				xmldSettings["fsxget"]["settings"]["options"]["ge"]["server-settings"]["access-level"].Attributes["Value"].Value = "0";
 
+			xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Local"].Value = radioButton7.Checked ? "True" : "False";
+			xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Protocol"].Value = comboBox1.SelectedItem.ToString();
+			xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Host"].Value = textBox1.Text;
+			xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Port"].Value = textBox3.Text;
 
 			//xmldSettings["fsxget"]["settings"]["options"]["flightplans"].Attributes["Enabled"].Value = checkBoxLoadFlightPlans.Checked ? "1" : "0";
 		}
@@ -3140,25 +3453,43 @@ namespace FSX_Google_Earth_Tracker
 
 		private void buttonOK_Click(object sender, EventArgs e)
 		{
-			// Set autostart if necessary
+			// Set startup options if necessary
+			if (radioButton8.Checked)
+			{
+				if (!isAutoStartActivated())
+					if (!AutoStartActivate())
+						MessageBox.Show("Couldn't change autorun value in registry!", AssemblyTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+				if (isFsxStartActivated())
+					if (!FsxStartDeactivate())
+						MessageBox.Show("Couldn't change FSX startup options!", AssemblyTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			}
+			else if (radioButton9.Checked)
+			{
+				if (!isFsxStartActivated())
+					if (!FsxStartActivate())
+						MessageBox.Show("Couldn't change FSX startup options!", AssemblyTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+				if (isAutoStartActivated())
+					if (!AutoStartDeactivate())
+						MessageBox.Show("Couldn't change autorun value in registry!", AssemblyTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			}
+			else
+			{
+				if (isFsxStartActivated())
+					if (!FsxStartDeactivate())
+						MessageBox.Show("Couldn't change FSX startup options!", AssemblyTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+				if (isAutoStartActivated())
+					if (!AutoStartDeactivate())
+						MessageBox.Show("Couldn't change autorun value in registry!", AssemblyTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			}
+
 			string szRun = (string)Registry.GetValue(szRegKeyRun, AssemblyTitle, "");
 
-			try
-			{
-				if (szRun != Application.ExecutablePath && checkBoxAutostart.Checked)
-					Registry.SetValue(szRegKeyRun, AssemblyTitle, Application.ExecutablePath);
-				else if (szRun == Application.ExecutablePath && !checkBoxAutostart.Checked)
-				{
-					RegistryKey regkTemp = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-					regkTemp.DeleteValue(AssemblyTitle);
-				}
-			}
-			catch
-			{
-				MessageBox.Show("Couldn't change autorun value in registry!", AssemblyTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-			}
 
 			ConfigRetrieveFromForm();
+
 
 			if (bRestartRequired)
 				MessageBox.Show("Some of the changes you made require a restart. Please restart " + Text + " for those changes to take effect.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -3425,8 +3756,6 @@ namespace FSX_Google_Earth_Tracker
 		}
 
 
-		#endregion
-
 		private void button3_Click(object sender, EventArgs e)
 		{
 			if (MessageBox.Show("Are you sure you want to remove the selected items?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -3437,5 +3766,66 @@ namespace FSX_Google_Earth_Tracker
 				//}
 			}
 		}
+
+		private void radioButton7_CheckedChanged(object sender, EventArgs e)
+		{
+			comboBox1.Enabled = textBox1.Enabled = textBox3.Enabled = !radioButton7.Checked;
+			bRestartRequired = true;
+		}
+
+		private void radioButton6_CheckedChanged(object sender, EventArgs e)
+		{
+			comboBox1.Enabled = textBox1.Enabled = textBox3.Enabled = radioButton6.Checked;
+			bRestartRequired = true;
+		}
+
+		private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			bRestartRequired = true;
+		}
+
+		private void textBox1_TextChanged(object sender, EventArgs e)
+		{
+			bRestartRequired = true;
+		}
+
+		private void textBox3_TextChanged(object sender, EventArgs e)
+		{
+			bRestartRequired = true;
+		}
+
+		private void radioButton10_CheckedChanged(object sender, EventArgs e)
+		{
+			if (radioButton10.Checked)
+				radioButton8.Checked = radioButton9.Checked = checkBox1.Enabled = false;
+		}
+
+		private void radioButton9_CheckedChanged(object sender, EventArgs e)
+		{
+			checkBox1.Enabled = radioButton9.Checked;
+		}
+
+		private void radioButton8_CheckedChanged(object sender, EventArgs e)
+		{
+			if (radioButton10.Checked)
+				radioButton8.Checked = radioButton9.Checked = checkBox1.Enabled = false;
+		}
+
+		private void checkEnableOnStartup_CheckedChanged(object sender, EventArgs e)
+		{
+
+		}
+
+		private void checkBox1_CheckedChanged(object sender, EventArgs e)
+		{
+			gconffixCurrent.bExitOnFsxExit = checkBox1.Checked;
+		}
+
+		private void checkShowInfoBalloons_CheckedChanged(object sender, EventArgs e)
+		{
+
+		}
+
+		#endregion
 	}
 }
