@@ -130,9 +130,9 @@
 			this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.checkBox1.Location = new System.Drawing.Point(32, 85);
 			this.checkBox1.Name = "checkBox1";
-			this.checkBox1.Size = new System.Drawing.Size(276, 17);
+			this.checkBox1.Size = new System.Drawing.Size(141, 17);
 			this.checkBox1.TabIndex = 2;
-			this.checkBox1.Text = "Allow applications to connect to FSX via SimConnect";
+			this.checkBox1.Text = "Activate custom settings";
 			this.checkBox1.UseVisualStyleBackColor = true;
 			this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
 			// 
@@ -144,6 +144,7 @@
 			this.button2.TabIndex = 3;
 			this.button2.Text = "Add";
 			this.button2.UseVisualStyleBackColor = true;
+			this.button2.Click += new System.EventHandler(this.button2_Click);
 			// 
 			// button3
 			// 
@@ -154,6 +155,7 @@
 			this.button3.TabIndex = 4;
 			this.button3.Text = "Edit";
 			this.button3.UseVisualStyleBackColor = true;
+			this.button3.Click += new System.EventHandler(this.button3_Click);
 			// 
 			// button4
 			// 
@@ -164,6 +166,7 @@
 			this.button4.TabIndex = 5;
 			this.button4.Text = "Remove";
 			this.button4.UseVisualStyleBackColor = true;
+			this.button4.Click += new System.EventHandler(this.button4_Click);
 			// 
 			// menuStrip1
 			// 
@@ -202,7 +205,7 @@
 			// aboutToolStripMenuItem1
 			// 
 			this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
-			this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+			this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
 			this.aboutToolStripMenuItem1.Text = "&About";
 			this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.aboutToolStripMenuItem1_Click);
 			// 
@@ -240,10 +243,11 @@
 			this.radioButton1.AutoSize = true;
 			this.radioButton1.Location = new System.Drawing.Point(14, 39);
 			this.radioButton1.Name = "radioButton1";
-			this.radioButton1.Size = new System.Drawing.Size(306, 17);
+			this.radioButton1.Size = new System.Drawing.Size(543, 17);
 			this.radioButton1.TabIndex = 10;
 			this.radioButton1.TabStop = true;
-			this.radioButton1.Text = "Do not edit SimConnect settings (use FSX\'s default settings)";
+			this.radioButton1.Text = "Do NOT create custom SimConnect settings (Deletes custom settings and FSX will us" +
+				"e built-in default settings)";
 			this.radioButton1.UseVisualStyleBackColor = true;
 			this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
 			// 
@@ -252,10 +256,10 @@
 			this.radioButton2.AutoSize = true;
 			this.radioButton2.Location = new System.Drawing.Point(14, 62);
 			this.radioButton2.Name = "radioButton2";
-			this.radioButton2.Size = new System.Drawing.Size(159, 17);
+			this.radioButton2.Size = new System.Drawing.Size(192, 17);
 			this.radioButton2.TabIndex = 11;
 			this.radioButton2.TabStop = true;
-			this.radioButton2.Text = "Custom SimConnect settings";
+			this.radioButton2.Text = "Create custom SimConnect settings";
 			this.radioButton2.UseVisualStyleBackColor = true;
 			this.radioButton2.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
 			// 

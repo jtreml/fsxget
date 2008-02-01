@@ -24,7 +24,7 @@
 					<query-ai-boats Enabled="1" Interval="5000" Range="100000" Prediction="0" PredictionPoints="0" />
 					<query-ai-ground-units Enabled="1" Interval="5000" Range="100000" Prediction="0" PredictionPoints="0" />
 				</query-ai-objects>
-				<connection Local="True" Protocol="IPv4" Host="192.168.0.1" Port="8097" />
+				<connection Local="True" Protocol="IPv4" Host="192.168.0.1" Port="9017" />
 			</fsx>
 			<ge>
 				<refresh-rates>

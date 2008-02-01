@@ -7,11 +7,15 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using System.IO;
+using System.Reflection;
 
 namespace FSX_Config_Tool
 {
 	public partial class Form1 : Form
 	{
+		AboutBox1 frmAbout = new AboutBox1();
+		Form2 frmAddEdit = new Form2();
+
 		bool bChanges = false;
 
 		XmlDocument xmldSimCon;
@@ -31,6 +35,8 @@ namespace FSX_Config_Tool
 
 		private void Form1_Load(object sender, EventArgs e)
 		{
+			Text = AssemblyProduct;
+
 			bool bLoadSample = false;
 
 			if (File.Exists(szFileSimCon))
@@ -93,6 +99,7 @@ namespace FSX_Config_Tool
 		private void updateListView()
 		{
 			int iCount = 0;
+			listView1.Items.Clear();
 
 			for (XmlNode xmlnTemp = xmldSimCon["SimBase.Document"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
 			{
@@ -135,6 +142,8 @@ namespace FSX_Config_Tool
 					itemTemp.Tag = xmlnTemp;
 				}
 			}
+
+			listView1_SelectedIndexChanged(null, null);
 		}
 
 
@@ -232,7 +241,6 @@ namespace FSX_Config_Tool
 					}
 				}
 
-				MessageBox.Show("Save");
 				bChanges = false;
 			}
 		}
@@ -269,8 +277,193 @@ namespace FSX_Config_Tool
 
 		private void aboutToolStripMenuItem1_Click(object sender, EventArgs e)
 		{
-			AboutBox1 frmAbout = new AboutBox1();
 			frmAbout.ShowDialog();
 		}
+
+		private void button2_Click(object sender, EventArgs e)
+		{
+			XmlNode xmlnNew = xmldSimCon.CreateElement("SimConnect.Comm");
+
+			XmlNode xmlnTemp = xmldSimCon.CreateElement("Disabled");
+			xmlnNew.AppendChild(xmlnTemp);
+
+			xmlnTemp = xmldSimCon.CreateElement("Protocol");
+			xmlnNew.AppendChild(xmlnTemp);
+
+			xmlnTemp = xmldSimCon.CreateElement("Scope");
+			xmlnNew.AppendChild(xmlnTemp);
+
+			xmlnTemp = xmldSimCon.CreateElement("MaxClients");
+			xmlnNew.AppendChild(xmlnTemp);
+
+			xmlnTemp = xmldSimCon.CreateElement("Address");
+			xmlnNew.AppendChild(xmlnTemp);
+
+			xmlnTemp = xmldSimCon.CreateElement("Port");
+			xmlnNew.AppendChild(xmlnTemp);
+
+			DialogResult dlgRes = frmAddEdit.ShowDialog(xmlnNew, false);
+
+			if (dlgRes == DialogResult.OK)
+			{
+				xmldSimCon["SimBase.Document"].AppendChild(xmlnNew);
+				bChanges = true;
+
+				updateListView();
+			}
+		}
+
+		#region Assembly Attribute Accessors
+
+		public string AssemblyTitle
+		{
+			get
+			{
+				object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
+				if (attributes.Length > 0)
+				{
+					AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)attributes[0];
+					if (titleAttribute.Title != "")
+					{
+						return titleAttribute.Title;
+					}
+				}
+				return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+			}
+		}
+
+		public string AssemblyVersion
+		{
+			get
+			{
+				return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+			}
+		}
+
+		public string AssemblyDescription
+		{
+			get
+			{
+				object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false);
+				if (attributes.Length == 0)
+				{
+					return "";
+				}
+				return ((AssemblyDescriptionAttribute)attributes[0]).Description;
+			}
+		}
+
+		public string AssemblyProduct
+		{
+			get
+			{
+				object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyProductAttribute), false);
+				if (attributes.Length == 0)
+				{
+					return "";
+				}
+				return ((AssemblyProductAttribute)attributes[0]).Product;
+			}
+		}
+
+		public string AssemblyCopyright
+		{
+			get
+			{
+				object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
+				if (attributes.Length == 0)
+				{
+					return "";
+				}
+				return ((AssemblyCopyrightAttribute)attributes[0]).Copyright;
+			}
+		}
+
+		public string AssemblyCompany
+		{
+			get
+			{
+				object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCompanyAttribute), false);
+				if (attributes.Length == 0)
+				{
+					return "";
+				}
+				return ((AssemblyCompanyAttribute)attributes[0]).Company;
+			}
+		}
+
+		#endregion
+
+		private void button4_Click(object sender, EventArgs e)
+		{
+			if (listView1.SelectedItems.Count != 1)
+				throw new Exception("More than one or zero list items selected. Invalid list state.");
+
+			foreach (ListViewItem itemTemp in listView1.SelectedItems)
+			{
+				xmldSimCon["SimBase.Document"].RemoveChild((XmlNode)itemTemp.Tag);
+
+				updateListView();
+				return;
+			}
+		}
+
+		private void button3_Click(object sender, EventArgs e)
+		{
+			if (listView1.SelectedItems.Count != 1)
+				throw new Exception("More than one or zero list items selected. Invalid list state.");
+
+			foreach (ListViewItem itemTemp in listView1.SelectedItems)
+			{
+				XmlNode xmlnEdit = (XmlNode)itemTemp.Tag;
+
+				XmlNode xmlnTemp;
+
+				if (xmlnEdit["Disabled"] == null)
+				{
+					xmlnTemp = xmldSimCon.CreateElement("Disabled");
+					xmlnEdit.AppendChild(xmlnTemp);
+				}
+
+				if (xmlnEdit["Protocol"] == null)
+				{
+					xmlnTemp = xmldSimCon.CreateElement("Protocol");
+					xmlnEdit.AppendChild(xmlnTemp);
+				}
+
+				if (xmlnEdit["Scope"] == null)
+				{
+					xmlnTemp = xmldSimCon.CreateElement("Scope");
+					xmlnEdit.AppendChild(xmlnTemp);
+				}
+
+				if (xmlnEdit["MaxClients"] == null)
+				{
+					xmlnTemp = xmldSimCon.CreateElement("MaxClients");
+					xmlnEdit.AppendChild(xmlnTemp);
+				}
+
+				if (xmlnEdit["Address"] == null)
+				{
+					xmlnTemp = xmldSimCon.CreateElement("Address");
+					xmlnEdit.AppendChild(xmlnTemp);
+				}
+
+				if (xmlnEdit["Port"] == null)
+				{
+					xmlnTemp = xmldSimCon.CreateElement("Port");
+					xmlnEdit.AppendChild(xmlnTemp);
+				}
+
+				DialogResult dlgRes = frmAddEdit.ShowDialog(xmlnEdit, true);
+
+				if (dlgRes == DialogResult.OK)
+				{
+					bChanges = true;
+					updateListView();
+				}
+			}
+		}
+
 	}
 }

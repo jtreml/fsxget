@@ -1294,7 +1294,6 @@ namespace FSX_Google_Earth_Tracker
 			this.textBox3.Name = "textBox3";
 			this.textBox3.Size = new System.Drawing.Size(298, 20);
 			this.textBox3.TabIndex = 13;
-			this.textBox3.Text = "9017";
 			this.textBox3.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
 			// 
 			// label33
@@ -1312,7 +1311,6 @@ namespace FSX_Google_Earth_Tracker
 			this.textBox1.Name = "textBox1";
 			this.textBox1.Size = new System.Drawing.Size(298, 20);
 			this.textBox1.TabIndex = 11;
-			this.textBox1.Text = "192.168.0.1";
 			this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
 			// 
 			// label32
