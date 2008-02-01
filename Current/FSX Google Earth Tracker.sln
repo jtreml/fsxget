@@ -13,13 +13,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Starter App", "Starter App\
 		{86BDE965-A297-492B-9604-B4749CA25759} = {86BDE965-A297-492B-9604-B4749CA25759}
 	EndProjectSection
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Config Tool Installer", "Config Tool Installer\Config Tool Installer.vdproj", "{AD8FF7B9-075F-4D7E-BDBD-E720F3E0EA06}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimConnect Config Tool", "SimConnect Config Tool\SimConnect Config Tool.csproj", "{67B45212-FF16-4CD8-9F58-69020E1CDB10}"
-EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
+		SccNumberOfProjects = 4
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccLocalPath0 = .
@@ -32,12 +28,6 @@ Global
 		SccProjectUniqueName3 = Starter\u0020App\\Starter\u0020App.csproj
 		SccProjectName3 = Starter\u0020App
 		SccLocalPath3 = Starter\u0020App
-		SccProjectUniqueName4 = Config\u0020Tool\u0020Installer\\Config\u0020Tool\u0020Installer.vdproj
-		SccProjectName4 = Config\u0020Tool\u0020Installer
-		SccLocalPath4 = Config\u0020Tool\u0020Installer
-		SccProjectUniqueName5 = SimConnect\u0020Config\u0020Tool\\SimConnect\u0020Config\u0020Tool.csproj
-		SccProjectName5 = SimConnect\u0020Config\u0020Tool
-		SccLocalPath5 = SimConnect\u0020Config\u0020Tool
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -55,13 +45,6 @@ Global
 		{F787206D-EDE2-4D33-AAA4-491A630D138A}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{F787206D-EDE2-4D33-AAA4-491A630D138A}.Release|Mixed Platforms.ActiveCfg = Release|x86
 		{F787206D-EDE2-4D33-AAA4-491A630D138A}.Release|Mixed Platforms.Build.0 = Release|x86
-		{AD8FF7B9-075F-4D7E-BDBD-E720F3E0EA06}.Debug|Mixed Platforms.ActiveCfg = Debug
-		{AD8FF7B9-075F-4D7E-BDBD-E720F3E0EA06}.Release|Mixed Platforms.ActiveCfg = Release
-		{AD8FF7B9-075F-4D7E-BDBD-E720F3E0EA06}.Release|Mixed Platforms.Build.0 = Release
-		{67B45212-FF16-4CD8-9F58-69020E1CDB10}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{67B45212-FF16-4CD8-9F58-69020E1CDB10}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{67B45212-FF16-4CD8-9F58-69020E1CDB10}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{67B45212-FF16-4CD8-9F58-69020E1CDB10}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
