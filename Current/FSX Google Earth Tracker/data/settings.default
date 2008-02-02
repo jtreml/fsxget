@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <fsxget>
-	<settings version="0.0.3.2 Beta 1">
+	<settings version="">
 		<options>
 			<general>
 				<application-startup Exit="False" />
@@ -37,7 +37,7 @@
 					<ai-ground-units Interval="5" />
 				</refresh-rates>
 				<server-settings>
-					<port Value="8087" />
+					<port Value="9016" />
 					<access-level Value="1" />
 				</server-settings>
 			</ge>

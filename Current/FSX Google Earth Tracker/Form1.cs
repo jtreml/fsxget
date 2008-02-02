@@ -412,22 +412,14 @@ namespace FSX_Google_Earth_Tracker
 			bool bUpdate = false;
 			try
 			{
-				szConfigVersion = xmldSettings["fsxget"]["settings"].Attributes["version"].Value.ToLower();
+				szConfigVersion = xmldSettings["fsxget"]["settings"].Attributes["version"].Value;
 			}
 			catch
 			{
 				bUpdate = true;
 			}
 
-			xmlrSeetingsFile = new XmlTextReader(szAppPath + "\\data\\settings.default");
-			XmlDocument xmldSettingsDefault = new XmlDocument();
-			xmldSettingsDefault.Load(xmlrSeetingsFile);
-			xmlrSeetingsFile.Close();
-			xmlrSeetingsFile = null;
-
-			String szConfigDefaultVersion = xmldSettingsDefault["fsxget"]["settings"].Attributes["version"].Value.ToLower();
-
-			if (bUpdate || !szConfigVersion.Equals(szConfigDefaultVersion))
+			if (bUpdate || !szConfigVersion.Equals(ProductVersion.ToLower()))
 			{
 				try
 				{
@@ -439,6 +431,8 @@ namespace FSX_Google_Earth_Tracker
 					xmldSettings.Load(xmlrSeetingsFile);
 					xmlrSeetingsFile.Close();
 					xmlrSeetingsFile = null;
+
+					xmldSettings["fsxget"]["settings"].Attributes["version"].Value = ProductVersion;
 				}
 				catch
 				{
