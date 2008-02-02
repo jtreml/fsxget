@@ -281,9 +281,87 @@
         }
         "LaunchCondition"
         {
+            "{836E08B8-0285-4809-BA42-01DB6754A45D}:_40358F390ADD45F5A4C89FA8CABD2B47"
+            {
+            "Name" = "8:FSXGET 0.0.3.1 RC1"
+            "Condition" = "8:FSXGET0031RC1=False"
+            "Message" = "8:Version 0.0.3.1 RC1 of FSXGET is currently installed on your system. You must uninstall version 0.0.3.1 RC1 before installing this version."
+            "InstallUrl" = "8:"
+            }
+            "{836E08B8-0285-4809-BA42-01DB6754A45D}:_412AFF778A9E4250B71C4D0B47D87631"
+            {
+            "Name" = "8:FSXGET 0.0.3.1 RC3/4"
+            "Condition" = "8:FSXGET0031RC34=False"
+            "Message" = "8:Version 0.0.3.1 RC3 or RC4 of FSXGET is currently installed on your system. You must uninstall version 0.0.3.1 RC3 / RC4 before installing this version."
+            "InstallUrl" = "8:"
+            }
+            "{836E08B8-0285-4809-BA42-01DB6754A45D}:_43534FE657A4476A8B064354CD96CC54"
+            {
+            "Name" = "8:FSXGET 0.0.3.0"
+            "Condition" = "8:FSXGET0030=False"
+            "Message" = "8:Version 0.0.3.0 of FSXGET is currently installed on your system. You must uninstall version 0.0.3.0 before installing this version."
+            "InstallUrl" = "8:"
+            }
+            "{836E08B8-0285-4809-BA42-01DB6754A45D}:_4B83B3F402C44E2DADDA8E54CE001492"
+            {
+            "Name" = "8:FSXGET 0.0.3.1 RC2"
+            "Condition" = "8:FSXGET0031RC2=False"
+            "Message" = "8:Version 0.0.3.1 RC2 of FSXGET is currently installed on your system. You must uninstall version 0.0.3.1 RC2 before installing this version."
+            "InstallUrl" = "8:"
+            }
+            "{836E08B8-0285-4809-BA42-01DB6754A45D}:_69C48F23DDFD42C19586DCF02E63F61E"
+            {
+            "Name" = "8:FSXGET 0.0.1.0"
+            "Condition" = "8:FSXGET0010=False"
+            "Message" = "8:Version 0.0.1.0 of FSXGET is currently installed on your system. You must uninstall version 0.0.1.0 before installing this version."
+            "InstallUrl" = "8:"
+            }
+            "{836E08B8-0285-4809-BA42-01DB6754A45D}:_DB80F7F3FB8E4720B126295653E076AB"
+            {
+            "Name" = "8:FSXGET 0.0.2.0"
+            "Condition" = "8:FSXGET0020=False"
+            "Message" = "8:Version 0.0.2.0 of FSXGET is currently installed on your system. You must uninstall version 0.0.2.0 before installing this version."
+            "InstallUrl" = "8:"
+            }
         }
         "Locator"
         {
+            "{B8A5E33E-1082-4FE2-AC2E-1197791E9409}:_10A447AFF2474247BE5554F88AD46B72"
+            {
+            "Name" = "8:FSXGET 0.0.3.1 RC1"
+            "ComponentId" = "8:{74155E53-FE85-4F1D-95D2-27B274447DBF}"
+            "Property" = "8:FSXGET0031RC1"
+            }
+            "{B8A5E33E-1082-4FE2-AC2E-1197791E9409}:_23BE98234C9648A593D21532CED9E399"
+            {
+            "Name" = "8:FSXGET 0.0.3.1 RC3/4"
+            "ComponentId" = "8:{5AC56E23-B3FF-4D1B-9449-23C4E3FC6252}"
+            "Property" = "8:FSXGET0031RC34"
+            }
+            "{B8A5E33E-1082-4FE2-AC2E-1197791E9409}:_3484C5978DF34BFD86DF2211DC9D39CC"
+            {
+            "Name" = "8:FSXGET 0.0.2.0"
+            "ComponentId" = "8:{903D3E75-009C-4578-97A0-039CD9D0316D}"
+            "Property" = "8:FSXGET0020"
+            }
+            "{B8A5E33E-1082-4FE2-AC2E-1197791E9409}:_8A6D6E1AB6CC449795528082EF87FABB"
+            {
+            "Name" = "8:FSXGET 0.0.3.0"
+            "ComponentId" = "8:{3EEC180F-4B85-4D36-BEAC-3F0A2D2685C8}"
+            "Property" = "8:FSXGET0030"
+            }
+            "{B8A5E33E-1082-4FE2-AC2E-1197791E9409}:_8B71376A9F994156A714D7C534292EC9"
+            {
+            "Name" = "8:FSXGET 0.0.1.0"
+            "ComponentId" = "8:{8DF8D2BF-AC01-4544-9307-70C1732CD9B2}"
+            "Property" = "8:FSXGET0010"
+            }
+            "{B8A5E33E-1082-4FE2-AC2E-1197791E9409}:_CC29FC2532854D058AF1A9D434091FFE"
+            {
+            "Name" = "8:FSXGET 0.0.3.1 RC2"
+            "ComponentId" = "8:{05A97B8C-C9EB-4BDF-A9DB-E99FEA68D736}"
+            "Property" = "8:FSXGET0031RC2"
+            }
         }
         "MsiBootstrapper"
         {
@@ -294,14 +372,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:FSX Google Earth Tracker"
-        "ProductCode" = "8:{B70812CE-E085-4934-802D-36AF566F6CF9}"
-        "PackageCode" = "8:{CC890B7E-EB38-483A-BEC5-BCABE4D965F2}"
-        "UpgradeCode" = "8:{C43236FD-2989-4739-BAB5-A067B861C07D}"
+        "ProductCode" = "8:{A9FEE359-1811-4C75-BAB6-5B3524AB28CC}"
+        "PackageCode" = "8:{EE264014-797F-4A54-AF03-9AB709CB6829}"
+        "UpgradeCode" = "8:{2D89F329-65D1-4A51-A8D4-165180C020F7}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.3.2"
+        "ProductVersion" = "8:0.5.1"
         "Manufacturer" = "8:Jürgen Treml"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.juergentreml.de/fsxget/"
