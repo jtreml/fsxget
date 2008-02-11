@@ -13,6 +13,7 @@ using System.Web;
 using System.Xml;
 using System.Reflection;
 using Microsoft.Win32;
+using System.Globalization;
 
 using Microsoft.FlightSimulator.SimConnect;
 using System.Runtime.InteropServices;
@@ -130,7 +131,7 @@ namespace FSX_Google_Earth_Tracker
 			REQUEST_AI_HELICOPTER,
 			REQUEST_AI_PLANE,
 			REQUEST_AI_BOAT,
-			REQUEST_AI_GROUND,
+			REQUEST_AI_GROUND
 		};
 
 
@@ -143,21 +144,21 @@ namespace FSX_Google_Earth_Tracker
 			REQUEST_AI_PLANE,
 			REQUEST_AI_BOAT,
 			REQUEST_AI_GROUND,
-			REQUEST_FLIGHT_PLANS,
+			REQUEST_FLIGHT_PLANS
 		};
 
 		enum KML_ACCESS_MODES
 		{
 			MODE_SERVER,
 			MODE_FILE_LOCAL,
-			MODE_FILE_USERDEFINED,
+			MODE_FILE_USERDEFINED
 		};
 
 		enum KML_IMAGE_TYPES
 		{
 			AIRCRAFT,
 			WATER,
-			GROUND,
+			GROUND
 		};
 
 		enum KML_ICON_TYPES
@@ -177,7 +178,7 @@ namespace FSX_Google_Earth_Tracker
 			PLAN_USER,
 			PLAN_PORT,
 			PLAN_INTER,
-			UNKNOWN,
+			UNKNOWN
 		};
 
 
@@ -309,6 +310,7 @@ namespace FSX_Google_Earth_Tracker
 
 			public bool bExitOnFsxExit;
 
+			public UnitType utUnits;
 			//public bool bLoadFlightPlans;
 		};
 
@@ -331,6 +333,12 @@ namespace FSX_Google_Earth_Tracker
 					return "ETA " + dTime / 60.0 + " min";
 			}
 		}
+
+		enum UnitType
+		{
+			METERS,
+			FEET
+		};
 
 		//struct ListViewFlightPlansItem
 		//{
@@ -358,7 +366,9 @@ namespace FSX_Google_Earth_Tracker
 
 
 		public Form1()
-		{
+		{	
+			CultureInfo reginf = System.Globalization.CultureInfo.CurrentUICulture;
+
 			//As this method doesn't start any other threads we don't need to lock anything here (especially not the config file xml document)
 
 			InitializeComponent();
@@ -763,11 +773,23 @@ namespace FSX_Google_Earth_Tracker
 			}
 
 			// Delete temporary KML file
-			try
+			if (File.Exists(szFilePathPub + "\\fsxget.kml"))
 			{
-				File.Delete(szFilePathPub + "\\fsxget.kml");
+				try
+				{
+					File.Delete(szFilePathPub + "\\fsxget.kml");
+				}
+				catch { }
 			}
-			catch { }
+
+			if (File.Exists(szAppPath + "\\SimConnect.cfg"))
+			{
+				try
+				{
+					File.Delete(szAppPath + "\\SimConnect.cfg");
+				}
+				catch { }
+			}
 		}
 
 
@@ -1634,7 +1656,7 @@ namespace FSX_Google_Earth_Tracker
 					xmlrFsxFile = null;
 
 					XmlNode nodeFsxget = xmldTemplate["SimBase.Document"]["Launch.Addon"];
-					
+
 					XmlNode nodeTemp2 = xmldSettings.CreateElement(nodeFsxget.Name);
 					nodeTemp2.InnerXml = nodeFsxget.InnerXml.Replace("%PATH%", Path.GetFullPath(szAppPath) + "\\starter.exe");
 
@@ -1730,6 +1752,45 @@ namespace FSX_Google_Earth_Tracker
 			}
 			else
 				return true;
+		}
+
+		private double getValueInCurrentUnit(double dValueInMeters)
+		{
+			switch (gconffixCurrent.utUnits)
+			{
+				case UnitType.METERS:
+					return dValueInMeters;
+				case UnitType.FEET:
+					return dValueInMeters * 3.2808399;
+				default:
+					return -1.0;
+			}
+		}
+
+		private String getCurrentUnitNameShort()
+		{
+			switch (gconffixCurrent.utUnits)
+			{
+				case UnitType.METERS:
+					return "m";
+				case UnitType.FEET:
+					return "ft";
+				default:
+					return "--";
+			}
+		}
+
+		private String getCurrentUnitName()
+		{
+			switch (gconffixCurrent.utUnits)
+			{
+				case UnitType.METERS:
+					return "Meters";
+				case UnitType.FEET:
+					return "Feet";
+				default:
+					return "Unknown Unit";
+			}
 		}
 
 		#endregion
@@ -2313,9 +2374,9 @@ namespace FSX_Google_Earth_Tracker
 					"<b>Identification:</b> " + suadCurrent.szATCID + "<br>&nbsp;<br>" +
 					"<b>Flight Number:</b> " + suadCurrent.szATCFlightNumber + "<br>" +
 					"<b>Airline:</b> " + suadCurrent.szATCAirline + "<br>&nbsp;<br>" +
-					"<b>Altitude:</b> " + ((int)suadCurrent.dAltitude).ToString().Replace(",", ".") + " m<br>&nbsp;<br>" +
+					"<b>Altitude:</b> " + ((int)getValueInCurrentUnit(suadCurrent.dAltitude)).ToString().Replace(",", ".") + " " + getCurrentUnitNameShort() + "<br>&nbsp;<br>" +
 					"<center><img src=\"" + KmlGetImageLink(AccessMode, KML_IMAGE_TYPES.AIRCRAFT, suadCurrent.szTitle, szServer) + "\"></center>]]></description>" +
-					"<Snippet>" + suadCurrent.szATCType + " " + suadCurrent.szATCModel + " (" + suadCurrent.szTitle + "), " + suadCurrent.szATCID + "\nAltitude: " + ((int)suadCurrent.dAltitude).ToString().Replace(",", ".") + " m</Snippet>" +
+					"<Snippet>" + suadCurrent.szATCType + " " + suadCurrent.szATCModel + " (" + suadCurrent.szTitle + "), " + suadCurrent.szATCID + "\nAltitude: " + ((int)getValueInCurrentUnit(suadCurrent.dAltitude)).ToString().Replace(",", ".") + " " + getCurrentUnitNameShort() + "</Snippet>" +
 					"<Style>" +
 					"<IconStyle><Icon><href>" + KmlGetIconLink(AccessMode, KML_ICON_TYPES.USER_AIRCRAFT_POSITION, szServer) + "</href></Icon><scale>0.8</scale></IconStyle>" +
 					"<LabelStyle><scale>1.0</scale></LabelStyle>" +
@@ -2377,9 +2438,9 @@ namespace FSX_Google_Earth_Tracker
 						"<b>Identification:</b> " + bmsoTemp.bmsoObject.szATCID + "<br>&nbsp;<br>" +
 						"<b>Flight Number:</b> " + bmsoTemp.bmsoObject.szATCFlightNumber + "<br>" +
 						"<b>Airline:</b> " + bmsoTemp.bmsoObject.szATCAirline + "<br>&nbsp;<br>" +
-						"<b>Altitude:</b> " + ((int)bmsoTemp.bmsoObject.dAltitude).ToString().Replace(",", ".") + " m<br>&nbsp;<br>" +
+						"<b>Altitude:</b> " + ((int)getValueInCurrentUnit(bmsoTemp.bmsoObject.dAltitude)).ToString().Replace(",", ".") + " " + getCurrentUnitNameShort() + "<br>&nbsp;<br>" +
 						"<center><img src=\"" + KmlGetImageLink(AccessMode, KML_IMAGE_TYPES.AIRCRAFT, bmsoTemp.bmsoObject.szTitle, szServer) + "\"></center>]]></description>" +
-						"<Snippet>" + bmsoTemp.bmsoObject.szTitle + "\nAltitude: " + ((int)bmsoTemp.bmsoObject.dAltitude).ToString().Replace(",", ".") + " m</Snippet>" +
+						"<Snippet>" + bmsoTemp.bmsoObject.szTitle + "\nAltitude: " + ((int)getValueInCurrentUnit(bmsoTemp.bmsoObject.dAltitude)).ToString().Replace(",", ".") + " " + getCurrentUnitNameShort() + "</Snippet>" +
 						"<Style>" +
 						"<IconStyle><Icon><href>" + KmlGetIconLink(AccessMode, KML_ICON_TYPES.AI_AIRCRAFT, szServer) + "</href></Icon><scale>0.6</scale></IconStyle>" +
 						"<LabelStyle><scale>0.6</scale></LabelStyle>" +
@@ -2430,9 +2491,9 @@ namespace FSX_Google_Earth_Tracker
 						"<b>Identification:</b> " + bmsoTemp.bmsoObject.szATCID + "<br>&nbsp;<br>" +
 						"<b>Flight Number:</b> " + bmsoTemp.bmsoObject.szATCFlightNumber + "<br>" +
 						"<b>Airline:</b> " + bmsoTemp.bmsoObject.szATCAirline + "<br>&nbsp;<br>" +
-						"<b>Altitude:</b> " + ((int)bmsoTemp.bmsoObject.dAltitude).ToString().Replace(",", ".") + " m<br>&nbsp;<br>" +
+						"<b>Altitude:</b> " + ((int)getValueInCurrentUnit(bmsoTemp.bmsoObject.dAltitude)).ToString().Replace(",", ".") + " " + getCurrentUnitNameShort() + "<br>&nbsp;<br>" +
 						"<center><img src=\"" + KmlGetImageLink(AccessMode, KML_IMAGE_TYPES.AIRCRAFT, bmsoTemp.bmsoObject.szTitle, szServer) + "\"></center>]]></description>" +
-						"<Snippet>" + bmsoTemp.bmsoObject.szTitle + "\nAltitude: " + ((int)bmsoTemp.bmsoObject.dAltitude).ToString().Replace(",", ".") + " m</Snippet>" +
+						"<Snippet>" + bmsoTemp.bmsoObject.szTitle + "\nAltitude: " + ((int)getValueInCurrentUnit(bmsoTemp.bmsoObject.dAltitude)).ToString().Replace(",", ".") + " " + getCurrentUnitNameShort() + "</Snippet>" +
 						"<Style>" +
 						"<IconStyle><Icon><href>" + KmlGetIconLink(AccessMode, KML_ICON_TYPES.AI_HELICOPTER, szServer) + "</href></Icon><scale>0.6</scale></IconStyle>" +
 						"<LabelStyle><scale>0.6</scale></LabelStyle>" +
@@ -2478,9 +2539,9 @@ namespace FSX_Google_Earth_Tracker
 						"<name>" + bmsoTemp.bmsoObject.szTitle + "</name><visibility>1</visibility><open>0</open>" +
 						"<description><![CDATA[Microsoft Flight Simulator X - AI Boat<br>&nbsp;<br>" +
 						"<b>Title:</b> " + bmsoTemp.bmsoObject.szTitle + "<br>&nbsp;<br>" +
-						"<b>Altitude:</b> " + ((int)bmsoTemp.bmsoObject.dAltitude).ToString().Replace(",", ".") + " m<br>&nbsp;<br>" +
+						"<b>Altitude:</b> " + ((int)getValueInCurrentUnit(bmsoTemp.bmsoObject.dAltitude)).ToString().Replace(",", ".") + " " + getCurrentUnitNameShort() + "<br>&nbsp;<br>" +
 						"<center><img src=\"" + KmlGetImageLink(AccessMode, KML_IMAGE_TYPES.WATER, bmsoTemp.bmsoObject.szTitle, szServer) + "\"></center>]]></description>" +
-						"<Snippet>Altitude: " + ((int)bmsoTemp.bmsoObject.dAltitude).ToString().Replace(",", ".") + " m</Snippet>" +
+						"<Snippet>Altitude: " + ((int)getValueInCurrentUnit(bmsoTemp.bmsoObject.dAltitude)).ToString().Replace(",", ".") + " " + getCurrentUnitNameShort() + "</Snippet>" +
 						"<Style>" +
 						"<IconStyle><Icon><href>" + KmlGetIconLink(AccessMode, KML_ICON_TYPES.AI_BOAT, szServer) + "</href></Icon><scale>0.6</scale></IconStyle>" +
 						"<LabelStyle><scale>0.6</scale></LabelStyle>" +
@@ -2525,9 +2586,9 @@ namespace FSX_Google_Earth_Tracker
 						"<name>" + bmsoTemp.bmsoObject.szTitle + "</name><visibility>1</visibility><open>0</open>" +
 						"<description><![CDATA[Microsoft Flight Simulator X - AI Vehicle<br>&nbsp;<br>" +
 						"<b>Title:</b> " + bmsoTemp.bmsoObject.szTitle + "<br>&nbsp;<br>" +
-						"<b>Altitude:</b> " + ((int)bmsoTemp.bmsoObject.dAltitude).ToString().Replace(",", ".") + " m<br>&nbsp;<br>" +
+						"<b>Altitude:</b> " + ((int)getValueInCurrentUnit(bmsoTemp.bmsoObject.dAltitude)).ToString().Replace(",", ".") + " " + getCurrentUnitNameShort() + "<br>&nbsp;<br>" +
 						"<center><img src=\"" + KmlGetImageLink(AccessMode, KML_IMAGE_TYPES.GROUND, bmsoTemp.bmsoObject.szTitle, szServer) + "\"></center>]]></description>" +
-						"<Snippet>Altitude: " + ((int)bmsoTemp.bmsoObject.dAltitude).ToString().Replace(",", ".") + " m</Snippet>" +
+						"<Snippet>Altitude: " + ((int)getValueInCurrentUnit(bmsoTemp.bmsoObject.dAltitude)).ToString().Replace(",", ".") + " " + getCurrentUnitNameShort() + "</Snippet>" +
 						"<Style>" +
 						"<IconStyle><Icon><href>" + KmlGetIconLink(AccessMode, KML_ICON_TYPES.AI_GROUND_UNIT, szServer) + "</href></Icon><scale>0.6</scale></IconStyle>" +
 						"<LabelStyle><scale>0.6</scale></LabelStyle>" +
@@ -2901,6 +2962,8 @@ namespace FSX_Google_Earth_Tracker
 			gconffixCurrent.szFsxConnectionProtocol = xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Protocol"].Value;
 
 			//gconffixCurrent.bLoadFlightPlans = (xmldSettings["fsxget"]["settings"]["options"]["flightplans"].Attributes["Enabled"].Value == "1");
+
+			gconffixCurrent.utUnits = (UnitType)System.Int64.Parse(xmldSettings["fsxget"]["settings"]["options"]["ge"]["units"].InnerText);
 
 			gconffixCurrent.szUserdefinedPath = "";
 		}
@@ -3821,5 +3884,10 @@ namespace FSX_Google_Earth_Tracker
 		}
 
 		#endregion
+
+		private void button2_Click(object sender, EventArgs e)
+		{
+
+		}
 	}
 }

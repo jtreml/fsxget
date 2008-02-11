@@ -27,6 +27,7 @@
 				<connection Local="True" Protocol="IPv4" Host="192.168.0.1" Port="9017" />
 			</fsx>
 			<ge>
+				<units>1</units>
 				<refresh-rates>
 					<user-aircraft Interval="2" />
 					<user-path Interval="5" />
