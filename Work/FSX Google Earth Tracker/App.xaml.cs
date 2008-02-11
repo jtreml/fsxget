@@ -13,6 +13,12 @@ namespace Fsxget
 
 	public partial class App : System.Windows.Application
 	{
+		public const String MachineId = UniqueIDs.Machine;
+		public const String UserId = UniqueIDs.User;
+		
+		
+		public const string Path = "";
+
 		private static Config config;
 		//private static ResourceManager resLang;
 
