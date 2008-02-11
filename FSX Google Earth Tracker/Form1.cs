@@ -521,13 +521,6 @@ namespace FSX_Google_Earth_Tracker
 			// Set server settings
 			szServerPath = "http://+:" + gconffixCurrent.iServerPort.ToString();
 
-			if (!HttpListener.IsSupported)
-			{
-				MessageBox.Show("This program requires Windows XP SP2 or Server 2003 with the latest version of the .NET framework. Aborting!", Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-				bErrorOnLoad = true;
-				return;
-			}
-
 			listener = new HttpListener();
 			listener.Prefixes.Add(szServerPath + "/");
 
