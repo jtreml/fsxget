@@ -187,10 +187,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Reporting.cs" />
     <Compile Include="ServerFile.cs" />
     <Compile Include="ServerFileCached.cs" />
     <Compile Include="ServerFileDisc.cs" />
     <Compile Include="ServerFileDynamic.cs" />
+    <Compile Include="UniqueIDs.cs" />
     <Compile Include="WindowMain.xaml.cs">
       <SubType>Code</SubType>
       <DependentUpon>WindowMain.xaml</DependentUpon>
@@ -386,20 +388,6 @@
     <Resource Include="data\gfx\logo.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Geometry\Geometry.csproj">
-      <Project>{DDC59271-2752-414D-8DEB-452468257CEB}</Project>
-      <Name>Geometry</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\HardwareInfo\HardwareInfo.csproj">
-      <Project>{DECBB995-52C4-4126-B534-D8FC44AB6B19}</Project>
-      <Name>HardwareInfo</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WebLoader\WebLoader.csproj">
-      <Project>{D8957863-1918-42CC-856B-77C68BDB3C81}</Project>
-      <Name>WebLoader</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
       <Visible>False</Visible>
       <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
@@ -420,6 +408,20 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Geometry\Geometry.csproj">
+      <Project>{DDC59271-2752-414D-8DEB-452468257CEB}</Project>
+      <Name>Geometry</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HardwareInfo\HardwareInfo.csproj">
+      <Project>{DECBB995-52C4-4126-B534-D8FC44AB6B19}</Project>
+      <Name>HardwareInfo</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WebLoader\WebLoader.csproj">
+      <Project>{D8957863-1918-42CC-856B-77C68BDB3C81}</Project>
+      <Name>WebLoader</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="User%27s Application Data Folder\pub\" />

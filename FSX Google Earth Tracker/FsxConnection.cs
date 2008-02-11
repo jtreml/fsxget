@@ -2718,7 +2718,8 @@ namespace Fsxget
 					simconnect.RequestDataOnSimObjectType(DATA_REQUESTS.REQUEST_AI_PLANE, DEFINITIONS.StructBasicMovingSceneryObject, (uint)App.Config[Config.SETTING.QUERY_AI_AIRCRAFTS]["Range"].IntValue, SIMCONNECT_SIMOBJECT_TYPE.AIRCRAFT);
 
 				}
-				catch (COMException ex)
+				//catch (COMException ex)
+				catch
 				{
                     // TODO: jtr: I commented out the following line cause it created an error. Didn't know why it exists anyway.
 					//frmMain.NotifyError(ex.Message);
