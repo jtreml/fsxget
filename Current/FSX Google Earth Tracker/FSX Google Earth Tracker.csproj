@@ -55,6 +55,7 @@
     <Reference Include="Microsoft.FlightSimulator.SimConnect, Version=10.0.60905.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\Program Files\Microsoft Games\Microsoft Flight Simulator X SDK\SDK\Core Utilities Kit\SimConnect SDK\lib\managed\Microsoft.FlightSimulator.SimConnect.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -101,6 +102,7 @@
   <ItemGroup>
     <None Include="app.ico" />
     <None Include="app.manifest" />
+    <Content Include="lib\SimConnect.msi" />
     <Content Include="data\EXE.xml" />
     <Content Include="data\fsxget-fsxaib.part" />
     <Content Include="data\fsxget-fsxaig.part" />
