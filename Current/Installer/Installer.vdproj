@@ -316,6 +316,13 @@
             "Message" = "8:Version 0.0.1.0 of FSXGET is currently installed on your system. You must uninstall version 0.0.1.0 before installing this version."
             "InstallUrl" = "8:"
             }
+            "{836E08B8-0285-4809-BA42-01DB6754A45D}:_7243F966E4FB4568B0F8E63285DBBBF4"
+            {
+            "Name" = "8:FSXGET 0.1 Beta 1"
+            "Condition" = "8:FSXGET01BETA1=False"
+            "Message" = "8:Version 0.1 Beta 1 of FSXGET is currently installed on your system. You must uninstall version 0.1 Beta 1 before installing this version."
+            "InstallUrl" = "8:"
+            }
             "{836E08B8-0285-4809-BA42-01DB6754A45D}:_DB80F7F3FB8E4720B126295653E076AB"
             {
             "Name" = "8:FSXGET 0.0.2.0"
@@ -343,6 +350,12 @@
             "Name" = "8:FSXGET 0.0.2.0"
             "ComponentId" = "8:{903D3E75-009C-4578-97A0-039CD9D0316D}"
             "Property" = "8:FSXGET0020"
+            }
+            "{B8A5E33E-1082-4FE2-AC2E-1197791E9409}:_72D5B55E673B4EEB9E44A802D718D806"
+            {
+            "Name" = "8:FSXGET 0.1 Beta 1"
+            "ComponentId" = "8:{2F5F12B8-7A62-40F9-8108-E6AB7217F98C}"
+            "Property" = "8:FSXGET01BETA1"
             }
             "{B8A5E33E-1082-4FE2-AC2E-1197791E9409}:_8A6D6E1AB6CC449795528082EF87FABB"
             {
@@ -372,14 +385,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:FSX Google Earth Tracker"
-        "ProductCode" = "8:{2F5F12B8-7A62-40F9-8108-E6AB7217F98C}"
-        "PackageCode" = "8:{186649DC-C128-4C7C-9F16-A0247D220A21}"
-        "UpgradeCode" = "8:{2D89F329-65D1-4A51-A8D4-165180C020F7}"
+        "ProductCode" = "8:{7ED3464E-97F4-4B0F-B2FA-86CA4D322539}"
+        "PackageCode" = "8:{A08291D5-4C33-4183-A668-75FDC1FBA7DC}"
+        "UpgradeCode" = "8:{6999BBE6-7FDF-4C15-BF71-B152B5E9BC75}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.0"
+        "ProductVersion" = "8:0.1.1"
         "Manufacturer" = "8:Jürgen Treml"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.juergentreml.de/fsxget/"
@@ -889,7 +902,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_3F2A014A597E4D16BAD5C8949E550C19"
             {
-            "SourcePath" = "8:..\\Starter App\\obj\\x86\\Debug\\starter.exe"
+            "SourcePath" = "8:..\\Starter App\\obj\\x86\\Release\\starter.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_AE2D839156F94BA6BE94E4D8FE4C87E4"
@@ -917,7 +930,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5AA44FB18D6240BD9AAAE629013BBB33"
             {
-            "SourcePath" = "8:..\\FSX Google Earth Tracker\\obj\\x86\\Debug\\fsxget.exe"
+            "SourcePath" = "8:..\\FSX Google Earth Tracker\\obj\\x86\\Release\\fsxget.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_AE2D839156F94BA6BE94E4D8FE4C87E4"
