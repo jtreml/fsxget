@@ -6,6 +6,7 @@ using System.Management;
 using System.Reflection;
 using System.Net;
 using System.Diagnostics;
+using System.IO;
 
 
 namespace FSX_Google_Earth_Tracker
@@ -66,7 +67,7 @@ namespace FSX_Google_Earth_Tracker
 					}
 				}
 
-
+				// Check if SimConnect is installed and install if necessary
 				try
 				{
 					Assembly assmbl = Assembly.Load("Microsoft.FlightSimulator.SimConnect");
@@ -119,6 +120,41 @@ namespace FSX_Google_Earth_Tracker
 					return;
 				}
 
+				// Do some clean up
+#if DEBUG
+				String szUserAppPath = Application.StartupPath + "\\..\\..\\User's Application Data Folder\\" + AssemblyVersion;
+#else
+				String szUserAppPath = Application.UserAppDataPath;
+#endif
+				String szVersion = AssemblyVersion;
+				if (szUserAppPath.Substring(szUserAppPath.Length - szVersion.Length) == szVersion)
+				{
+					szUserAppPath = szUserAppPath + "\\..";
+					String[] dirs = Directory.GetDirectories(szUserAppPath);
+					foreach (String dir in dirs)
+					{
+						if (dir.Substring(dir.Length - szVersion.Length) != szVersion)
+						{
+							try
+							{
+								Directory.Delete(dir, true);
+							}
+							catch { }
+						}
+
+					}
+
+					String[] files = Directory.GetFiles(szUserAppPath);
+					foreach (String file in files)
+					{
+						try
+						{
+							File.Delete(file);
+						}
+						catch { }
+					}
+				}
+
 
 				Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
@@ -154,6 +190,14 @@ namespace FSX_Google_Earth_Tracker
 				}
 				// If there was no Title attribute, or if the Title attribute was the empty string, return the .exe name
 				return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+			}
+		}
+
+		public static string AssemblyVersion
+		{
+			get
+			{
+				return Assembly.GetExecutingAssembly().GetName().Version.ToString();
 			}
 		}
 

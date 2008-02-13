@@ -125,6 +125,9 @@ namespace FSX_Google_Earth_Tracker
 			this.label29 = new System.Windows.Forms.Label();
 			this.radioButton6 = new System.Windows.Forms.RadioButton();
 			this.tabPage4 = new System.Windows.Forms.TabPage();
+			this.groupBox11 = new System.Windows.Forms.GroupBox();
+			this.comboBox2 = new System.Windows.Forms.ComboBox();
+			this.label47 = new System.Windows.Forms.Label();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.label20 = new System.Windows.Forms.Label();
 			this.numericUpDownRefreshUserPrediction = new System.Windows.Forms.NumericUpDown();
@@ -212,6 +215,7 @@ namespace FSX_Google_Earth_Tracker
 			this.tabPage9.SuspendLayout();
 			this.groupBox10.SuspendLayout();
 			this.tabPage4.SuspendLayout();
+			this.groupBox11.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownRefreshUserPrediction)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownRefreshAIGroundUnits)).BeginInit();
@@ -591,7 +595,6 @@ namespace FSX_Google_Earth_Tracker
 			this.groupBoxUserAircraftPathPrediction.Controls.Add(this.button2);
 			this.groupBoxUserAircraftPathPrediction.Controls.Add(this.button1);
 			this.groupBoxUserAircraftPathPrediction.Controls.Add(this.listBoxPathPrediction);
-			this.groupBoxUserAircraftPathPrediction.Enabled = false;
 			this.groupBoxUserAircraftPathPrediction.Location = new System.Drawing.Point(14, 155);
 			this.groupBoxUserAircraftPathPrediction.Name = "groupBoxUserAircraftPathPrediction";
 			this.groupBoxUserAircraftPathPrediction.Size = new System.Drawing.Size(367, 144);
@@ -617,6 +620,7 @@ namespace FSX_Google_Earth_Tracker
 			this.button1.TabIndex = 1;
 			this.button1.Text = "Add";
 			this.button1.UseVisualStyleBackColor = true;
+			this.button1.Click += new System.EventHandler(this.button1_Click);
 			// 
 			// listBoxPathPrediction
 			// 
@@ -625,6 +629,7 @@ namespace FSX_Google_Earth_Tracker
 			this.listBoxPathPrediction.Name = "listBoxPathPrediction";
 			this.listBoxPathPrediction.Size = new System.Drawing.Size(250, 95);
 			this.listBoxPathPrediction.TabIndex = 0;
+			this.listBoxPathPrediction.SelectedIndexChanged += new System.EventHandler(this.listBoxPathPrediction_SelectedIndexChanged);
 			// 
 			// groupBox5
 			// 
@@ -1391,6 +1396,7 @@ namespace FSX_Google_Earth_Tracker
 			// 
 			// tabPage4
 			// 
+			this.tabPage4.Controls.Add(this.groupBox11);
 			this.tabPage4.Controls.Add(this.groupBox1);
 			this.tabPage4.Location = new System.Drawing.Point(4, 22);
 			this.tabPage4.Name = "tabPage4";
@@ -1398,6 +1404,38 @@ namespace FSX_Google_Earth_Tracker
 			this.tabPage4.TabIndex = 2;
 			this.tabPage4.Text = "Google Earth";
 			this.tabPage4.UseVisualStyleBackColor = true;
+			// 
+			// groupBox11
+			// 
+			this.groupBox11.Controls.Add(this.comboBox2);
+			this.groupBox11.Controls.Add(this.label47);
+			this.groupBox11.Location = new System.Drawing.Point(12, 277);
+			this.groupBox11.Name = "groupBox11";
+			this.groupBox11.Size = new System.Drawing.Size(406, 66);
+			this.groupBox11.TabIndex = 1;
+			this.groupBox11.TabStop = false;
+			this.groupBox11.Text = "Refresh Rates";
+			// 
+			// comboBox2
+			// 
+			this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.comboBox2.FormattingEnabled = true;
+			this.comboBox2.Items.AddRange(new object[] {
+            "meters",
+            "feet"});
+			this.comboBox2.Location = new System.Drawing.Point(300, 28);
+			this.comboBox2.Name = "comboBox2";
+			this.comboBox2.Size = new System.Drawing.Size(67, 21);
+			this.comboBox2.TabIndex = 1;
+			// 
+			// label47
+			// 
+			this.label47.AutoSize = true;
+			this.label47.Location = new System.Drawing.Point(18, 28);
+			this.label47.Name = "label47";
+			this.label47.Size = new System.Drawing.Size(68, 13);
+			this.label47.TabIndex = 0;
+			this.label47.Text = "Display Units";
 			// 
 			// groupBox1
 			// 
@@ -2106,6 +2144,8 @@ namespace FSX_Google_Earth_Tracker
 			this.groupBox10.ResumeLayout(false);
 			this.groupBox10.PerformLayout();
 			this.tabPage4.ResumeLayout(false);
+			this.groupBox11.ResumeLayout(false);
+			this.groupBox11.PerformLayout();
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDownRefreshUserPrediction)).EndInit();
@@ -2293,6 +2333,9 @@ namespace FSX_Google_Earth_Tracker
         private System.Windows.Forms.RadioButton radioButton8;
         private System.Windows.Forms.RadioButton radioButton10;
         private System.Windows.Forms.CheckBox checkBox1;
+		private System.Windows.Forms.GroupBox groupBox11;
+		private System.Windows.Forms.ComboBox comboBox2;
+		private System.Windows.Forms.Label label47;
 	}
 }
 

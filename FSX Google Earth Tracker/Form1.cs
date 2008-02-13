@@ -27,6 +27,8 @@ namespace FSX_Google_Earth_Tracker
 
 		bool bErrorOnLoad = false;
 
+		Form2 frmAdd = new Form2();
+
 		String szAppPath = "";
 		//String szCommonPath = "";
 		String szUserAppPath = "";
@@ -54,7 +56,7 @@ namespace FSX_Google_Earth_Tracker
 		XmlTextWriter xmlwSeetingsFile;
 		XmlDocument xmldSettings;
 
-		GlobalFixConfiguration gconffixCurrent;
+		GlobalFixConfiguration gconffixCurrent = new GlobalFixConfiguration();
 
 		GlobalChangingConfiguration gconfchCurrent;
 		System.Object lockChConf = new System.Object();
@@ -251,7 +253,7 @@ namespace FSX_Google_Earth_Tracker
 		};
 
 
-		struct GlobalFixConfiguration
+		class GlobalFixConfiguration
 		{
 			public bool bLoadKMLFile;
 			//public bool bCheckForUpdates;
@@ -310,7 +312,25 @@ namespace FSX_Google_Earth_Tracker
 
 			public bool bExitOnFsxExit;
 
-			public UnitType utUnits;
+			private Object lock_utUnits = new Object();
+			private UnitType priv_utUnits;
+			public UnitType utUnits
+			{
+				get
+				{
+					lock (lock_utUnits)
+					{
+						return priv_utUnits;
+					}
+				}
+				set
+				{
+					lock (lock_utUnits)
+					{
+						priv_utUnits = value;
+					}
+				}
+			}
 			//public bool bLoadFlightPlans;
 		};
 
@@ -329,8 +349,10 @@ namespace FSX_Google_Earth_Tracker
 			{
 				if (dTime < 60)
 					return "ETA " + dTime + " sec";
+				else if (dTime < 3600)
+					return "ETA " + Math.Round(dTime / 60.0, 1) + " min";
 				else
-					return "ETA " + dTime / 60.0 + " min";
+					return "ETA " + Math.Round(dTime / 3600.0, 2) + " hrs";
 			}
 		}
 
@@ -366,7 +388,7 @@ namespace FSX_Google_Earth_Tracker
 
 
 		public Form1()
-		{	
+		{
 			//As this method doesn't start any other threads we don't need to lock anything here (especially not the config file xml document)
 
 			InitializeComponent();
@@ -386,7 +408,7 @@ namespace FSX_Google_Earth_Tracker
 #if DEBUG
 			szAppPath = Application.StartupPath + "\\..\\..";
 			//szCommonPath = szAppPath + "\\Common Files Folder";
-			szUserAppPath = szAppPath + "\\User's Application Data Folder";
+			szUserAppPath = szAppPath + "\\User's Application Data Folder\\" + AssemblyVersion;
 #else
             szAppPath = Application.StartupPath;
 			//szAppPath = Application.StartupPath + "\\..\\..";
@@ -668,7 +690,7 @@ namespace FSX_Google_Earth_Tracker
 						Directory.CreateDirectory(szUserAppPath + "\\pub");
 
 					File.WriteAllText(szUserAppPath + "\\pub\\fsxgetd.kml", szTempKMLFile);
-					File.WriteAllText(szUserAppPath + "\\pub\\fsxgets.kml", szTempKMLFileStatic);
+					//File.WriteAllText(szUserAppPath + "\\pub\\fsxgets.kml", szTempKMLFileStatic);
 				}
 				catch
 				{
@@ -1436,20 +1458,20 @@ namespace FSX_Google_Earth_Tracker
 		{
 			try
 			{
-				string szTempKMLFile = File.ReadAllText(szFilePathData + "\\fsxget.template");
+				string szTempKMLFile = File.ReadAllText(szFilePathData + "\\fsxgets.template");
 
-				szTempKMLFile = szTempKMLFile.Replace("%FSXU%", "");
-				szTempKMLFile = szTempKMLFile.Replace("%FSXP%", "");
-				szTempKMLFile = szTempKMLFile.Replace("%FSXPRE%", "");
+				//szTempKMLFile = szTempKMLFile.Replace("%FSXU%", "");
+				//szTempKMLFile = szTempKMLFile.Replace("%FSXP%", "");
+				//szTempKMLFile = szTempKMLFile.Replace("%FSXPRE%", "");
 
-				szTempKMLFile = szTempKMLFile.Replace("%FSXAIP%", "");
-				szTempKMLFile = szTempKMLFile.Replace("%FSXAIH%", "");
-				szTempKMLFile = szTempKMLFile.Replace("%FSXAIB%", "");
-				szTempKMLFile = szTempKMLFile.Replace("%FSXAIG%", "");
+				//szTempKMLFile = szTempKMLFile.Replace("%FSXAIP%", "");
+				//szTempKMLFile = szTempKMLFile.Replace("%FSXAIH%", "");
+				//szTempKMLFile = szTempKMLFile.Replace("%FSXAIB%", "");
+				//szTempKMLFile = szTempKMLFile.Replace("%FSXAIG%", "");
 
 				//szTempKMLFile = szTempKMLFile.Replace("%FSXFLIGHTPLAN%", gconffixCurrent.bLoadFlightPlans ? File.ReadAllText(szFilePathData + "\\fsxget-fsxflightplan.part") : "");
 
-				szTempKMLFile = szTempKMLFile.Replace("%PATH%", "http://" + szIPAddress + ":" + gconffixCurrent.iServerPort.ToString());
+				//szTempKMLFile = szTempKMLFile.Replace("%PATH%", "http://" + szIPAddress + ":" + gconffixCurrent.iServerPort.ToString());
 
 				szResult = szTempKMLFile;
 				return true;
@@ -1473,6 +1495,13 @@ namespace FSX_Google_Earth_Tracker
 			radioButton10_CheckedChanged(null, null);
 		}
 
+		private void UpdateButtonStates()
+		{
+			if (listBoxPathPrediction.SelectedItems.Count == 1)
+				button2.Enabled = true;
+			else
+				button2.Enabled = false;
+		}
 
 		private double ConvertDegToDouble(String szDeg)
 		{
@@ -3073,7 +3102,10 @@ namespace FSX_Google_Earth_Tracker
 
 			comboBox1.SelectedIndex = comboBox1.FindString(xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Protocol"].Value);
 
+			comboBox2.SelectedIndex = int.Parse(xmldSettings["fsxget"]["settings"]["options"]["ge"]["units"].InnerText);
+
 			UpdateCheckBoxStates();
+			UpdateButtonStates();
 		}
 
 		private void ConfigRetrieveFromForm()
@@ -3164,6 +3196,8 @@ namespace FSX_Google_Earth_Tracker
 			xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Protocol"].Value = comboBox1.SelectedItem.ToString();
 			xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Host"].Value = textBox1.Text;
 			xmldSettings["fsxget"]["settings"]["options"]["fsx"]["connection"].Attributes["Port"].Value = textBox3.Text;
+
+			xmldSettings["fsxget"]["settings"]["options"]["ge"]["units"].InnerXml = comboBox2.SelectedIndex.ToString();
 
 			//xmldSettings["fsxget"]["settings"]["options"]["flightplans"].Attributes["Enabled"].Value = checkBoxLoadFlightPlans.Checked ? "1" : "0";
 		}
@@ -3533,7 +3567,7 @@ namespace FSX_Google_Earth_Tracker
 						MessageBox.Show("Couldn't change autorun value in registry!", AssemblyTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
 
-			string szRun = (string)Registry.GetValue(szRegKeyRun, AssemblyTitle, "");
+			//string szRun = (string)Registry.GetValue(szRegKeyRun, AssemblyTitle, "");
 
 
 			ConfigRetrieveFromForm();
@@ -3543,8 +3577,10 @@ namespace FSX_Google_Earth_Tracker
 				MessageBox.Show("Some of the changes you made require a restart. Please restart " + Text + " for those changes to take effect.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
 
 			showBalloonTipsToolStripMenuItem.Checked = checkShowInfoBalloons.Checked;
-
 			notifyIconMain.ContextMenuStrip = contextMenuStripNotifyIcon;
+
+			gconffixCurrent.utUnits = (UnitType)comboBox2.SelectedIndex;
+
 			Hide();
 		}
 
@@ -3874,11 +3910,55 @@ namespace FSX_Google_Earth_Tracker
 
 		}
 
-		#endregion
+		private void listBoxPathPrediction_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			UpdateButtonStates();
+		}
 
 		private void button2_Click(object sender, EventArgs e)
 		{
+			if (listBoxPathPrediction.SelectedItems.Count == 1)
+			{
+				int iIndex = listBoxPathPrediction.SelectedIndex;
+				listBoxPathPrediction.Items.RemoveAt(iIndex);
 
+				if (listBoxPathPrediction.SelectedItems.Count == 0)
+				{
+					if (listBoxPathPrediction.Items.Count > iIndex)
+						listBoxPathPrediction.SelectedIndex = iIndex;
+					else if (listBoxPathPrediction.Items.Count > 0)
+						listBoxPathPrediction.SelectedIndex = listBoxPathPrediction.Items.Count - 1;
+				}
+
+				bRestartRequired = true;
+			}
 		}
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			int iSeconds;
+
+			if (frmAdd.ShowDialog(out iSeconds) == DialogResult.Cancel)
+				return;
+
+			ListBoxPredictionTimesItem lbptiTemp = new ListBoxPredictionTimesItem();
+			lbptiTemp.dTime = iSeconds;
+			bool bInserted = false;
+			for (int n = 0; n < listBoxPathPrediction.Items.Count; n++)
+			{
+				if (((ListBoxPredictionTimesItem)listBoxPathPrediction.Items[n]).dTime > lbptiTemp.dTime)
+				{
+					listBoxPathPrediction.Items.Insert(n, lbptiTemp);
+					bInserted = true;
+					break;
+				}
+			}
+			if (!bInserted)
+				listBoxPathPrediction.Items.Add(lbptiTemp);
+
+			bRestartRequired = true;
+		}
+
+		#endregion
 	}
 }
