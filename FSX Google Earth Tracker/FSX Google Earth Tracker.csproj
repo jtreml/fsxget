@@ -188,9 +188,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="AppData\" />
     <Folder Include="pub\gfx\scenery\ground\" />
     <Folder Include="pub\gfx\scenery\water\" />
-    <Folder Include="User%27s Application Data Folder\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
