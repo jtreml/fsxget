@@ -13,6 +13,8 @@ namespace FSX_Google_Earth_Tracker
 {
 	static class Program
 	{
+		public static bool bRestart = false;
+
 		static bool bFirstInstance = false;
 		static Mutex mtxSingleInstance = new Mutex(true, "FSXGET Single Instance Mutex", out bFirstInstance);
 
@@ -22,12 +24,12 @@ namespace FSX_Google_Earth_Tracker
 		[STAThread]
 		static void Main()
 		{
-			bool bRestart = false;
 			try
 			{
 				if (!bFirstInstance)
 					return;
 
+				#region Check for Windows and Service Pack Version
 
 				// If OS is before Windows XP, don't run at all
 				if (System.Environment.OSVersion.Version.Major < 5)
@@ -66,6 +68,10 @@ namespace FSX_Google_Earth_Tracker
 						return;
 					}
 				}
+
+				#endregion
+
+				#region Check for SimConnect
 
 				// Check if SimConnect is installed and install if necessary
 				try
@@ -120,9 +126,13 @@ namespace FSX_Google_Earth_Tracker
 					return;
 				}
 
+				#endregion
+
+				#region CleanUp
+
 				// Do some clean up
 #if DEBUG
-				String szUserAppPath = Application.StartupPath + "\\..\\..\\User's Application Data Folder\\" + AssemblyVersion;
+				String szUserAppPath = Application.StartupPath + "\\..\\..\\AppData\\" + AssemblyVersion;
 #else
 				String szUserAppPath = Application.UserAppDataPath;
 #endif
@@ -155,6 +165,9 @@ namespace FSX_Google_Earth_Tracker
 					}
 				}
 
+				#endregion
+
+				#region StartUp
 
 				Application.EnableVisualStyles();
 				Application.SetCompatibleTextRenderingDefault(false);
@@ -163,6 +176,8 @@ namespace FSX_Google_Earth_Tracker
 				//frmMain.Visible = false;
 
 				Application.Run(new Form1());
+
+				#endregion
 			}
 			finally
 			{

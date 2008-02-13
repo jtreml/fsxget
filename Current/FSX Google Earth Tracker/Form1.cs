@@ -407,12 +407,9 @@ namespace FSX_Google_Earth_Tracker
 			// Set file path
 #if DEBUG
 			szAppPath = Application.StartupPath + "\\..\\..";
-			//szCommonPath = szAppPath + "\\Common Files Folder";
-			szUserAppPath = szAppPath + "\\User's Application Data Folder\\" + AssemblyVersion;
+			szUserAppPath = szAppPath + "\\AppData\\" + AssemblyVersion;
 #else
             szAppPath = Application.StartupPath;
-			//szAppPath = Application.StartupPath + "\\..\\..";
-            //szCommonPath = Application.CommonAppDataPath;
             szUserAppPath = Application.UserAppDataPath;
 #endif
 
@@ -427,11 +424,13 @@ namespace FSX_Google_Earth_Tracker
 					Directory.CreateDirectory(szUserAppPath);
 
 				File.Copy(szAppPath + "\\data\\settings.default", szUserAppPath + "\\settings.cfg");
+				File.SetAttributes(szUserAppPath + "\\settings.cfg", FileAttributes.Normal);
 			}
 
 			// Load config file into memory
 			xmlrSeetingsFile = new XmlTextReader(szUserAppPath + "\\settings.cfg");
 			xmldSettings = new XmlDocument();
+			xmldSettings.PreserveWhitespace = true;
 			xmldSettings.Load(xmlrSeetingsFile);
 			xmlrSeetingsFile.Close();
 			xmlrSeetingsFile = null;
@@ -453,11 +452,14 @@ namespace FSX_Google_Earth_Tracker
 			{
 				try
 				{
+					File.SetAttributes(szUserAppPath + "\\settings.cfg", FileAttributes.Normal);
 					File.Delete(szUserAppPath + "\\settings.cfg");
 					File.Copy(szAppPath + "\\data\\settings.default", szUserAppPath + "\\settings.cfg");
+					File.SetAttributes(szUserAppPath + "\\settings.cfg", FileAttributes.Normal);
 
 					xmlrSeetingsFile = new XmlTextReader(szUserAppPath + "\\settings.cfg");
 					xmldSettings = new XmlDocument();
+					xmldSettings.PreserveWhitespace = true;
 					xmldSettings.Load(xmlrSeetingsFile);
 					xmlrSeetingsFile.Close();
 					xmlrSeetingsFile = null;
@@ -551,6 +553,9 @@ namespace FSX_Google_Earth_Tracker
 				// notification icons
 				for (XmlNode xmlnTemp = xmldSettings["fsxget"]["gfx"]["program"]["icons"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
 				{
+					if (xmlnTemp.NodeType == XmlNodeType.Whitespace)
+						continue;
+
 					if (xmlnTemp.Attributes["Name"].Value == "Taskbar - Enabled")
 						icActive = new Icon(szFilePathData + xmlnTemp.Attributes["Img"].Value);
 					else if (xmlnTemp.Attributes["Name"].Value == "Taskbar - Disabled")
@@ -568,6 +573,9 @@ namespace FSX_Google_Earth_Tracker
 				listIconsGE = new List<ObjectImage>(xmldSettings["fsxget"]["gfx"]["ge"]["icons"].ChildNodes.Count);
 				for (XmlNode xmlnTemp = xmldSettings["fsxget"]["gfx"]["ge"]["icons"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
 				{
+					if (xmlnTemp.NodeType == XmlNodeType.Whitespace)
+						continue;
+
 					ObjectImage imgTemp = new ObjectImage();
 					imgTemp.szTitle = xmlnTemp.Attributes["Name"].Value;
 					imgTemp.bData = File.ReadAllBytes(szFilePathPub + xmlnTemp.Attributes["Img"].Value);
@@ -583,6 +591,9 @@ namespace FSX_Google_Earth_Tracker
 				listImgUnitsAir = new List<ObjectImage>(xmldSettings["fsxget"]["gfx"]["scenery"]["air"].ChildNodes.Count);
 				for (XmlNode xmlnTemp = xmldSettings["fsxget"]["gfx"]["scenery"]["air"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
 				{
+					if (xmlnTemp.NodeType == XmlNodeType.Whitespace)
+						continue;
+
 					ObjectImage imgTemp = new ObjectImage();
 					imgTemp.szTitle = xmlnTemp.Attributes["Name"].Value;
 					imgTemp.szPath = xmlnTemp.Attributes["Img"].Value;
@@ -593,6 +604,9 @@ namespace FSX_Google_Earth_Tracker
 				listImgUnitsWater = new List<ObjectImage>(xmldSettings["fsxget"]["gfx"]["scenery"]["water"].ChildNodes.Count);
 				for (XmlNode xmlnTemp = xmldSettings["fsxget"]["gfx"]["scenery"]["water"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
 				{
+					if (xmlnTemp.NodeType == XmlNodeType.Whitespace)
+						continue;
+
 					ObjectImage imgTemp = new ObjectImage();
 					imgTemp.szTitle = xmlnTemp.Attributes["Name"].Value;
 					imgTemp.szPath = xmlnTemp.Attributes["Img"].Value;
@@ -603,6 +617,9 @@ namespace FSX_Google_Earth_Tracker
 				listImgUnitsGround = new List<ObjectImage>(xmldSettings["fsxget"]["gfx"]["scenery"]["ground"].ChildNodes.Count);
 				for (XmlNode xmlnTemp = xmldSettings["fsxget"]["gfx"]["scenery"]["ground"].FirstChild; xmlnTemp != null; xmlnTemp = xmlnTemp.NextSibling)
 				{
+					if (xmlnTemp.NodeType == XmlNodeType.Whitespace)
+						continue;
+
 					ObjectImage imgTemp = new ObjectImage();
 					imgTemp.szTitle = xmlnTemp.Attributes["Name"].Value;
 					imgTemp.szPath = xmlnTemp.Attributes["Img"].Value;
@@ -612,9 +629,9 @@ namespace FSX_Google_Earth_Tracker
 			}
 			catch
 			{
-				MessageBox.Show("Could not load all graphics files probably due to errors in the config file. Aborting!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-				bErrorOnLoad = true;
-				return;
+			    MessageBox.Show("Could not load all graphics files probably due to errors in the config file. Aborting!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+			    bErrorOnLoad = true;
+			    return;
 			}
 
 
@@ -766,6 +783,7 @@ namespace FSX_Google_Earth_Tracker
 
 			// Save xml document in memory to config file on disc
 			xmlwSeetingsFile = new XmlTextWriter(szUserAppPath + "\\settings.cfg", null);
+			xmldSettings.PreserveWhitespace = true;
 			xmldSettings.Save(xmlwSeetingsFile);
 			xmlwSeetingsFile.Flush();
 			xmlwSeetingsFile.Close();
@@ -1811,6 +1829,14 @@ namespace FSX_Google_Earth_Tracker
 				default:
 					return "Unknown Unit";
 			}
+		}
+
+		private void RestartApp()
+		{
+			Program.bRestart = true;
+
+			bClose = true;
+			Close();
 		}
 
 		#endregion
@@ -3572,14 +3598,14 @@ namespace FSX_Google_Earth_Tracker
 
 			ConfigRetrieveFromForm();
 
-
-			if (bRestartRequired)
-				MessageBox.Show("Some of the changes you made require a restart. Please restart " + Text + " for those changes to take effect.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
-
 			showBalloonTipsToolStripMenuItem.Checked = checkShowInfoBalloons.Checked;
 			notifyIconMain.ContextMenuStrip = contextMenuStripNotifyIcon;
 
 			gconffixCurrent.utUnits = (UnitType)comboBox2.SelectedIndex;
+
+			if (bRestartRequired)
+				if (MessageBox.Show("Some of the changes you made require a restart. Do you want to restart " + Text + " now for those changes to take effect.", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+					RestartApp();
 
 			Hide();
 		}
