@@ -396,6 +396,8 @@ namespace FSX_Google_Earth_Tracker
 
 			Text = AssemblyTitle;
 
+			thrConnect = new Thread(new ThreadStart(openConnectionThreadFunction));
+			text = Text;
 
 			// Set data for the about page
 			this.labelProductName.Text = AssemblyProduct;
@@ -526,7 +528,7 @@ namespace FSX_Google_Earth_Tracker
 
 
 			// Set timer intervals
-			timerFSXConnect.Interval = 3000;
+			timerFSXConnect.Interval = 1500;
 
 			timerQueryUserAircraft.Interval = (int)gconffixCurrent.iTimerUserAircraft;
 			timerQueryUserPath.Interval = (int)gconffixCurrent.iTimerUserPath;
@@ -629,9 +631,9 @@ namespace FSX_Google_Earth_Tracker
 			}
 			catch
 			{
-			    MessageBox.Show("Could not load all graphics files probably due to errors in the config file. Aborting!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-			    bErrorOnLoad = true;
-			    return;
+				MessageBox.Show("Could not load all graphics files probably due to errors in the config file. Aborting!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				bErrorOnLoad = true;
+				return;
 			}
 
 
@@ -707,7 +709,7 @@ namespace FSX_Google_Earth_Tracker
 						Directory.CreateDirectory(szUserAppPath + "\\pub");
 
 					File.WriteAllText(szUserAppPath + "\\pub\\fsxgetd.kml", szTempKMLFile);
-					//File.WriteAllText(szUserAppPath + "\\pub\\fsxgets.kml", szTempKMLFileStatic);
+					File.WriteAllText(szUserAppPath + "\\pub\\fsxgets.kml", szTempKMLFileStatic);
 				}
 				catch
 				{
@@ -781,6 +783,8 @@ namespace FSX_Google_Earth_Tracker
 			if (bErrorOnLoad)
 				return;
 
+			notifyIconMain.ContextMenuStrip = null;
+
 			// Save xml document in memory to config file on disc
 			xmlwSeetingsFile = new XmlTextWriter(szUserAppPath + "\\settings.cfg", null);
 			xmldSettings.PreserveWhitespace = true;
@@ -790,6 +794,10 @@ namespace FSX_Google_Earth_Tracker
 			xmldSettings = null;
 
 			// Disconnect with FSX
+			lock (lockChConf)
+			{
+				gconfchCurrent.bEnabled = false;
+			}
 			globalDisconnect();
 
 			// Stop server
@@ -852,21 +860,57 @@ namespace FSX_Google_Earth_Tracker
 
 		#region FSX Connection
 
+		Object lock_ConnectThread = new Object();
+		String text;
 
-		private bool openConnection()
+		public void openConnectionThreadFunction()
 		{
-			if (simconnect == null)
+			while (simconnect == null)
 			{
 				try
 				{
-					simconnect = new SimConnect(Text, this.Handle, WM_USER_SIMCONNECT, null, 0);
+					simconnect = new SimConnect(text, IntPtr.Zero, WM_USER_SIMCONNECT, null, 0);
+				}
+				catch { }
+
+				if (simconnect == null)
+					Thread.Sleep(2000);
+			}
+		}
+
+		private bool openConnection()
+		{
+			if (thrConnect.ThreadState == ThreadState.Unstarted)
+			{
+				thrConnect.Start();
+				return false;
+			}
+			else if (thrConnect.ThreadState == ThreadState.Stopped)
+			{
+				if (simconnect != null)
+				{
+					try
+					{
+						simconnect.Dispose();
+						simconnect = null;
+						simconnect = new SimConnect(Text, this.Handle, WM_USER_SIMCONNECT, null, 0);
+					}
+					catch
+					{
+						return false;
+					}
 					if (initDataRequest())
 						return true;
 					else
+					{
+						simconnect = null;
 						return false;
+					}
 				}
-				catch
+				else
 				{
+					thrConnect = new Thread(new ThreadStart(openConnectionThreadFunction));
+					thrConnect.Start();
 					return false;
 				}
 			}
@@ -1116,6 +1160,7 @@ namespace FSX_Google_Earth_Tracker
 			}
 		}
 
+		Thread thrConnect;
 
 		private void globalConnect()
 		{
@@ -1167,14 +1212,27 @@ namespace FSX_Google_Earth_Tracker
 
 			lock (lockChConf)
 			{
-				if (gconfchCurrent.bEnabled && !timerFSXConnect.Enabled)
+				if (gconfchCurrent.bEnabled)
 				{
-					timerFSXConnect.Start();
-					notifyIconMain.Icon = icActive;
-					notifyIconMain.Text = Text + "(Waiting for connection...)";
+					if (!timerFSXConnect.Enabled)
+					{
+						timerFSXConnect.Start();
+						notifyIconMain.Icon = icActive;
+						notifyIconMain.Text = Text + "(Waiting for connection...)";
+					}
 				}
 				else
 				{
+					if (timerFSXConnect.Enabled)
+					{
+						timerFSXConnect.Stop();
+
+						thrConnect.Abort();
+						thrConnect.Join();
+
+						closeConnection();
+					}
+
 					notifyIconMain.Icon = icDisabled;
 					notifyIconMain.Text = Text + "(Disabled)";
 				}
