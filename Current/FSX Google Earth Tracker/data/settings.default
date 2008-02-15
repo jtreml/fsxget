@@ -181,6 +181,7 @@
 				<icon Name="plan-port" Img="/gfx/ge/icons/fsx-p-port.png" />
 				<icon Name="plan-vor" Img="/gfx/ge/icons/fsx-p-vor.png" />
 			</icons>
+			<atclabel Img="/gfx/atclabel.png" />
 		</ge>
 	</gfx>
 </fsxget>

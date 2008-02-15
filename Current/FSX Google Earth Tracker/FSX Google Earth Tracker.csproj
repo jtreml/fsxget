@@ -113,6 +113,7 @@
     <None Include="app.ico" />
     <None Include="app.manifest" />
     <Content Include="data\fsxgets.template" />
+    <Content Include="data\gfx\atclabel.png" />
     <Content Include="lib\SimConnect.msi" />
     <Content Include="data\EXE.xml" />
     <Content Include="data\fsxget-fsxaib.part" />

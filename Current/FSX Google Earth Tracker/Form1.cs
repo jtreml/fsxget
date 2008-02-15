@@ -71,7 +71,7 @@ namespace FSX_Google_Earth_Tracker
 		SimConnect simconnect = null;
 
 		Icon icActive, icDisabled, icReceive;
-
+		Image imgAtcLabel;
 
 		HttpListener listener;
 		System.Object lockListenerControl = new System.Object();
@@ -180,6 +180,7 @@ namespace FSX_Google_Earth_Tracker
 			PLAN_USER,
 			PLAN_PORT,
 			PLAN_INTER,
+			ATC_LABEL,
 			UNKNOWN
 		};
 
@@ -202,6 +203,8 @@ namespace FSX_Google_Earth_Tracker
 			public double dLatitude;
 			public double dLongitude;
 			public double dAltitude;
+			public double dSpeed;
+			public double dVSpeed;
 			//public double dSpeedX;
 			//public double dSpeedY;
 			//public double dSpeedZ;
@@ -588,6 +591,8 @@ namespace FSX_Google_Earth_Tracker
 				// no-image image
 				imgNoImage = File.ReadAllBytes(szFilePathPub + xmldSettings["fsxget"]["gfx"]["scenery"]["noimage"].Attributes["Img"].Value);
 
+				// ATC label base image
+				imgAtcLabel = Image.FromFile(szFilePathData + xmldSettings["fsxget"]["gfx"]["ge"]["atclabel"].Attributes["Img"].Value);
 
 				// object images
 				listImgUnitsAir = new List<ObjectImage>(xmldSettings["fsxget"]["gfx"]["scenery"]["air"].ChildNodes.Count);
@@ -948,6 +953,8 @@ namespace FSX_Google_Earth_Tracker
 				simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Plane Latitude", "degrees", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 				simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Plane Longitude", "degrees", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 				simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Plane Altitude", "meters", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+				simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Ground Velocity", "knots", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
+				simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Velocity World Y", "meter per second", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 				//simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Velocity World X", "meter per second", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 				//simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Velocity World Y", "meter per second", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
 				//simconnect.AddToDataDefinition(DEFINITIONS.StructBasicMovingSceneryObject, "Velocity World Z", "meter per second", SIMCONNECT_DATATYPE.FLOAT64, 0.0f, SimConnect.SIMCONNECT_UNUSED);
@@ -1228,7 +1235,8 @@ namespace FSX_Google_Earth_Tracker
 						timerFSXConnect.Stop();
 
 						thrConnect.Abort();
-						thrConnect.Join();
+						if (thrConnect.ThreadState != ThreadState.Unstarted)
+							thrConnect.Join();
 
 						closeConnection();
 					}
@@ -1850,17 +1858,22 @@ namespace FSX_Google_Earth_Tracker
 				return true;
 		}
 
-		private double getValueInCurrentUnit(double dValueInMeters)
+		private double getValueInUnit(double dValueInMeters, UnitType Unit)
 		{
-			switch (gconffixCurrent.utUnits)
+			switch (Unit)
 			{
 				case UnitType.METERS:
 					return dValueInMeters;
 				case UnitType.FEET:
 					return dValueInMeters * 3.2808399;
 				default:
-					return -1.0;
+					throw new Exception("Unknown unit type");
 			}
+		}
+
+		private double getValueInCurrentUnit(double dValueInMeters)
+		{
+			return getValueInUnit(dValueInMeters, gconffixCurrent.utUnits);
 		}
 
 		private String getCurrentUnitNameShort()
@@ -1895,6 +1908,24 @@ namespace FSX_Google_Earth_Tracker
 
 			bClose = true;
 			Close();
+		}
+
+
+		protected static byte[] BitmapToPngBytes(Bitmap bmp)
+		{
+			byte[] bufferPng = null;
+			if (bmp != null)
+			{
+				byte[] buffer = new byte[1024 + bmp.Height * bmp.Width * 4];
+				MemoryStream s = new MemoryStream(buffer);
+				bmp.Save(s, System.Drawing.Imaging.ImageFormat.Png);
+				int nSize = (int)s.Position;
+				s.Close();
+				bufferPng = new byte[nSize];
+				for (int i = 0; i < nSize; i++)
+					bufferPng[i] = buffer[i];
+			}
+			return bufferPng;
 		}
 
 		#endregion
@@ -2211,6 +2242,12 @@ namespace FSX_Google_Earth_Tracker
 					szHeader = "application/vnd.google-earth.kml+xml";
 					buffer = System.Text.Encoding.UTF8.GetBytes(KmlGenFile(KML_FILES.REQUEST_FLIGHT_PLANS, KML_ACCESS_MODES.MODE_SERVER, false, 0, request.UserHostName));
 				}
+				else if (request.Url.AbsolutePath.ToLower() == "/gfx/ge/label.png")
+				{
+					bContentSet = true;
+					szHeader = "image/png";
+					buffer = KmlGenAtcLabel(request.QueryString["code"], request.QueryString["fl"], request.QueryString["aircraft"], request.QueryString["speed"], request.QueryString["vspeed"]);
+				}
 				else
 					bContentSet = false;
 
@@ -2416,6 +2453,9 @@ namespace FSX_Google_Earth_Tracker
 				case KML_ICON_TYPES.PLAN_VOR:
 					szIcon = "plan-vor";
 					break;
+
+				case KML_ICON_TYPES.ATC_LABEL:
+					return "http://" + szServer + "/gfx/ge/label.png";
 			}
 
 			if (AccessMode == KML_ACCESS_MODES.MODE_SERVER)
@@ -2533,6 +2573,27 @@ namespace FSX_Google_Earth_Tracker
 
 				foreach (DataRequestReturnObject bmsoTemp in listTemp)
 				{
+					//szTemp += "<Placemark>" +
+					//    "<name>" + bmsoTemp.bmsoObject.szATCType + " " + bmsoTemp.bmsoObject.szATCModel + " (" + bmsoTemp.bmsoObject.szATCID + ")</name><visibility>1</visibility><open>0</open>" +
+					//    "<description><![CDATA[Microsoft Flight Simulator X - AI Plane<br>&nbsp;<br>" +
+					//    "<b>Title:</b> " + bmsoTemp.bmsoObject.szTitle + "<br>&nbsp;<br>" +
+					//    "<b>Type:</b> " + bmsoTemp.bmsoObject.szATCType + "<br>" +
+					//    "<b>Model:</b> " + bmsoTemp.bmsoObject.szATCModel + "<br>&nbsp;<br>" +
+					//    "<b>Identification:</b> " + bmsoTemp.bmsoObject.szATCID + "<br>&nbsp;<br>" +
+					//    "<b>Flight Number:</b> " + bmsoTemp.bmsoObject.szATCFlightNumber + "<br>" +
+					//    "<b>Airline:</b> " + bmsoTemp.bmsoObject.szATCAirline + "<br>&nbsp;<br>" +
+					//    "<b>Altitude:</b> " + ((int)getValueInCurrentUnit(bmsoTemp.bmsoObject.dAltitude)).ToString().Replace(",", ".") + " " + getCurrentUnitNameShort() + "<br>&nbsp;<br>" +
+					//    "<center><img src=\"" + KmlGetImageLink(AccessMode, KML_IMAGE_TYPES.AIRCRAFT, bmsoTemp.bmsoObject.szTitle, szServer) + "\"></center>]]></description>" +
+					//    "<Snippet>" + bmsoTemp.bmsoObject.szTitle + "\nAltitude: " + ((int)getValueInCurrentUnit(bmsoTemp.bmsoObject.dAltitude)).ToString().Replace(",", ".") + " " + getCurrentUnitNameShort() + "</Snippet>" +
+					//    "<Style>" +
+					//    "<IconStyle><Icon><href>" + KmlGetIconLink(AccessMode, KML_ICON_TYPES.AI_AIRCRAFT, szServer) + "</href></Icon><scale>0.6</scale></IconStyle>" +
+					//    "<LabelStyle><scale>0.6</scale></LabelStyle>" +
+					//    "</Style>" +
+					//    "<Point><altitudeMode>absolute</altitudeMode><coordinates>" + bmsoTemp.bmsoObject.dLongitude.ToString().Replace(",", ".") + "," + bmsoTemp.bmsoObject.dLatitude.ToString().Replace(",", ".") + "," + bmsoTemp.bmsoObject.dAltitude.ToString().Replace(",", ".") + "</coordinates><extrude>1</extrude></Point></Placemark>";
+
+					int FL = (int)Math.Round(getValueInUnit(bmsoTemp.bmsoObject.dAltitude, UnitType.FEET) / 100.0, 0);
+					int FLRound = FL - (FL % 10);
+
 					szTemp += "<Placemark>" +
 						"<name>" + bmsoTemp.bmsoObject.szATCType + " " + bmsoTemp.bmsoObject.szATCModel + " (" + bmsoTemp.bmsoObject.szATCID + ")</name><visibility>1</visibility><open>0</open>" +
 						"<description><![CDATA[Microsoft Flight Simulator X - AI Plane<br>&nbsp;<br>" +
@@ -2546,7 +2607,7 @@ namespace FSX_Google_Earth_Tracker
 						"<center><img src=\"" + KmlGetImageLink(AccessMode, KML_IMAGE_TYPES.AIRCRAFT, bmsoTemp.bmsoObject.szTitle, szServer) + "\"></center>]]></description>" +
 						"<Snippet>" + bmsoTemp.bmsoObject.szTitle + "\nAltitude: " + ((int)getValueInCurrentUnit(bmsoTemp.bmsoObject.dAltitude)).ToString().Replace(",", ".") + " " + getCurrentUnitNameShort() + "</Snippet>" +
 						"<Style>" +
-						"<IconStyle><Icon><href>" + KmlGetIconLink(AccessMode, KML_ICON_TYPES.AI_AIRCRAFT, szServer) + "</href></Icon><scale>0.6</scale></IconStyle>" +
+						"<IconStyle><Icon><href>" + KmlGetIconLink(AccessMode, KML_ICON_TYPES.ATC_LABEL, szServer) + "?code=" + bmsoTemp.bmsoObject.szATCID + "&amp;fl=FL" + FLRound.ToString() + "&amp;speed=" + Math.Round(bmsoTemp.bmsoObject.dSpeed, 0).ToString() + " kn&amp;vspeed=" + (bmsoTemp.bmsoObject.dVSpeed > 0.0 ? "%2F%5C" : (bmsoTemp.bmsoObject.dVSpeed == 0.0 ? "-" : "%5C%2F")) + "&amp;aircraft=" + bmsoTemp.bmsoObject.szATCModel + "</href></Icon><scale>2.5</scale> <hotSpot x=\"30\" y=\"50\" xunits=\"pixels\" yunits=\"pixels\"/></IconStyle>" +
 						"<LabelStyle><scale>0.6</scale></LabelStyle>" +
 						"</Style>" +
 						"<Point><altitudeMode>absolute</altitudeMode><coordinates>" + bmsoTemp.bmsoObject.dLongitude.ToString().Replace(",", ".") + "," + bmsoTemp.bmsoObject.dLatitude.ToString().Replace(",", ".") + "," + bmsoTemp.bmsoObject.dAltitude.ToString().Replace(",", ".") + "</coordinates><extrude>1</extrude></Point></Placemark>";
@@ -2724,6 +2785,29 @@ namespace FSX_Google_Earth_Tracker
 			return szTemp;
 		}
 
+
+		private byte[] KmlGenAtcLabel(String CallSign, String FL, String Aircraft, String Speed, String VerticalSpeed)
+		{
+			Bitmap bmp = new Bitmap(imgAtcLabel);
+			Graphics g = Graphics.FromImage(bmp);
+
+			Pen pen = new Pen(Color.FromArgb(81, 255, 147));
+			Brush brush = new SolidBrush(Color.FromArgb(81, 255, 147));
+			Font font = new Font("Courier New", 10, FontStyle.Bold);
+			Font font_small = new Font("Courier New", 6, FontStyle.Bold);
+
+			float fX = 72;
+			float fY = 13;
+			g.DrawString(CallSign, font, brush, new PointF(fX, fY));
+
+			fY += g.MeasureString(CallSign, font).Height;
+			g.DrawString(FL + " " + VerticalSpeed, font, brush, new PointF(fX, fY));
+
+			fY += g.MeasureString(FL + " " + VerticalSpeed, font).Height;
+			g.DrawString(Aircraft, font, brush, new PointF(fX, fY));
+
+			return BitmapToPngBytes(bmp);
+		}
 
 		//private String KmlGenFlightPlans(KML_ACCESS_MODES AccessMode, String szServer)
 		//{
