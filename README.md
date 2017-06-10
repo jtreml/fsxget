@@ -7,7 +7,7 @@
 [Latest News](#News), [Project Overview](#Project), [Screenshots](#Screenshots), [Feature Overview](#Features), [Links](#Links)
 
 
-**Important: I'm currently looking for screenshots and pictures of FSX boats and ground vehicles to integrate them with FSXGET. Anyone any pictures?!? Please send them to [juergen@fsxget.com](mailto:juergen@fsxget.com) together with the type of boat or vehicle as shown in FSXGET if possible (e.g. wash_ferry_sm, ferry2, VEH_water_cruiseship2_sm, ...). I'd really appreciate your help!**
+<strike>**Important: I'm currently looking for screenshots and pictures of FSX boats and ground vehicles to integrate them with FSXGET. Anyone any pictures?!? Please send them to [juergen@fsxget.com](mailto:juergen@fsxget.com) together with the type of boat or vehicle as shown in FSXGET if possible (e.g. wash_ferry_sm, ferry2, VEH_water_cruiseship2_sm, ...). I'd really appreciate your help!**</strike>
 
 ## <a name="News">Latest News</a>
 
