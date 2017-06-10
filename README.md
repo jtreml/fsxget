@@ -1,3 +1,5 @@
+**This project was originally hosted at [CodePlex](https://fsxget.codeplex.com/).**
+
 **Home** | **[Road Map](https://github.com/jtreml/fsxget/wiki/Road-Map)** | **[Screenshot Gallery](http://www.juergentreml.de/programming/fsx-google-earth-tracker#Gallery)** | **[News Archive](https://github.com/jtreml/fsxget/wiki/News-Archive)** | **[Help, FAQ, HowTos](https://github.com/jtreml/fsxget/wiki/Help,-FAQ-&-HowTos)** | **[Contact & Support](https://github.com/jtreml/fsxget/wiki/Contact-&-Support)**
 
 # FSX Google Earth Tracker
