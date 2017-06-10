@@ -35,12 +35,12 @@ Although FSX's internal world map has been improved compared to former versions,
 
 The tool which originally started as an extremly tiny experiment, trying nothing but to show the user aircraft's position in Google Earth has grown a lot and started to support AI Aircrafts, Boats, Ground Vehicles as well. Course prediction mechanisms have been added and most recently also functionality to display flight plans.
 
-Finally in January 2007 it had been decided to publish the application as open source. Since then, the project is being hosted here on CodePlex. You can still visit the [original page](http://www.juergentreml.de/fsxget/) and leave your comments there. The [CodePlex discussion page](http://www.codeplex.com/fsxget/Thread/List.aspx) is another option to leave your comments.
+Finally in January 2007 it had been decided to publish the application as open source. Since then, the project is being hosted here on <strike>CodePlex</strike> GitHub. You can still visit the [original page](http://www.juergentreml.de/fsxget/) and leave your comments there. The <strike>[CodePlex discussion page](http://www.codeplex.com/fsxget/Thread/List.aspx)</strike> [GitHub issue page](https://github.com/jtreml/fsxget/issues) is another option to leave your comments.
 
 Just to clear up any confusion, the following pages are now hosted on CodePlex:
-* The [old forum](http://www.juergentreml.de/forum/index.php?board=4.0) is replaced by the [CodePlex discussion page](http://www.codeplex.com/fsxget/Thread/List.aspx).
+* The [old forum](http://www.juergentreml.de/forum/index.php?board=4.0) is replaced by the <strike>[CodePlex discussion page](http://www.codeplex.com/fsxget/Thread/List.aspx)</strike> [GitHub issue page](https://github.com/jtreml/fsxget/issues).
 * The [former screenshot gallery](http://www.juergentreml.de/joomla/index.php?option=com_gallery2&Itemid=99999999&g2_itemId=2027&g2_highlightId=2028) can now be found [here](http://www.juergentreml.de/programming/fsx-google-earth-tracker#Gallery).
-* All former, present and future download are / will be availbale for download at the [releases page](http://www.codeplex.com/fsxget/Release/ProjectReleases.aspx) on CodePlex .
+* All former, present and future download are / will be availbale for download at the [releases page](https://github.com/jtreml/fsxget/releases) on <strike>CodePlex</strike> GitHub.
 The old forum and former screenshots site are no longer available.
 
 ## <a name="Screenshots">Screenshots</a>
