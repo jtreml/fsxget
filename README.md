@@ -27,7 +27,7 @@ HowTo article on setting up this configuration has been updated, too.
 - After a long break, a new release candidate has been published today
 correcting two bug regarding x64 and non-English systems.
 
-See a list of all past news on the [news site](News-Archive).
+See a list of all past news on the [news site](https://github.com/jtreml/fsxget/wiki/News-Archive).
 
 ## <a name="Project">Project Overview</a>
 
